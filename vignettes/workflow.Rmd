@@ -13,13 +13,10 @@ In this vignette we go through an entire CytoGLMM workflow with real data on NK 
 
 ## Load Packages
 
-For the fast maximum likelihood solution, we load the `mbest` package. For sampling from the full Bayesian posterior distribution, we load the `rstan` package. To read FCS files we use the `flowCore` package.
+To read FCS files we use the `flowCore` package.
 
 ```{r load_packages}
-library(ggplot2)
 library(stringr)
-library(mbest)
-library(rstan)
 library(flowCore)
 ```
 
@@ -103,6 +100,20 @@ head(df_samples)
 
 The `CytoGLMM` provides some visualization functions to easily explore expression profiles. This is particullarly useful to explore the donor specific variabilty by decomposing the expression of each donor into facets.
 
-```{r plotting}
-
+```{r}
+plot_markers(df_samples = df_samples,
+            donor_id = df_samples$donor[1],
+            protein_names = protein_names)
 ```
+
+Plot just one marker and facet by donor.
+
+```{r}
+plot_donors(df_samples = df_samples,
+            protein_name = "CD16",
+            histogram = TRUE)
+```
+
+## Logistic Regression
+
+Under the hood: For the fast maximum likelihood solution, we load the `mbest` package. For sampling from the full Bayesian posterior distribution, we load the `rstan` package.

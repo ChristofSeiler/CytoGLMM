@@ -5,3 +5,5 @@
 inst/doc
 
 *.fcs
+
+man/.Rapp.history
