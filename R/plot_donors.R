@@ -2,6 +2,7 @@
 #'
 #' @import ggplot2
 #' @export
+#'
 plot_donors <- function(df_samples,
                        protein_name,
                        histogram = TRUE) {

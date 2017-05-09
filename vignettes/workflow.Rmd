@@ -117,3 +117,22 @@ plot_donors(df_samples = df_samples,
 ## Logistic Regression
 
 Under the hood: For the fast maximum likelihood solution, we load the `mbest` package. For sampling from the full Bayesian posterior distribution, we load the `rstan` package.
+
+```{r maximum_likelihood}
+res_glmm_ml = glmm_ml(df_samples = df_samples,
+                      protein_names = protein_names)
+```
+
+Get a list of FDR adjusted p-values.
+
+```{r pvalues}
+pvalues(res_glmm_ml)
+```
+
+Plot regression coefficient with confidence intervals.
+
+```{r plot_ml}
+plot_glmm_ml(res_glmm_ml,
+             df_samples,
+             title = "H3 vs. H1 (GLMM with ML)")
+```
