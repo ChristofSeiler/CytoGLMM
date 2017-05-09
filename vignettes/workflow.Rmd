@@ -1,6 +1,6 @@
 ---
-title: "Vignette Title"
-author: "Vignette Author"
+title: "CytoGLMM Workflow"
+author: "Christof Seiler"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -9,50 +9,100 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+In this vignette we go through an entire CytoGLMM workflow with real data on NK cells. The data is part of a bigger studying the interaction between NK cells and monocytes when monocytes are exposed to two influenza A strains. In this workflow, we focus on the comparison between H1N1 or H3N2 strain after 24 hours of infection. Each cell is classified either as being exposed to either of the two simulation conditions. We examine the protein expression of 37 markers measured on NK cells (a CyTOF panel designed for NK cells) in the two conditions.
 
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+## Load Packages
 
-## Vignette Info
+For the fast maximum likelihood solution, we load the `mbest` package. For sampling from the full Bayesian posterior distribution, we load the `rstan` package. To read FCS files we use the `flowCore` package.
 
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
-
-## Styles
-
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
-
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
-
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side. 
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
+```{r load_packages}
+library(ggplot2)
+library(stringr)
+library(mbest)
+library(rstan)
+library(flowCore)
 ```
 
-You can enable figure captions by `fig_caption: yes` in YAML:
+## Read Data
 
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
+To use the `CytoGLMM` package it is most convenient to convert the FCS files into a `data.frame` with marker expression as colums and cells as rows. Additionally, we append a column with donor identification numbers which will allows to account for donor specific variability.
 
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
-
-## More Examples
-
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
+```{r read_sample_table}
+sample_table = read.csv("sample_table.csv")
+sample_table$file_name = as.character(sample_table$file_name)
+sample_table$donor = as.factor(sample_table$donor)
 ```
 
-Also a quote using `>`:
+Read FCS files into a list and keep only markers that end with `Di`.
 
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
+```{r read_fcs}
+sample_list = lapply(sample_table$file_name,function(file_name_fcs) {
+  fcsB = read.FCS(file_name_fcs,transformation = FALSE)
+  marker_names = colnames(fcsB)[str_detect(colnames(fcsB),"[0-9]{1}Di")]
+  marker_ids = which(colnames(fcsB) %in% marker_names)
+  fcsB@exprs[,marker_ids]
+})
+length(sample_list)
+```
+
+Combine all samples into one `data.frame` and merge with information from sample table.
+
+```{r combine_samples}
+combine_samples = function(sample_id) {
+  sample_info = sample_table[sample_id,]
+  cat(as.character(sample_info$file_name),"\n")
+  sample = sample_list[[sample_id]]
+  rownames(sample_info) = NULL
+  data.frame(sample,sample_info)
+}
+df_samples = lapply(1:length(sample_list),combine_samples) %>%
+  do.call(rbind,.)
+```
+
+The combined `data.frame` whas the following dimensions and column names.
+
+```{r}
+dim(df_samples)
+names(df_samples)
+```
+
+Change marker name from isotope name to protein name and remove markers that are unmapped.
+
+```{r map_protein_names}
+markers = read.csv("markers.csv",stringsAsFactors = FALSE)
+markers$type = as.factor(markers$type)
+for(i in 1:length(markers$isotope)) {
+  isotope_name = markers$isotope[i]
+  col_id = which(isotope_name==names(df_samples))
+  names(df_samples)[col_id] = markers$protein_name[i]
+}
+unmapped = str_detect(names(df_samples),"[0-9]{1}Di")
+df_samples = df_samples[,!unmapped]
+num_markers = ncol(df_samples)-ncol(sample_table)
+num_markers
+protein_names = names(df_samples)[1:num_markers]
+protein_names
+```
+
+Transform data with ``arcsinh`` and scale parameter set to $b = 1/5$ as in Bendall et al. 2011.
+
+```{r transform_expressions}
+b = 5
+transform_expr = asinh(df_samples[1:num_markers]/b)
+df_samples = data.frame(transform_expr,
+                        df_samples[,(num_markers+1):ncol(df_samples)])
+```
+
+Now we are done with the data preparation steps. We have one `data.frame` we called `df_samples` that contains all the necessary information. We will now use the `CytoGLMM` package to visualize expression profiles and perform differential analysis.
+
+```{r}
+head(df_samples)
+```
+
+## Visualize Marker Expressions
+
+The `CytoGLMM` provides some visualization functions to easily explore expression profiles. This is particullarly useful to explore the donor specific variabilty by decomposing the expression of each donor into facets.
+
+```{r plotting}
+
+```
