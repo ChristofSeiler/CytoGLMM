@@ -8,6 +8,7 @@ pvalues = function(res_glmm_ml) {
   df_pvalues = data.frame(protein_names = names(pvalues_unadj),
                           pvalues_unadj,
                           pvalues_adj)
+  df_pvalues$protein_names = as.character(df_pvalues$protein_names)
   df_pvalues = df_pvalues[order(df_pvalues$pvalues_unadj),]
   rownames(df_pvalues) = NULL
   df_pvalues

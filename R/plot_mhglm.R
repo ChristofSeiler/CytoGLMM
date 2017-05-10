@@ -21,7 +21,7 @@ plot.mhglm <- function(res_glmm_ml) {
   if(is.factor(res_glmm_ml$y)) {
     condition_names = rownames(contrasts(res_glmm_ml$y))
     lab = paste0("Log-Odds (",condition_names[1]," <--> ",condition_names[2],")")
-    title = paste(condition_names,collapse = " vs. ")
+    title = paste("Prediction of",paste(condition_names,collapse = " vs. "))
   } else {
     lab = "arcsinh transformed counts"
     title = paste0("Prediction of ",

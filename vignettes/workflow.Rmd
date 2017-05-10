@@ -170,32 +170,15 @@ plot(res_H3)
 
 Using PCA to visualize differentially expressed markers.
 
-```{r eval=FALSE}
-set.seed(1234)
-protein_subset = pvalues(res)$protein_names[ pvalues(res)$pvalues_adj < 0.01 ] %>% 
-  as.character
-subsample_ids = sample(x = nrow(df_samples),
-                       size = 10000,
-                       replace = FALSE)
-df_samples_subset = df_samples[subsample_ids,]
-res_pca = prcomp(df_samples_subset[,protein_subset],scale. = FALSE)
-screeplot(res_pca)
-explained_var = (100*res_pca$sdev^2/sum(res_pca$sdev^2)) %>% round(.,1)
-plot_samples = function(color_var) {
-  autoplot(res_pca, 
-           data = df_samples[subsample_ids,], 
-           colour = color_var, 
-           alpha = 0.5,
-           loadings = TRUE, 
-           loadings.label = TRUE,
-           loadings.colour = "black",
-           loadings.label.colour = "black",
-           loadings.label.repel = FALSE,
-           xlab = paste0("PC1 (",explained_var[1],"%)"),
-           ylab = paste0("PC2 (",explained_var[2],"%)"))
-}
-plot_samples("condition")
-plot_samples("donor")
+```{r pca_plot,fig.height=3,fig.width=7}
+df_pvalues = pvalues(res)
+df_pvalues_subset = subset(df_pvalues,pvalues_adj < 0.01)
+plot_prcomp(df_samples,
+            df_pvalues_subset$protein_names,
+            color_var = "condition")
+plot_prcomp(df_samples,
+            df_pvalues_subset$protein_names,
+            color_var = "donor")
 ```
 
 ## Session Info
