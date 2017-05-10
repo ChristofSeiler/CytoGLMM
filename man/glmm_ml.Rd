@@ -4,7 +4,7 @@
 \alias{glmm_ml}
 \title{Generalized linear mixed model with maximum likelihood.}
 \usage{
-glmm_ml(df_samples, protein_names)
+glmm_ml(df_samples, protein_names, response)
 }
 \description{
 Generalized linear mixed model with maximum likelihood.

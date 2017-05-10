@@ -4,7 +4,7 @@
 \alias{plot_markers}
 \title{Plot all markers for one donor.}
 \usage{
-plot_markers(df_samples, donor_id, protein_names)
+plot_markers(df_samples, donor_id, protein_names, density = TRUE)
 }
 \description{
 Plot all markers for one donor.

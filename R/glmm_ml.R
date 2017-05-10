@@ -5,14 +5,23 @@
 #' @export
 #'
 glmm_ml <- function(df_samples,
-                    protein_names) {
+                    protein_names,
+                    response) {
   registerDoParallel()
   markers_str = paste0(protein_names,collapse = " + ")
-  formula_expr = parse(text = paste0("mhglm(",
-                                     paste("condition ~",markers_str,"+",paste0("(",markers_str," | donor),")),
-                                     "family = binomial(link='logit'),",
-                                     "data = df_samples,",
-                                     "control = mhglm.control(parallel = TRUE,fit.method = 'firthglm.fit'))"))
-  formula_expr
+  formula_expr = NULL
+  if( is.factor(df_samples[,response]) ) {
+    formula_expr = parse(text = paste0("mhglm(",
+                                       paste(response,"~",markers_str,"+",paste0("(",markers_str," | donor),")),
+                                       "family = binomial(link='logit'),",
+                                       "data = df_samples,",
+                                       "control = mhglm.control(parallel = TRUE,fit.method = 'firthglm.fit'))"))
+  } else {
+    formula_expr = parse(text = paste0("mhglm(",
+                                       paste(response,"~",markers_str,"+",paste0("(",markers_str," | donor),")),
+                                       "family = gaussian(link = 'identity'),",
+                                       "data = df_samples,",
+                                       "control = mhglm.control(parallel = TRUE,fit.method = 'firthglm.fit'))"))
+  }
   eval(formula_expr)
 }

@@ -9,13 +9,14 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-In this vignette we go through an entire CytoGLMM workflow with real data on NK cells. The data is part of a bigger studying the interaction between NK cells and monocytes when monocytes are exposed to two influenza A strains. In this workflow, we focus on the comparison between H1N1 or H3N2 strain after 24 hours of infection. Each cell is classified either as being exposed to either of the two simulation conditions. We examine the protein expression of 37 markers measured on NK cells (a CyTOF panel designed for NK cells) in the two conditions.
+In this vignette we go through an entire CytoGLMM workflow with real data on NK cells and monocytes. The data is part of a bigger experiment studying the interaction between NK cells and monocytes after monocytes have been exposed to two influenza A strains. In this workflow, we focus on the comparison between the H1N1 and the H3N2 strain after 24 hours of infection. The goal is a differential analysis of protein (ligands) expression in monocyte cells.
 
 ## Load Packages
 
 To read FCS files we use the `flowCore` package.
 
 ```{r load_packages}
+library(CytoGLMM)
 library(stringr)
 library(flowCore)
 ```
@@ -96,43 +97,109 @@ Now we are done with the data preparation steps. We have one `data.frame` we cal
 head(df_samples)
 ```
 
+Plot overall cell counts across donors.
+
+```{r cell_count,fig.height=3,fig.width=6}
+table(df_samples$donor)
+plot_cell_count(df_samples)
+```
+
 ## Visualize Marker Expressions
 
 The `CytoGLMM` provides some visualization functions to easily explore expression profiles. This is particullarly useful to explore the donor specific variabilty by decomposing the expression of each donor into facets.
 
-```{r}
+```{r fig.height=5,fig.width=7}
 plot_markers(df_samples = df_samples,
-            donor_id = df_samples$donor[1],
-            protein_names = protein_names)
+             donor_id = "160512",
+             protein_names = protein_names)
+plot_markers(df_samples = df_samples,
+             donor_id = "160712",
+             protein_names = protein_names)
 ```
 
 Plot just one marker and facet by donor.
 
-```{r}
+```{r fig.height=4,fig.width=5}
 plot_donors(df_samples = df_samples,
-            protein_name = "CD16",
-            histogram = TRUE)
+            protein_name = "Nectin_2_CD112")
+plot_donors(df_samples = df_samples,
+            protein_name = "ICAM1_CD54")
 ```
 
-## Logistic Regression
+## Regression
 
 Under the hood: For the fast maximum likelihood solution, we load the `mbest` package. For sampling from the full Bayesian posterior distribution, we load the `rstan` package.
 
 ```{r maximum_likelihood}
-res_glmm_ml = glmm_ml(df_samples = df_samples,
-                      protein_names = protein_names)
+res = glmm_ml(df_samples = df_samples,
+                      protein_names = protein_names,
+                      response = "condition")
 ```
 
 Get a list of FDR adjusted p-values.
 
 ```{r pvalues}
-pvalues(res_glmm_ml)
+pvalues(res)
 ```
 
 Plot regression coefficient with confidence intervals.
 
-```{r plot_ml}
-plot_glmm_ml(res_glmm_ml,
-             df_samples,
-             title = "H3 vs. H1 (GLMM with ML)")
+```{r plot_ml,fig.height=4,fig.width=4}
+plot(res)
+```
+
+Regression on marker that we know measures if a cell was actually infected. First, for the H1 strain.
+
+```{r regression_H1,fig.height=4,fig.width=4}
+res_H1 = glmm_ml(df_samples = subset(df_samples,condition == "H1"),
+                 protein_names = protein_names[-which(protein_names == "NP")],
+                 response = "NP")
+plot(res_H1)
+```
+
+Then the same thing for the H3 strain.
+
+```{r regression_H3,fig.height=4,fig.width=4}
+res_H3 = glmm_ml(df_samples = subset(df_samples,condition == "H3"),
+                 protein_names = protein_names[-which(protein_names == "NP")],
+                 response = "NP")
+plot(res_H3)
+```
+
+## Visualizing Results
+
+Using PCA to visualize differentially expressed markers.
+
+```{r eval=FALSE}
+set.seed(1234)
+protein_subset = pvalues(res)$protein_names[ pvalues(res)$pvalues_adj < 0.01 ] %>% 
+  as.character
+subsample_ids = sample(x = nrow(df_samples),
+                       size = 10000,
+                       replace = FALSE)
+df_samples_subset = df_samples[subsample_ids,]
+res_pca = prcomp(df_samples_subset[,protein_subset],scale. = FALSE)
+screeplot(res_pca)
+explained_var = (100*res_pca$sdev^2/sum(res_pca$sdev^2)) %>% round(.,1)
+plot_samples = function(color_var) {
+  autoplot(res_pca, 
+           data = df_samples[subsample_ids,], 
+           colour = color_var, 
+           alpha = 0.5,
+           loadings = TRUE, 
+           loadings.label = TRUE,
+           loadings.colour = "black",
+           loadings.label.colour = "black",
+           loadings.label.repel = FALSE,
+           xlab = paste0("PC1 (",explained_var[1],"%)"),
+           ylab = paste0("PC2 (",explained_var[2],"%)"))
+}
+plot_samples("condition")
+plot_samples("donor")
+```
+
+## Session Info
+
+```{r}
+sessionInfo()
 ```
