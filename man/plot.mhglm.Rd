@@ -4,7 +4,7 @@
 \alias{plot.mhglm}
 \title{Plot GLMM fixed effects coefficients.}
 \usage{
-\method{plot}{mhglm}(res_glmm_ml)
+plot.mhglm(res_glmm_ml)
 }
 \description{
 Plot GLMM fixed effects coefficients.

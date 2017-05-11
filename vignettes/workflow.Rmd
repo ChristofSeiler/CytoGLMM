@@ -181,6 +181,45 @@ plot_prcomp(df_samples,
             color_var = "donor")
 ```
 
+## Pairwise Association Matrix
+
+We bin expressions into discrete categorical variables to handle multimodal marker expression profiles.
+
+```{r}
+num_bins = 8
+count_range = range(df_samples[,protein_names])
+bin_breaks = seq(count_range[1],
+                 count_range[2],
+                 diff(count_range)/num_bins)
+bin_breaks[1] = -Inf
+bin_breaks[length(bin_breaks)] = Inf
+df_samples_binned = df_samples
+for(name in protein_names)
+  df_samples_binned[,name] = cut(df_samples[,name],
+                              breaks = bin_breaks,
+                              labels = 1:num_bins)
+```
+
+Latent class regression.
+
+```{r}
+subids = sample(nrow(df_samples),10000)
+df_subsamples = df_samples_binned[subids,]
+table(df_subsamples$donor)
+fit_vb = lcr(df_subsamples,
+             protein_names,
+             condition = "condition",
+             num_latent_classes = 2)
+```
+
+Compute association matrix.
+
+```{r}
+plot_pairwise_mi(fit_vb,
+                 df_samples_binned,
+                 protein_names)
+```
+
 ## Session Info
 
 ```{r}

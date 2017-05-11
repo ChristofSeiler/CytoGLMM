@@ -13,7 +13,10 @@ Imports:
     ggplot2,
     reshape2,
     mbest,
-    rstan
+    rstan,
+    rprojroot,
+    ggfortify,
+    doParallel
 Suggests:
     knitr,
     rmarkdown,
