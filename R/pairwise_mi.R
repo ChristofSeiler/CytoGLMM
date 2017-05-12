@@ -3,6 +3,8 @@
 #' @export
 #'
 pairwise_mi <- function(theta,pi) {
+    R = dim(pi)[1]
+    J = dim(pi)[2]
     compute_pi = function(i) {
       pi_i = lapply(1:R,function(r) {
         theta[r] * pi[r,i,]

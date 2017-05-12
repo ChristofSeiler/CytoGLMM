@@ -14,7 +14,7 @@ plot_pairwise_mi_da = function(fit,
   pi = rstan::extract(fit,pars = "pi")[[1]]
   beta = rstan::extract(fit,pars = "beta")[[1]]
   # compare pairwise mutual informaiton between conditions
-  x_list = list(x_0,x_1)
+  x_list = list(c(1,0),c(1,1))
   M_da_list = foreach(i = 1:dim(pi)[1]) %dopar% {
     M_list = lapply(x_list,function(x) {
       eta = beta[i,,] %*% x

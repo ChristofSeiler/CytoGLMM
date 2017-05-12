@@ -16,7 +16,11 @@ Imports:
     rstan,
     rprojroot,
     ggfortify,
-    doParallel
+    doParallel,
+    gridExtra,
+    cowplot
+Depends:
+    Rcpp
 Suggests:
     knitr,
     rmarkdown,

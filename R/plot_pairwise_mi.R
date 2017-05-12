@@ -14,7 +14,7 @@ plot_pairwise_mi = function(fit,
   beta = rstan::extract(fit,pars = "beta")[[1]]
   beta_median = apply(X = beta,MARGIN = c(2,3),FUN = function(x) quantile(x, probs = 0.5))
   # compute pairwise mutual informaiton for both conditions
-  x_list = list(x_0,x_1)
+  x_list = list(c(1,0),c(1,1))
   M_list = lapply(x_list,function(x) {
     eta = beta_median %*% x
     theta = exp(eta)/sum(exp(eta))
@@ -45,7 +45,7 @@ plot_pairwise_mi = function(fit,
       coord_fixed() +
       ggtitle(titles[i])
   })
-  legend = get_legend(ggobj_list[[1]])
+  legend = cowplot::get_legend(ggobj_list[[1]])
   ggobj_list = lapply(ggobj_list,function(ggobj) {
     ggobj + theme(legend.position = "none")
   })
