@@ -26,25 +26,26 @@ plot_pairwise_mi_da = function(fit,
     ifelse(M_list[[1]] > M_list[[2]],1,0)
   }
   M_da = Reduce('+', M_da_list)
+  # plot probabilities
   M_probs = ifelse(test = M_da == 0,
                    yes = 1/dim(pi)[1],
                    no = M_da/dim(pi)[1])
-  # plot probabilities
   title = paste0("P(",
                  paste(rownames(contrasts(df_samples_binned$condition)),
                        collapse = " > "),
-                 ")")
+                 " | data)")
   get_upper_tri = function(cormat) {
     cormat[lower.tri(cormat)] = NA
-    diag(cormat) = 0 # doesn't give zero exactly
+    diag(cormat) = NA # doesn't give zero exactly
     cormat
   }
+  M_probs[M_probs < 0.95] = NA
   M_long = melt(get_upper_tri(M_probs), na.rm = TRUE)
   ggplot(data = M_long, aes(Var2, Var1, fill = value)) +
     geom_tile(color = "white") +
-    scale_fill_gradient2(low = "blue", high = "red", mid = "white",
-                         midpoint = 0, space = "Lab",
-                         limit = c(0,1),
+    scale_fill_gradient2(low = "blue", mid = "white", high = "red",
+                         midpoint = 0.95, space = "Lab",
+                         limit = c(0.95,1),
                          name = "Posterior\nprobability") +
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1),
