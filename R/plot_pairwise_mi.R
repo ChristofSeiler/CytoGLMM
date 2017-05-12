@@ -36,7 +36,7 @@ plot_pairwise_mi = function(fit,
       scale_fill_gradient2(low = "blue", high = "red", mid = "white",
                            midpoint = 0, space = "Lab",
                            limit = range(cbind(M_list[[1]],M_list[[2]])),
-                           name = "Mutual\ninformation") +
+                           name = "Mutual information") +
       theme_minimal() +
       theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1),
             axis.title.x=element_blank(),

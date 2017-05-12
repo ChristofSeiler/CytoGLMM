@@ -36,17 +36,16 @@ plot_pairwise_mi_da = function(fit,
                  " | data)")
   get_upper_tri = function(cormat) {
     cormat[lower.tri(cormat)] = NA
-    diag(cormat) = NA # doesn't give zero exactly
+    diag(cormat) = 0 # doesn't give zero exactly
     cormat
   }
-  M_probs[M_probs < 0.95] = NA
   M_long = melt(get_upper_tri(M_probs), na.rm = TRUE)
-  ggplot(data = M_long, aes(Var2, Var1, fill = value)) +
+  M_long = cbind(M_long,value_cut = cut(M_long$value,
+                                        breaks = c(0,0.95,0.99,1),
+                                        include.lowest = TRUE))
+  ggplot(data = M_long, aes(Var2, Var1, fill = value_cut)) +
     geom_tile(color = "white") +
-    scale_fill_gradient2(low = "blue", mid = "white", high = "red",
-                         midpoint = 0.95, space = "Lab",
-                         limit = c(0.95,1),
-                         name = "Posterior\nprobability") +
+    scale_fill_discrete(name = "Posterior\nprobability") +
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1),
           axis.title.x=element_blank(),

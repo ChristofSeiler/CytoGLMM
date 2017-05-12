@@ -189,7 +189,7 @@ Latent class regression. We bin expressions into discrete categorical variables 
 fit_vb = lcr(df_samples_binned,
              protein_names,
              condition = "condition",
-             num_latent_classes = 2,
+             num_latent_classes = 5,
              num_bins = 8,
              subsample = 10000)
 ```
