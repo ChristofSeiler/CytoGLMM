@@ -4,7 +4,7 @@
 \alias{plot_pairwise_mi}
 \title{Plot two association matrices for both stimulation conditions.}
 \usage{
-plot_pairwise_mi(fit, df_samples_binned, protein_names)
+plot_pairwise_mi(fit, df_samples, protein_names)
 }
 \description{
 Plot two association matrices for both stimulation conditions.

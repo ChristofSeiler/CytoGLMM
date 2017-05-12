@@ -4,7 +4,7 @@
 \alias{plot_pairwise_mi_da}
 \title{Plot association matrix difference between stimulation conditions.}
 \usage{
-plot_pairwise_mi_da(fit, df_samples_binned, protein_names)
+plot_pairwise_mi_da(fit, df_samples, protein_names)
 }
 \description{
 Plot association matrix difference between stimulation conditions.
