@@ -183,33 +183,15 @@ plot_prcomp(df_samples,
 
 ## Pairwise Association Matrix
 
-We bin expressions into discrete categorical variables to handle multimodal marker expression profiles.
+Latent class regression. We bin expressions into discrete categorical variables to handle multimodal marker expression profiles. The number of bins is a paramter to be set by the user. Choose a large enough bin size to capture the complexity of the marker distributions. However be aware that larger bin sizes will be harder to estimate (more variability in the estimates) and will take longer to compute. To speed up compuations we can subsample the data.
 
 ```{r}
-num_bins = 8
-count_range = range(df_samples[,protein_names])
-bin_breaks = seq(count_range[1],
-                 count_range[2],
-                 diff(count_range)/num_bins)
-bin_breaks[1] = -Inf
-bin_breaks[length(bin_breaks)] = Inf
-df_samples_binned = df_samples
-for(name in protein_names)
-  df_samples_binned[,name] = cut(df_samples[,name],
-                              breaks = bin_breaks,
-                              labels = 1:num_bins)
-```
-
-Latent class regression.
-
-```{r}
-subids = sample(nrow(df_samples),10000)
-df_subsamples = df_samples_binned[subids,]
-table(df_subsamples$donor)
-fit_vb = lcr(df_subsamples,
+fit_vb = lcr(df_samples_binned,
              protein_names,
              condition = "condition",
-             num_latent_classes = 2)
+             num_latent_classes = 2,
+             num_bins = 8,
+             subsample = 10000)
 ```
 
 Compute association matrix.

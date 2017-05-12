@@ -1,4 +1,4 @@
-#' Compute pairwise association matrix wiht mutual information.
+#' Plot two association matrices for both stimulation conditions.
 #'
 #' @import ggplot2
 #' @import reshape2
