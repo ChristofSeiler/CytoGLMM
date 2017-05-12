@@ -194,12 +194,20 @@ fit_vb = lcr(df_samples_binned,
              subsample = 10000)
 ```
 
-Compute association matrix.
+Compute and plot one association matrix per stimulation condition.
 
 ```{r}
 plot_pairwise_mi(fit_vb,
                  df_samples_binned,
                  protein_names)
+```
+
+Compute and plot the posterior probability that H1 is stronger dependent than H3 for each pair of markers. 
+
+```{r}
+plot_pairwise_mi_da(fit_vb,
+                    df_samples_binned,
+                    protein_names)
 ```
 
 ## Session Info
