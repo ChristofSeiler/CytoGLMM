@@ -7,7 +7,7 @@
 #' @export
 #'
 plot_pairwise_mi_da = function(fit,
-                               df_samples_binned,
+                               df_samples,
                                protein_names) {
   registerDoParallel()
   # compute posterior median of pi and beta
@@ -31,7 +31,7 @@ plot_pairwise_mi_da = function(fit,
                    yes = 1/dim(pi)[1],
                    no = M_da/dim(pi)[1])
   title = paste0("P(",
-                 paste(rownames(contrasts(df_samples_binned$condition)),
+                 paste(rownames(contrasts(df_samples$condition)),
                        collapse = " > "),
                  " | data)")
   get_upper_tri = function(cormat) {

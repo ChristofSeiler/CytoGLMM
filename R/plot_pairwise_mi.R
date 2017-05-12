@@ -6,7 +6,7 @@
 #' @export
 #'
 plot_pairwise_mi = function(fit,
-                            df_samples_binned,
+                            df_samples,
                             protein_names) {
   # compute posterior median of pi and beta
   pi = rstan::extract(fit,pars = "pi")[[1]]
@@ -23,7 +23,7 @@ plot_pairwise_mi = function(fit,
     M
   })
   # plot both conditions side-by-side
-  titles = rownames(contrasts(df_samples_binned$condition))
+  titles = rownames(contrasts(df_samples$condition))
   get_upper_tri = function(cormat) {
     cormat[lower.tri(cormat)] = NA
     diag(cormat) = 0 # doesn't give zero exactly

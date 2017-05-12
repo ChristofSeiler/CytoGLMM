@@ -186,7 +186,7 @@ plot_prcomp(df_samples,
 Latent class regression. We bin expressions into discrete categorical variables to handle multimodal marker expression profiles. The number of bins is a paramter to be set by the user. Choose a large enough bin size to capture the complexity of the marker distributions. However be aware that larger bin sizes will be harder to estimate (more variability in the estimates) and will take longer to compute. To speed up compuations we can subsample the data.
 
 ```{r}
-fit_vb = lcr(df_samples_binned,
+fit_vb = lcr(df_samples,
              protein_names,
              condition = "condition",
              num_latent_classes = 5,
@@ -198,7 +198,7 @@ Compute and plot one association matrix per stimulation condition.
 
 ```{r}
 plot_pairwise_mi(fit_vb,
-                 df_samples_binned,
+                 df_samples,
                  protein_names)
 ```
 
@@ -206,7 +206,7 @@ Compute and plot the posterior probability that H1 is stronger dependent than H3
 
 ```{r}
 plot_pairwise_mi_da(fit_vb,
-                    df_samples_binned,
+                    df_samples,
                     protein_names)
 ```
 
