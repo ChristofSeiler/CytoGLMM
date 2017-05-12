@@ -2,11 +2,11 @@
 % Please edit documentation in R/plot_pairwise_mi.R
 \name{plot_pairwise_mi}
 \alias{plot_pairwise_mi}
-\title{Compute pairwise association matrix wiht mutual information.}
+\title{Plot two association matrices for both stimulation conditions.}
 \usage{
 plot_pairwise_mi(fit, df_samples_binned, protein_names)
 }
 \description{
-Compute pairwise association matrix wiht mutual information.
+Plot two association matrices for both stimulation conditions.
 }
 
