@@ -56,6 +56,7 @@ lcr <- function(df_samples_binned,
   # variational inference
   fit_vb = vb(model,
               data = stan_data,
-              seed = seed)
+              seed = seed,
+              pars = c("pi","beta"))
   fit_vb
 }

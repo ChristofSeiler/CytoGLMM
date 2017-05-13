@@ -16,6 +16,7 @@ Imports:
     rstan,
     rprojroot,
     ggfortify,
+    foreach,
     doParallel,
     gridExtra,
     cowplot

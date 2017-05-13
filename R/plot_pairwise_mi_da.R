@@ -3,6 +3,7 @@
 #' @import ggplot2
 #' @import reshape2
 #' @import gridExtra
+#' @import foreach
 #' @import doParallel
 #' @export
 #'

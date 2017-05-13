@@ -4,7 +4,7 @@
 \alias{plot_cell_count}
 \title{Plot cell count across donors.}
 \usage{
-plot_cell_count(df_samples)
+plot_cell_count(df_samples, condition = "condition")
 }
 \description{
 Plot cell count across donors.
