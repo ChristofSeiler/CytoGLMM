@@ -31,7 +31,7 @@ plot_prcomp <- function(df_samples,
            loadings.label = TRUE,
            loadings.colour = "black",
            loadings.label.colour = "black",
-           loadings.label.repel = TRUE,
+           loadings.label.repel = FALSE,
            xlab = paste0("PC1 (",explained_var[1],"%)"),
            ylab = paste0("PC2 (",explained_var[2],"%)")) +
     coord_fixed(ratio = explained_var[2] / explained_var[1])
