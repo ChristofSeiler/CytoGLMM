@@ -19,6 +19,8 @@ To read FCS files we use the `flowCore` package.
 library(CytoGLMM)
 library(stringr)
 library(flowCore)
+library(ggplot2)
+library(rprojroot)
 ```
 
 ## Read Data
@@ -26,7 +28,8 @@ library(flowCore)
 To use the `CytoGLMM` package it is most convenient to convert the FCS files into a `data.frame` with marker expression as colums and cells as rows. Additionally, we append a column with donor identification numbers which will allows to account for donor specific variability.
 
 ```{r read_sample_table}
-sample_table = read.csv("sample_table.csv")
+path = find_package_root_file("vignettes", "sample_table.csv")
+sample_table = read.csv(path)
 sample_table$file_name = as.character(sample_table$file_name)
 sample_table$donor = as.factor(sample_table$donor)
 ```
@@ -35,7 +38,8 @@ Read FCS files into a list and keep only markers that end with `Di`.
 
 ```{r read_fcs}
 sample_list = lapply(sample_table$file_name,function(file_name_fcs) {
-  fcsB = read.FCS(file_name_fcs,transformation = FALSE)
+  path = find_package_root_file("vignettes", file_name_fcs)
+  fcsB = read.FCS(path,transformation = FALSE)
   marker_names = colnames(fcsB)[str_detect(colnames(fcsB),"[0-9]{1}Di")]
   marker_ids = which(colnames(fcsB) %in% marker_names)
   fcsB@exprs[,marker_ids]
@@ -67,7 +71,8 @@ names(df_samples)
 Change marker name from isotope name to protein name and remove markers that are unmapped.
 
 ```{r map_protein_names}
-markers = read.csv("markers.csv",stringsAsFactors = FALSE)
+path = find_package_root_file("vignettes", "markers.csv")
+markers = read.csv(path,stringsAsFactors = FALSE)
 markers$type = as.factor(markers$type)
 for(i in 1:length(markers$isotope)) {
   isotope_name = markers$isotope[i]
@@ -132,8 +137,8 @@ Under the hood: For the fast maximum likelihood solution, we load the `mbest` pa
 
 ```{r maximum_likelihood}
 res = glmm_ml(df_samples = df_samples,
-                      protein_names = protein_names,
-                      response = "condition")
+              protein_names = protein_names,
+              response = "condition")
 ```
 
 Get a list of FDR adjusted p-values.
@@ -183,31 +188,52 @@ plot_prcomp(df_samples,
 
 ## Pairwise Association Matrix
 
-Latent class regression. We bin expressions into discrete categorical variables to handle multimodal marker expression profiles. The number of bins is a paramter to be set by the user. Choose a large enough bin size to capture the complexity of the marker distributions. However be aware that larger bin sizes will be harder to estimate (more variability in the estimates) and will take longer to compute. To speed up compuations we can subsample the data.
+In Latent Class Regression (LCR) approach, we addresses the potential multimodal marker distributions by binning the data prior to analysis.
 
 ```{r}
-fit_vb = lcr(df_samples,
-             protein_names,
-             condition = "condition",
-             num_latent_classes = 5,
-             num_bins = 8,
-             subsample = 10000)
+num_latent_classes = 20
+num_bins = 8
+subsample = 10000
+seed = 1
+lapply(1:3,function(seed) {
+  fit_vb = lcr(df_samples,
+               protein_names,
+               condition = "condition",
+               num_latent_classes = num_latent_classes,
+               num_bins = num_bins,
+               subsample = subsample,
+               seed = subsample)
+  fit_vb
+})
 ```
 
 Compute and plot one association matrix per stimulation condition.
 
-```{r}
-plot_pairwise_mi(fit_vb,
-                 df_samples,
-                 protein_names)
+```{r fig.height=4,fig.width=7}}
+ggobj = plot_pairwise_mi(fit_vb,
+                       df_samples,
+                       protein_names)
+ggsave(ggobj,
+       filename = paste0("pairwise_mi_seed_",seed,"_subsample_",subsample,"_R",num_latent_classes,"_normal.pdf"),
+       height = 5, width = 9)
 ```
 
 Compute and plot the posterior probability that H1 is stronger dependent than H3 for each pair of markers. 
 
+```{r fig.height=4,fig.width=5}}
+ggobj = plot_pairwise_mi_da(fit_vb,
+                            df_samples,
+                            protein_names)
+ggobj
+ggsave(ggobj,
+       filename = paste0("pairwise_mi_da_seed_",seed,"_subsample_",subsample,"_R",num_latent_classes,"_normal.pdf"),
+       height = 5, width = 6)
+```
+
+Such a nonparametric modeling approach removes the distributional assumption and instead requires the user to choose an appropriate number bins. By choosing small number of bins, we risk missing some local features in the marker expressions, e.g. fusing two modes together. By choosing large number of bins, we increase the computation time and posterior variability due to the increase number of parameter that have to be estimated. To investigate the sensitive of our results to bins size, we examined a range of different bins sizes.
+
 ```{r}
-plot_pairwise_mi_da(fit_vb,
-                    df_samples,
-                    protein_names)
+# TODO
 ```
 
 ## Session Info

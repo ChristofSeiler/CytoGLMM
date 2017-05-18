@@ -17,7 +17,7 @@ parameters {
   matrix[R,2] beta;         // regression coefficients
   matrix[R,2] z[D];         // donor random effects
   vector<lower=0>[2] sigma_z[D];
-  vector<lower=0>[R] sigma_b;
+  //vector<lower=0>[R] sigma_b;
 }
 transformed parameters {
   simplex[R] theta[N];
@@ -34,9 +34,9 @@ model {
     for (r in 1:R)
       z[d,r] ~ normal(0,sigma_z[d]);
   }
-  sigma_b ~ cauchy(0, 0.5);
-  for (r in 1:R)
-    beta[r,2] ~ double_exponential(0, sigma_b[r]);
+  //sigma_b ~ cauchy(0, 0.5);
+  //for (r in 1:R)
+  //  beta[r,2] ~ double_exponential(0, sigma_b[r]);
   // no regression: theta ~ dirichlet(beta);
   for (n in 1:N)
     eta[n] ~ normal(beta * x[n] + z[donor[n]] * x[n], sigma_e);
