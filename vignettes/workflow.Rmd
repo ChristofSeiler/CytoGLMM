@@ -209,7 +209,7 @@ lapply(1:3,function(seed) {
 
 Compute and plot one association matrix per stimulation condition.
 
-```{r fig.height=4,fig.width=7}}
+```{r fig.height=4,fig.width=7}
 ggobj = plot_pairwise_mi(fit_vb,
                        df_samples,
                        protein_names)
@@ -220,7 +220,7 @@ ggsave(ggobj,
 
 Compute and plot the posterior probability that H1 is stronger dependent than H3 for each pair of markers. 
 
-```{r fig.height=4,fig.width=5}}
+```{r fig.height=4,fig.width=5}
 ggobj = plot_pairwise_mi_da(fit_vb,
                             df_samples,
                             protein_names)
