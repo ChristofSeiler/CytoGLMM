@@ -191,7 +191,7 @@ plot_prcomp(df_samples,
 In Latent Class Regression (LCR) approach, we addresses the potential multimodal marker distributions by binning the data prior to analysis.
 
 ```{r}
-num_latent_classes = 20
+num_latent_classes = 10
 num_bins = 8
 subsample = 10000
 seed = 1
