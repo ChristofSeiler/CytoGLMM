@@ -191,26 +191,23 @@ plot_prcomp(df_samples,
 In Latent Class Regression (LCR) approach, we addresses the potential multimodal marker distributions by binning the data prior to analysis.
 
 ```{r}
-num_latent_classes = 10
+num_latent_classes = 5
 num_bins = 8
 subsample = 10000
 seed = 1
-lapply(1:3,function(seed) {
-  fit_vb = lcr(df_samples,
-               protein_names,
-               condition = "condition",
-               num_latent_classes = num_latent_classes,
-               num_bins = num_bins,
-               subsample = subsample,
-               seed = subsample)
-  fit_vb
-})
+fit = lcr(df_samples,
+          protein_names,
+          condition = "condition",
+          num_latent_classes = num_latent_classes,
+          num_bins = num_bins,
+          subsample = subsample,
+          seed = subsample)
 ```
 
 Compute and plot one association matrix per stimulation condition.
 
 ```{r fig.height=4,fig.width=7}
-ggobj = plot_pairwise_mi(fit_vb,
+ggobj = plot_pairwise_mi(fit,
                        df_samples,
                        protein_names)
 ggsave(ggobj,
@@ -221,13 +218,19 @@ ggsave(ggobj,
 Compute and plot the posterior probability that H1 is stronger dependent than H3 for each pair of markers. 
 
 ```{r fig.height=4,fig.width=5}
-ggobj = plot_pairwise_mi_da(fit_vb,
+ggobj = plot_pairwise_mi_da(fit,
                             df_samples,
                             protein_names)
 ggobj
 ggsave(ggobj,
        filename = paste0("pairwise_mi_da_seed_",seed,"_subsample_",subsample,"_R",num_latent_classes,"_normal.pdf"),
        height = 5, width = 6)
+```
+
+Choosing the number of latent classes using leave-one-participant-out cross-validation.
+
+```{r}
+# TODO
 ```
 
 Such a nonparametric modeling approach removes the distributional assumption and instead requires the user to choose an appropriate number bins. By choosing small number of bins, we risk missing some local features in the marker expressions, e.g. fusing two modes together. By choosing large number of bins, we increase the computation time and posterior variability due to the increase number of parameter that have to be estimated. To investigate the sensitive of our results to bins size, we examined a range of different bins sizes.

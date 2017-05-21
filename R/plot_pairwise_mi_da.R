@@ -37,7 +37,7 @@ plot_pairwise_mi_da = function(fit,
   fdr_threshold = function(FDR) {
     P = M_da / dim(pi)[1]
     seq_kappa = seq(0.5,1,1/(length(M_da_list)/10))
-    seq_kappa = kappa_seq[-length(seq_kappa)]
+    seq_kappa = seq_kappa[-length(seq_kappa)]
     df_kappa = sapply(seq_kappa,function(kappa) {
       ps = P[lower.tri(P)]
       I = ifelse(test = ps>kappa,yes = 1,no = 0)
@@ -55,8 +55,7 @@ plot_pairwise_mi_da = function(fit,
   M_fdr[is.na(M_fdr)] = otherwise
 
   # plot pairwise matrix
-  title = paste0(paste(rownames(contrasts(df_samples$condition)),
-                       collapse = " > ")," | data")
+  title = paste(rownames(contrasts(df_samples$condition)),collapse = " > ")
   get_upper_tri = function(cormat) {
     cormat[lower.tri(cormat)] = NA
     diag(cormat) = otherwise
