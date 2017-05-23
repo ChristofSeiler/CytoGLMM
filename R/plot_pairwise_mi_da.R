@@ -10,6 +10,10 @@
 plot_pairwise_mi_da = function(fit,
                                df_samples,
                                protein_names) {
+  if (!inherits(fit, "stanfit"))
+    stop("Not a stanfit object.")
+  if (fit@mode != 0)
+    stop("Stan model does not contain posterior draws.")
 
   # for parallelizing over posterior samples
   registerDoParallel()

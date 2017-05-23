@@ -8,6 +8,11 @@
 plot_pairwise_mi = function(fit,
                             df_samples,
                             protein_names) {
+  if (!inherits(fit, "stanfit"))
+    stop("Not a stanfit object.")
+  if (fit@mode != 0)
+    stop("Stan model does not contain posterior draws.")
+
   # compute posterior median of pi and beta
   pi = rstan::extract(fit,pars = "pi")[[1]]
   pi_median = apply(X = pi,MARGIN = c(2,3,4),FUN = function(x) quantile(x, probs = 0.5))

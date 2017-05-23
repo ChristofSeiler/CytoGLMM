@@ -20,7 +20,6 @@ plot_prcomp <- function(df_samples,
     sample(x = all_ids,size = cell_n)
   }) %>% unlist
   df_samples_subset = df_samples[subsample_ids,]
-  table(df_samples_subset$donor)
   res_pca = prcomp(df_samples_subset[,protein_names],scale. = FALSE)
   explained_var = (100*res_pca$sdev^2/sum(res_pca$sdev^2)) %>% round(.,1)
   autoplot(res_pca,
