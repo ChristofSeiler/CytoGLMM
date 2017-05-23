@@ -1,7 +1,6 @@
 #' Latent class regression with mixed effects using Stan
 #'
 #' @import rstan
-#' @import rprojroot
 #' @export
 #'
 lcr_cv <- function(df_samples,
@@ -12,7 +11,7 @@ lcr_cv <- function(df_samples,
                    subsample_size = 10000,
                    seed = 1) {
   # load stan model from file
-  file = find_package_root_file("R", "lcr.stan")
+  file = system.file("exec", "lcr.stan", package = "CytoGLMM")
   model = stan_model(file = file,
                      model_name = "lca_model")
   # bining
