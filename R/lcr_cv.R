@@ -1,6 +1,7 @@
 #' Latent class regression with mixed effects using Stan
 #'
 #' @import rstan
+#' @import magrittr
 #' @export
 #'
 lcr_cv <- function(df_samples,
