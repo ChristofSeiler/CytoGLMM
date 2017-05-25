@@ -4,15 +4,15 @@
 #' @import magrittr
 #' @export
 #'
-lcr_cv <- function(df_samples,
-                   protein_names,
-                   condition,
-                   num_latent_classes,
-                   num_bins = 8,
-                   subsample_size = 10000,
-                   seed = 1) {
+lcr <- function(df_samples,
+                protein_names,
+                condition,
+                num_latent_classes,
+                num_bins = 8,
+                subsample_size = 10000,
+                seed = 1) {
   # load stan model from file
-  file = system.file("exec", "lcr_cv.stan", package = "CytoGLMM")
+  file = system.file("exec", "lcr.stan", package = "CytoGLMM")
   model = stan_model(file = file,
                      model_name = "lca_model")
   # bining
@@ -55,41 +55,18 @@ lcr_cv <- function(df_samples,
   J = ncol(y)
   K = length(levels(df_samples_binned[,protein_names[1]]))
   D = length(levels(df_samples_binned$donor)) # num of donors
-  n_donor = table(donor) %>% length
-
-  compute_elpd = function(donor_test_ind) {
-    cat(paste0("num_latent_classes: ",num_latent_classes,", test donor: ",donor_test_ind))
-    # split data into training and test part
-    donor_train_ind = (1:n_donor)[-donor_test_ind]
-    donor_train = donor[donor %in% donor_train_ind] %>% factor(.,labels = 1:8) %>% as.numeric
-    x_train = x[donor %in% donor_train_ind,]
-    y_train = y[donor %in% donor_train_ind,]
-    x_test =  x[donor %in% donor_test_ind,]
-    y_test =  y[donor %in% donor_test_ind,]
-    stan_data = list(N_train = nrow(y_train),
-                     N_test = nrow(y_test),
-                     R = R,
-                     J = J,
-                     K = K,
-                     D = length(donor_train_ind),
-                     alpha = rep(1/K,K),
-                     x_train = x_train,
-                     x_test = x_test,
-                     y_train = y_train,
-                     y_test = y_test,
-                     donor_train = donor_train)
-    fit = vb(model,
-             data = stan_data,
-             seed = seed,
-             pars = c("log_lik"))
-    log_lik = rstan::extract(fit,pars = "log_lik")[[1]]
-    log(colMeans(exp(log_lik)))
-  }
-  elpd = lapply(1:n_donor,function(donor_test_ind)
-    compute_elpd(donor_test_ind)) %>% do.call(c,.) %>% sum
-  elpd
-  # fit = vb(model,
-  #          data = stan_data,
-  #          seed = seed,
-  #          pars = c("pi","beta","log_lik"))
+  stan_data = list(N = nrow(y),
+                   R = R,
+                   J = J,
+                   K = K,
+                   D = D,
+                   alpha = rep(1/K,K),
+                   x = x,
+                   y = y,
+                   donor = donor)
+  fit = vb(model,
+           data = stan_data,
+           seed = seed,
+           pars = c("pi","beta","log_lik"))
+  fit
 }
