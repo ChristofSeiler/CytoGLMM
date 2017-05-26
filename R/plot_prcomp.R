@@ -22,10 +22,10 @@ plot_prcomp <- function(df_samples,
   df_samples_subset = df_samples[subsample_ids,]
   res_pca = prcomp(df_samples_subset[,protein_names],scale. = FALSE)
   explained_var = (100*res_pca$sdev^2/sum(res_pca$sdev^2)) %>% round(.,1)
-  autoplot(res_pca,
+  p = autoplot(res_pca,
            data = df_samples[subsample_ids,],
            colour = color_var,
-           alpha = 0.5,
+           alpha = 0.1,
            loadings = TRUE,
            loadings.label = TRUE,
            loadings.colour = "black",
@@ -33,5 +33,8 @@ plot_prcomp <- function(df_samples,
            loadings.label.repel = TRUE,
            xlab = paste0("PC1 (",explained_var[1],"%)"),
            ylab = paste0("PC2 (",explained_var[2],"%)")) +
-    coord_fixed(ratio = explained_var[2] / explained_var[1])
+    coord_fixed(ratio = explained_var[2] / explained_var[1]) +
+    geom_density_2d(aes_string(col = color_var))
+  p$layers = lapply(c(1,4,2,3),function(layer_id) p$layers[[layer_id]])
+  p
 }
