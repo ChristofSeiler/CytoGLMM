@@ -6,8 +6,9 @@
 #'
 glmm_ml <- function(df_samples,
                     protein_names,
-                    response) {
-  registerDoParallel()
+                    response,
+                    cores = detectCores()) {
+  registerDoParallel(cores = cores)
   markers_str = paste0(protein_names,collapse = " + ")
   formula_expr = NULL
   if( is.factor(df_samples[,response]) ) {
