@@ -9,14 +9,15 @@
 #'
 plot_pairwise_mi_da = function(fit,
                                df_samples,
-                               protein_names) {
+                               protein_names,
+                               cores = detectCores()) {
   if (!inherits(fit, "stanfit"))
     stop("Not a stanfit object.")
   if (fit@mode != 0)
     stop("Stan model does not contain posterior draws.")
 
   # for parallelizing over posterior samples
-  registerDoParallel()
+  registerDoParallel(cores = cores)
 
   # compute posterior median of pi and beta
   pi = rstan::extract(fit,pars = "pi")[[1]]
