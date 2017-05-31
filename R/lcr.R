@@ -10,7 +10,9 @@ lcr <- function(df_samples,
                 num_latent_classes,
                 num_bins = 8,
                 subsample_size = 10000,
-                seed = 1) {
+                seed = 1,
+                hmc = FALSE,
+                cores = 2) {
   # load stan model from file
   file = system.file("exec", "lcr.stan", package = "CytoGLMM")
   model = stan_model(file = file,
@@ -64,9 +66,20 @@ lcr <- function(df_samples,
                    x = x,
                    y = y,
                    donor = donor)
-  fit = vb(model,
-           data = stan_data,
-           seed = seed,
-           pars = c("pi","beta","log_lik"))
+  fit = NULL
+  if(!hmc) {
+    fit = vb(model,
+             data = stan_data,
+             seed = seed,
+             pars = c("pi","beta","log_lik"))
+  } else {
+    fit = sampling(model,
+                   data = stan_data,
+                   iter = 1000,
+                   chains = cores,
+                   cores = cores,
+                   seed = seed,
+                   pars = c("pi","beta"))
+  }
   fit
 }
