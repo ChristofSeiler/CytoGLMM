@@ -71,7 +71,7 @@ lcr <- function(df_samples,
     fit = vb(model,
              data = stan_data,
              seed = seed,
-             pars = c("pi","beta","log_lik"))
+             pars = "log_lik")
   } else {
     fit = sampling(model,
                    data = stan_data,
