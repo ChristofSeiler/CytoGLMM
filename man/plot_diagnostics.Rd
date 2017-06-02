@@ -4,7 +4,7 @@
 \alias{plot_diagnostics}
 \title{Trace plots for HMC.}
 \usage{
-plot_diagnostics(fit, par_name, num_par = 8)
+plot_diagnostics(fit, par_name, num_par = 8, seed = 3212)
 }
 \description{
 Trace plots for HMC.

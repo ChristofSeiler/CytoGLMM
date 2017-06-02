@@ -6,11 +6,12 @@
 #' @import cowplot
 #' @export
 #'
-plot_diagnostics <- function(fit,par_name,num_par = 8) {
+plot_diagnostics <- function(fit,par_name,num_par = 8,seed = 3212) {
   if (!inherits(fit, "stanfit"))
     stop("Not a stanfit object.")
   if (fit@mode != 0)
     stop("Stan model does not contain posterior draws.")
+  set.seed(seed)
 
   # keep only num_par paramters to avoid overloaded plots
   param = rstan::extract(fit,
