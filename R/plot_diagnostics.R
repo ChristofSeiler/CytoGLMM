@@ -18,7 +18,7 @@ plot_diagnostics <- function(fit,par_name,num_par = 8,seed = 3212) {
                          pars = par_name,
                          permuted = FALSE,
                          inc_warmup = TRUE)
-  par_subset_ids = sample(dim(param)[3],size = num_par) %>% sort
+  par_subset_ids = sample(dim(param)[3],size = min(dim(param)[3],num_par)) %>% sort
   param_long_during = melt(param[1:fit@stan_args[[1]]$warmup,,par_subset_ids],
                       varnames = c("iteration","parameter"))
   param_long_after = melt(param[(fit@stan_args[[1]]$warmup+1):dim(param)[1],,par_subset_ids],

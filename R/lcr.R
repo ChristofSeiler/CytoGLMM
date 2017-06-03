@@ -75,7 +75,7 @@ lcr <- function(df_samples,
   } else {
     fit = sampling(model,
                    data = stan_data,
-                   iter = 1000,
+                   iter = 4000,
                    chains = cores,
                    cores = cores,
                    seed = seed,
