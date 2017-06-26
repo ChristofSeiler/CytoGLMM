@@ -9,4 +9,3 @@ glmm_ml(df_samples, protein_names, response, cores = detectCores())
 \description{
 Generalized linear mixed model with maximum likelihood.
 }
-

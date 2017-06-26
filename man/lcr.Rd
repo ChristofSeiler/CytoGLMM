@@ -4,10 +4,10 @@
 \alias{lcr}
 \title{Latent class regression with mixed effects using Stan}
 \usage{
-lcr(df_samples, protein_names, condition, num_latent_classes, num_bins = 8,
-  subsample_size = 10000, seed = 1, hmc = FALSE, cores = 2)
+lcr(df_samples, protein_names, formula, num_latent_classes, num_bins = 8,
+  subsample_size = 10000, seed = 1, hmc = FALSE, cores = 1,
+  iter = 1000)
 }
 \description{
 Latent class regression with mixed effects using Stan
 }
-

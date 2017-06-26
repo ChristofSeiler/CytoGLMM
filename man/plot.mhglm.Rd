@@ -9,4 +9,3 @@ plot.mhglm(res_glmm_ml, order_abs = FALSE)
 \description{
 Plot GLMM fixed effects coefficients.
 }
-

@@ -10,4 +10,3 @@ plot_donors(df_samples, protein_name, condition = "condition",
 \description{
 Plot one density plot faceted by donors.
 }
-

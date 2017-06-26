@@ -6,7 +6,7 @@
 #'
 lcr_cv <- function(df_samples,
                    protein_names,
-                   condition,
+                   formula,
                    num_latent_classes,
                    num_bins = 8,
                    subsample_size = 10000,
@@ -43,7 +43,8 @@ lcr_cv <- function(df_samples,
   }) %>% unlist
   df_samples_binned = df_samples_binned[subsample_ids,]
   # prepare data for stan
-  x = model.matrix(as.formula(paste("~",condition)), data = df_samples_binned)
+  x = model.matrix(formula, data = df_samples_binned)
+  #x = model.matrix(as.formula(paste("~",condition)), data = df_samples_binned)
   donor = as.numeric(df_samples_binned$donor)
   as.numeric.factor <- function(x) {as.numeric(levels(x))[x]}
   y = df_samples_binned[,protein_names]

@@ -6,13 +6,14 @@
 #'
 lcr <- function(df_samples,
                 protein_names,
-                condition,
+                formula,
                 num_latent_classes,
                 num_bins = 8,
                 subsample_size = 10000,
                 seed = 1,
                 hmc = FALSE,
-                cores = 2) {
+                cores = 1,
+                iter = 1000) {
   # load stan model from file
   file = system.file("exec", "lcr.stan", package = "CytoGLMM")
   model = stan_model(file = file,
@@ -45,7 +46,8 @@ lcr <- function(df_samples,
   }) %>% unlist
   df_samples_binned = df_samples_binned[subsample_ids,]
   # prepare data for stan
-  x = model.matrix(as.formula(paste("~",condition)), data = df_samples_binned)
+  x = model.matrix(formula, data = df_samples_binned)
+  #x = model.matrix(as.formula(paste("~",condition)), data = df_samples_binned)
   donor = as.numeric(df_samples_binned$donor)
   as.numeric.factor <- function(x) {as.numeric(levels(x))[x]}
   y = df_samples_binned[,protein_names]
@@ -55,11 +57,13 @@ lcr <- function(df_samples,
   # other dimensions
   R = as.integer(num_latent_classes) # num of latent classes
   J = ncol(y)
+  P = ncol(x)
   K = length(levels(df_samples_binned[,protein_names[1]]))
   D = length(levels(df_samples_binned$donor)) # num of donors
   stan_data = list(N = nrow(y),
                    R = R,
                    J = J,
+                   P = P,
                    K = K,
                    D = D,
                    alpha = rep(1/K,K),
@@ -71,11 +75,11 @@ lcr <- function(df_samples,
     fit = vb(model,
              data = stan_data,
              seed = seed,
-             pars = "log_lik")
+             pars = c("log_lik","pi","beta"))
   } else {
     fit = sampling(model,
                    data = stan_data,
-                   iter = 4000,
+                   iter = iter,
                    chains = cores,
                    cores = cores,
                    seed = seed,

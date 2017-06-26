@@ -10,4 +10,3 @@ plot_markers(df_samples, donor_id, protein_names, condition = "condition",
 \description{
 Plot all markers for one donor.
 }
-

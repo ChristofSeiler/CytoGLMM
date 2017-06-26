@@ -9,4 +9,3 @@ pairwise_mi(theta, pi)
 \description{
 Compute pairwise association matrix wiht mutual information.
 }
-

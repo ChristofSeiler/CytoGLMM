@@ -10,4 +10,3 @@ plot_prcomp(df_samples, protein_names, color_var = "condition",
 \description{
 Plot PCA of subsampled data using ggplot.
 }
-

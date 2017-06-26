@@ -9,4 +9,3 @@ pvalues(res_glmm_ml)
 \description{
 Extract and adjust p-values from GLMM.
 }
-

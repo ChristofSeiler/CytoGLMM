@@ -9,4 +9,3 @@ plot_cell_count(df_samples, condition = "condition")
 \description{
 Plot cell count across donors.
 }
-

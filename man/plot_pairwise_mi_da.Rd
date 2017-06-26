@@ -9,4 +9,3 @@ plot_pairwise_mi_da(fit, df_samples, protein_names, cores = detectCores())
 \description{
 Plot association matrix difference between stimulation conditions.
 }
-
