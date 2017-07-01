@@ -30,21 +30,24 @@ lcr <- function(df_samples,
     df_samples_binned[,name] = cut(df_samples[,name],
                                    breaks = bin_breaks,
                                    labels = 1:num_bins)
-  # subsample to speed up computations
-  set.seed(seed)
-  #subsample_ids = sample(x = nrow(df_samples),
-  #                       size = subsample_size,
-  #                       replace = FALSE)
-  cell_n = round(subsample_size/length(levels(df_samples_binned$donor)))
-  cell_n_min = min(table(df_samples_binned$donor))
-  if(cell_n_min < cell_n) cell_n = cell_n_min
-  subsample_ids = lapply(levels(df_samples_binned$donor),function(donor_id) {
-    all_ids = which(df_samples_binned$donor == donor_id)
-    sample(x = all_ids,
-           size = cell_n,
-           replace = FALSE)
-  }) %>% unlist
-  df_samples_binned = df_samples_binned[subsample_ids,]
+
+  # # TODO: do it outside the package for now
+  # # subsample to speed up computations
+  # set.seed(seed)
+  # #subsample_ids = sample(x = nrow(df_samples),
+  # #                       size = subsample_size,
+  # #                       replace = FALSE)
+  # cell_n = round(subsample_size/length(levels(df_samples_binned$donor)))
+  # cell_n_min = min(table(df_samples_binned$donor))
+  # if(cell_n_min < cell_n) cell_n = cell_n_min
+  # subsample_ids = lapply(levels(df_samples_binned$donor),function(donor_id) {
+  #   all_ids = which(df_samples_binned$donor == donor_id)
+  #   sample(x = all_ids,
+  #          size = cell_n,
+  #          replace = FALSE)
+  # }) %>% unlist
+  # df_samples_binned = df_samples_binned[subsample_ids,]
+
   # prepare data for stan
   x = model.matrix(formula, data = df_samples_binned)
   #x = model.matrix(as.formula(paste("~",condition)), data = df_samples_binned)
