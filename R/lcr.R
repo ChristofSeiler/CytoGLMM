@@ -25,11 +25,11 @@ lcr <- function(df_samples,
                    diff(count_range)/num_bins)
   bin_breaks[1] = -Inf
   bin_breaks[length(bin_breaks)] = Inf
-  df_samples_binned = df_samples
+  y = as.matrix(df_samples[,protein_names])
   for(name in protein_names)
-    df_samples_binned[,name] = cut(df_samples[,name],
-                                   breaks = bin_breaks,
-                                   labels = 1:num_bins)
+    y[,name] = cut(y[,name],
+                   breaks = bin_breaks,
+                   labels = 1:num_bins)
 
   # # TODO: do it outside the package for now
   # # subsample to speed up computations
@@ -49,20 +49,16 @@ lcr <- function(df_samples,
   # df_samples_binned = df_samples_binned[subsample_ids,]
 
   # prepare data for stan
-  x = model.matrix(formula, data = df_samples_binned)
+  x = model.matrix(formula, data = df_samples)
   #x = model.matrix(as.formula(paste("~",condition)), data = df_samples_binned)
-  donor = as.numeric(df_samples_binned$donor)
-  as.numeric.factor <- function(x) {as.numeric(levels(x))[x]}
-  y = df_samples_binned[,protein_names]
-  for(i in 1:ncol(y))
-    y[,i] = as.numeric.factor(y[,i])
-  y = as.matrix(y)
+  donor = as.numeric(df_samples$donor)
+
   # other dimensions
   R = as.integer(num_latent_classes) # num of latent classes
   J = ncol(y)
   P = ncol(x)
-  K = length(levels(df_samples_binned[,protein_names[1]]))
-  D = length(levels(df_samples_binned$donor)) # num of donors
+  K = num_bins
+  D = length(table(donor)) # num of donors
   stan_data = list(N = nrow(y),
                    R = R,
                    J = J,
