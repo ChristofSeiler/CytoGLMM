@@ -13,7 +13,7 @@ glmm_ml <- function(df_samples,
   registerDoParallel(cores = cores)
   markers_str = paste0(protein_names,collapse = " + ")
   formula_expr = NULL
-  if( is.factor(pull(exprs_groups,response)) ) {
+  if( is.factor(pull(df_samples,response)) ) {
     formula_expr = parse(text = paste0("mhglm(",
                                        paste(response,"~",markers_str,"+",paste0("(",markers_str," | ",random_var,"),")),
                                        "family = binomial(link='logit'),",
