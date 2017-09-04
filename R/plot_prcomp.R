@@ -1,40 +1,36 @@
 #' Plot PCA of subsampled data using ggplot.
 #'
-#' @import ggfortify
+#' @import ggplot2
+#' @import dplyr
+#' @import magrittr
+#' @import cowplot
+#' @import factoextra
 #' @export
 #'
-plot_prcomp <- function(df_samples,
-                        protein_names,
-                        color_var = "condition",
-                        subsample_size = 10000,
-                        seed = 1234) {
+plot_prcomp = function(dat,
+                       protein_names,
+                       color_var = "treatment",
+                       subsample_size = 10000,
+                       seed = 0xdada,
+                       repel = TRUE) {
   set.seed(seed)
-  #subsample_ids = sample(x = nrow(df_samples),
-  #                       size = subsample_size,
-  #                       replace = FALSE)
-  cell_n = round(subsample_size/length(levels(df_samples$donor)))
-  cell_n_min = min(table(df_samples$donor))
-  if(cell_n_min < cell_n) cell_n = cell_n_min
-  subsample_ids = lapply(levels(df_samples$donor),function(donor_id) {
-    all_ids = which(df_samples$donor == donor_id)
-    sample(x = all_ids,size = cell_n)
-  }) %>% unlist
-  df_samples_subset = df_samples[subsample_ids,]
-  res_pca = prcomp(df_samples_subset[,protein_names],scale. = FALSE)
+  n = min(table(dat[,color_var]),subsample_size)
+  by_variable = dat %>% group_by_(color_var) %>% sample_n(n) %>% ungroup
+  res_pca = prcomp(by_variable[,protein_names],scale. = FALSE)
   explained_var = (100*res_pca$sdev^2/sum(res_pca$sdev^2)) %>% round(.,1)
-  p = autoplot(res_pca,
-           data = df_samples[subsample_ids,],
-           colour = color_var,
-           alpha = 0.1,
-           loadings = TRUE,
-           loadings.label = TRUE,
-           loadings.colour = "black",
-           loadings.label.colour = "black",
-           loadings.label.repel = TRUE,
-           xlab = paste0("PC1 (",explained_var[1],"%)"),
-           ylab = paste0("PC2 (",explained_var[2],"%)")) +
+  p1 = fviz_eig(res_pca,geom="bar")
+  p2 = fviz_pca_var(res_pca, col.var="contrib",
+                    gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                    repel = repel) +
     coord_fixed(ratio = explained_var[2] / explained_var[1]) +
-    geom_density_2d(aes_string(col = color_var))
-  p$layers = lapply(c(1,4,2,3),function(layer_id) p$layers[[layer_id]])
-  p
+    ggtitle("Markers")
+  by_variable %<>% add_column(PC1 = res_pca$x[,1])
+  by_variable %<>% add_column(PC2 = res_pca$x[,2])
+  p3 = ggplot(by_variable,aes(PC1,PC2)) +
+    geom_density_2d(aes_string(col = color_var)) +
+    coord_fixed(ratio = explained_var[2] / explained_var[1]) +
+    xlab(paste0("PC1 (",explained_var[1],"%)")) +
+    ylab(paste0("PC2 (",explained_var[2],"%)")) +
+    ggtitle("Cells")
+  plot_grid(p1, p2, p3, nrow = 3)
 }
