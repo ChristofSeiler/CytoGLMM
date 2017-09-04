@@ -3,6 +3,7 @@
 #' @import dplyr
 #' @import magrittr
 #' @import pheatmap
+#' @import RColorBrewer
 #' @export
 #'
 plot_heatmap = function(df_samples,
