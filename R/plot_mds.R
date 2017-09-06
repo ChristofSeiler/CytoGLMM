@@ -9,6 +9,7 @@
 plot_mds = function(df_samples,
                     protein_names,
                     sample_info_names,
+                    color,
                     sample_label = "") {
   expr_median = df_samples %>%
     group_by(.dots = sample_info_names) %>%
@@ -18,7 +19,7 @@ plot_mds = function(df_samples,
   explained_var = (100*mds_res$eig[1:2]/sum(mds_res$eig)) %>% round(digits = 1)
   expr_median %<>% bind_cols(tibble(MDS1 = mds_res$points[,1],
                                     MDS2 = mds_res$points[,2]))
-  gg = ggplot(expr_median, aes(x = MDS1, y = MDS2,color = treatment)) +
+  gg = ggplot(expr_median, aes_string(x = "MDS1", y = "MDS2",color = color)) +
     geom_point(size = 2) +
     coord_fixed(ratio = explained_var[2] / explained_var[1]) +
     xlab(paste0("MDS1 (",explained_var[1],"%)")) +
