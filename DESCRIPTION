@@ -19,7 +19,8 @@ Imports:
     foreach,
     doParallel,
     gridExtra,
-    cowplot
+    cowplot,
+    factoextra
 Depends:
     Rcpp
 Suggests:
