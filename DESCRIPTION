@@ -20,7 +20,10 @@ Imports:
     doParallel,
     gridExtra,
     cowplot,
-    factoextra
+    factoextra,
+    pheatmap,
+    RColorBrewer,
+    dplyr
 Depends:
     Rcpp
 Suggests:
