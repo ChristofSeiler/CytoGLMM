@@ -10,7 +10,8 @@ plot_heatmap = function(df_samples,
                         sample_info_names,
                         protein_names,
                         arrange_by_1,
-                        arrange_by_2 = "") {
+                        arrange_by_2 = "",
+                        cluster_cols = FALSE) {
     expr_median = df_samples %>%
       group_by(.dots = sample_info_names) %>%
       summarise_at(protein_names,median) %>%
@@ -27,7 +28,7 @@ plot_heatmap = function(df_samples,
              color = color,
              clustering_method = "average",
              show_colnames = FALSE,
-             cluster_cols = FALSE,
+             cluster_cols = cluster_cols,
              cluster_rows = TRUE,
              annotation_col = df_annotation)
 }
