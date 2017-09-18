@@ -19,6 +19,14 @@ plot_mds = function(df_samples,
   explained_var = (100*mds_res$eig[1:2]/sum(mds_res$eig)) %>% round(digits = 1)
   expr_median %<>% bind_cols(tibble(MDS1 = mds_res$points[,1],
                                     MDS2 = mds_res$points[,2]))
+  
+  # protein_sd = apply(expr_median[,protein_names],2,sd)
+  # protein_selection = protein_names[protein_sd != 0]
+  # expr_cor = cor(expr_median[,protein_selection],expr_median[,c("MDS1","MDS2")])
+  # ranking = apply(expr_cor,1,function(expr) max(abs(expr))) %>%
+  #   order(decreasing = TRUE)
+  # expr_cor[ranking,]
+
   gg = ggplot(expr_median, aes_string(x = "MDS1", y = "MDS2",color = color)) +
     geom_point(size = 2) +
     coord_fixed(ratio = explained_var[2] / explained_var[1]) +

@@ -5,7 +5,7 @@
 \title{Heatmap of median marker expression.}
 \usage{
 plot_heatmap(df_samples, sample_info_names, protein_names, arrange_by_1,
-  arrange_by_2 = "")
+  arrange_by_2 = "", cluster_cols = FALSE)
 }
 \description{
 Heatmap of median marker expression.
