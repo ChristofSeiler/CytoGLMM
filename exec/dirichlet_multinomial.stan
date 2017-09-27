@@ -1,41 +1,28 @@
 /*
- * Dirichlet multinomial regression
+ * Low-dimensional covariance multinomial regression
  * Author: Christof Seiler
  */
-data { 
-  //int<lower=2> K; // num of bins
+data {
   int<lower=1> n; // num of cells
   int<lower=1> d; // num of markers
   int<lower=1> p; // num of explanatory variables (including intercept)
-  //int<lower=0>[d] Y[n]; // observed cell counts
   int<lower=0> Y[n,d]; // observed cell counts
-  //matrix[n,p] X; // design matrix
   vector[p] X[n]; // design matrix
-  //vector[d] alpha;
 }
-//transformed data {
-  //vector[d] alpha;
-  //alpha = rep_vector(1, d);
-  //row_vector[d] alpha;
-//}
 parameters {
-  //simplex[d] theta;
-  //matrix[K - 1, D] beta_raw;
-  matrix[d,p] beta;
+  real gamma[n];
+  vector<lower=0>[d] sigma;
+  matrix[d,p] A;
+  matrix[d,p] B;
+  vector[d] theta[n];
 }
-//transformed parameters {
-  //matrix[K, D] beta;
-  //beta = append_row(beta_raw, zeros);
-//}
 model {
-  vector[d] alpha;
-  for (j in 1:d)
-    beta[j, ] ~ normal(0, 5);
-  //theta ~ dirichlet(alpha);
-  //for (i in 1:n)
-  //  Y[i] ~ multinomial(theta);
+  gamma ~ normal(0,1);
+  to_vector(A) ~ normal(0, 1);
+  to_vector(B) ~ normal(0, 1);
   for (i in 1:n) {
-    alpha = softmax(beta * X[i]);
-    Y[i] ~ multinomial(alpha);    
+    theta[i] ~ normal(A * X[i] + gamma[i] * B * X[i], sigma);
+    Y[i] ~ multinomial(softmax(theta[i]));
   }
+  //Y[i] ~ multinomial(softmax(B * X[i]));
 }
