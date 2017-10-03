@@ -28,7 +28,8 @@ covdm = function(df_samples_subset,
   run_vb = function(seed,
                     df_samples_subset,
                     donors,
-                    protein_names) {
+                    protein_names,
+                    condition) {
 
     # need to load it here because this will be run on the cluster
     library("dplyr")
@@ -51,7 +52,7 @@ covdm = function(df_samples_subset,
     Y = df_boot %>%
       select(protein_names) %>%
       as.matrix
-    X = model.matrix(paste("~",condition), data = df_boot)
+    X = model.matrix(as.formula(paste("~",condition)), data = df_boot)
     stan_data = list(n = nrow(Y),
                      d = ncol(Y),
                      p = ncol(X),
@@ -82,7 +83,8 @@ covdm = function(df_samples_subset,
                BPPARAM = param,
                df_samples_subset = df_samples_subset,
                donors = donors,
-               protein_names = protein_names)
+               protein_names = protein_names,
+               condition = condition)
     })
   dm_model_list
 }
