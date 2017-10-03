@@ -24,5 +24,4 @@ model {
     theta[i] ~ normal(A * X[i] + gamma[i] * B * X[i], sigma);
     Y[i] ~ multinomial(softmax(theta[i]));
   }
-  //Y[i] ~ multinomial(softmax(B * X[i]));
 }

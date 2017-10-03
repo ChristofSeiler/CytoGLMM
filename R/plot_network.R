@@ -26,6 +26,8 @@ plot_network = function(tb_B,title_str) {
   nodes_set1 = tb_B_summary %>% dplyr::filter(max_median < 0)
   nodes_set2 = tb_B_summary %>% dplyr::filter(min_median > 0)
   nodes_all = list(nodes_set1,nodes_set2) %>% bind_rows
+  if(nrow(nodes_all) == 0)
+    stop("--- \n no significant nodes found \n  ---")
 
   # make adjency matrices
   A1 = matrix(data = 1,
