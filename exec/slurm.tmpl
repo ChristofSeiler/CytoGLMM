@@ -16,7 +16,7 @@
 #SBATCH --cpus-per-task=<%= resources$ncpus %>
 #SBATCH --mem-per-cpu=<%= resources$mem %>
 #SBATCH --time=<%= resources$walltime %>
-##SBATCH --partition=hns
+#SBATCH --partition=hns,normal
 
 ## Run R: we merge R output with stdout from SLURM, which gets then
 ## logged via --output option
