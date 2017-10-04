@@ -23,7 +23,7 @@ extract_B = function(dm_model_list,job_id,protein_names) {
     fit = dm_model_list[[seed]]
     post = rstan::extract(fit)[["B"]]
     B_target = apply(post,c(2,3),median)
-    distance = function(ref,target) sum((target-ref)^2)
+    distance = function(ref,target) sum(abs(target-ref))
     sign_flip = 1
     if(distance(B_ref,B_target) > distance(B_ref,-B_target))
       sign_flip = -1
