@@ -48,12 +48,12 @@ covdm = function(df_samples_subset,
       df_samples_subset %>%
         dplyr::filter(donor == boot_donor) %>%
         sample_n(min(donors$n))
-    ) %>% bind_rows
+    ) %>% bind_rows %>% droplevels
     Y = df_boot %>%
       select(protein_names) %>%
       as.matrix
     X = model.matrix(as.formula(paste("~",condition)), data = df_boot)
-    donor = as.numeric(df_samples_subset$donor)
+    donor = as.numeric(df_boot$donor)
     n = nrow(Y)
     d = ncol(Y)
     p = ncol(X)
