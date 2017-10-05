@@ -15,7 +15,7 @@ covdm = function(df_samples_subset,
   # prepare cluster script
   slurm_settings = system.file("exec", "slurm.tmpl", package = "CytoGLMM")
   param = BatchJobsParam(workers = num_boot,
-                         resources = list(ntasks=1,ncpus=1,mem=32000,walltime=420),
+                         resources = list(ntasks=1,ncpus=1,mem=16000,walltime=60),
                          cluster.functions = makeClusterFunctionsSLURM(slurm_settings),
                          log = TRUE,
                          logdir = ".",
@@ -59,21 +59,36 @@ covdm = function(df_samples_subset,
                      Y = Y,
                      X = X)
 
+    # # maximum likelihood estimate
+    # init = list(
+    #   gamma = rep(0,nrow(Y)),
+    #   A = matrix(0,nrow = ncol(Y),ncol = ncol(X)),
+    #   B = matrix(0,nrow = ncol(Y),ncol = ncol(X))
+    #   )
+    # rstan::optimizing(model,
+    #                   data = stan_data,
+    #                   as_vector = FALSE,
+    #                   init = init,
+    #                   verbose = TRUE)
+
     # sample from model using variatonal inference
     fit = rstan::vb(model,
                     output_samples = 100,
                     pars = c("A","B"),
                     data = stan_data,
                     seed = 0xdada)
-    names(fit)
-    object.size(fit) %>% print(units = "MB")
-    fit
+
+    # # sample using HMC
     # fit = rstan::sampling(model,
     #                       data = stan_data,
     #                       iter = 1000,
     #                       chains = 2,
     #                       cores = 2,
     #                       seed = 0xdada)
+
+    names(fit)
+    object.size(fit) %>% print(units = "MB")
+    fit
   }
 
   # run in parallel on cluster
