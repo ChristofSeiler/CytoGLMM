@@ -53,14 +53,18 @@ covdm = function(df_samples_subset,
       select(protein_names) %>%
       as.matrix
     X = model.matrix(as.formula(paste("~",condition)), data = df_boot)
+    donor = as.numeric(df_samples_subset$donor)
     n = nrow(Y)
     d = ncol(Y)
     p = ncol(X)
+    k = length(table(donor))
     stan_data = list(n = n,
                      d = d,
                      p = p,
+                     donor = donor,
                      Y = Y,
-                     X = X)
+                     X = X,
+                     k = k)
 
     # # maximum likelihood estimate
     # init = list(
@@ -77,7 +81,7 @@ covdm = function(df_samples_subset,
     # sample from model using variatonal inference
     fit = rstan::vb(model,
                     output_samples = 100,
-                    pars = c("A","B"),
+                    pars = c("A","B","sigma"),
                     data = stan_data,
                     seed = 0xdada)
 
