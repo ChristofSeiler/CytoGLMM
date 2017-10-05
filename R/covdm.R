@@ -59,24 +59,24 @@ covdm = function(df_samples_subset,
                      Y = Y,
                      X = X)
 
-    # # maximum likelihood estimate
-    # init = list(
-    #   gamma = rep(0,nrow(Y)),
-    #   A = matrix(0,nrow = ncol(Y),ncol = ncol(X)),
-    #   B = matrix(0,nrow = ncol(Y),ncol = ncol(X))
-    #   )
-    # rstan::optimizing(model,
-    #                   data = stan_data,
-    #                   as_vector = FALSE,
-    #                   init = init,
-    #                   verbose = TRUE)
+    # maximum likelihood estimate
+    init = list(
+      gamma = rep(0,nrow(Y)),
+      A = matrix(0,nrow = ncol(Y),ncol = ncol(X)),
+      B = matrix(0,nrow = ncol(Y),ncol = ncol(X))
+      )
+    fit = rstan::optimizing(model,
+                            data = stan_data,
+                            as_vector = FALSE,
+                            init = init,
+                            verbose = TRUE)
 
-    # sample from model using variatonal inference
-    fit = rstan::vb(model,
-                    output_samples = 100,
-                    pars = c("A","B"),
-                    data = stan_data,
-                    seed = 0xdada)
+    # # sample from model using variatonal inference
+    # fit = rstan::vb(model,
+    #                 output_samples = 100,
+    #                 pars = c("A","B"),
+    #                 data = stan_data,
+    #                 seed = 0xdada)
 
     # # sample using HMC
     # fit = rstan::sampling(model,
