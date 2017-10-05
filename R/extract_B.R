@@ -16,7 +16,7 @@ extract_B = function(dm_model_list,job_id,protein_names) {
   # measure distance between two B matrices
   distance = function(ref,target) sum(abs(target-ref))
   
-  if(class(dm_model_list[[1]]) == "stanfit") {
+  if(class(dm_model_list[[jobs_ok[1]]]) == "stanfit") {
     
     # extract from stan object
     fit = dm_model_list[[job_id]]
@@ -41,8 +41,11 @@ extract_B = function(dm_model_list,job_id,protein_names) {
     }) %>% bind_rows
     
   } else {
-    
+
+    # extract from list
+    fit = dm_model_list[[job_id]]
     B_ref = fit$par$B
+
     # collect from result list
     tb = lapply(jobs_ok,function(seed) {
       fit = dm_model_list[[seed]]

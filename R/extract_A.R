@@ -14,7 +14,7 @@ extract_A = function(dm_model_list,
   jobs_ok = which(bpok(dm_model_list))
   if(length(jobs_ok) == 0) stop("no jobs completed successfully")
   
-  if(class(dm_model_list[[1]]) == "stanfit") {
+  if(class(dm_model_list[[jobs_ok[1]]]) == "stanfit") {
     
     # collect from result list
     tb = lapply(jobs_ok,function(seed) {
