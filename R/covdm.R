@@ -53,17 +53,20 @@ covdm = function(df_samples_subset,
       select(protein_names) %>%
       as.matrix
     X = model.matrix(as.formula(paste("~",condition)), data = df_boot)
-    stan_data = list(n = nrow(Y),
-                     d = ncol(Y),
-                     p = ncol(X),
+    n = nrow(Y)
+    d = ncol(Y)
+    p = ncol(X)
+    stan_data = list(n = n,
+                     d = d,
+                     p = p,
                      Y = Y,
                      X = X)
 
     # maximum likelihood estimate
     init = list(
-      gamma = rep(0,nrow(Y)),
-      A = matrix(0,nrow = ncol(Y),ncol = ncol(X)),
-      B = matrix(0,nrow = ncol(Y),ncol = ncol(X))
+      gamma = rnorm(n),
+      A = matrix(rnorm(d*p),nrow = d,ncol = p),
+      B = matrix(rnorm(d*p),nrow = d,ncol = p)
       )
     fit = rstan::optimizing(model,
                             data = stan_data,
