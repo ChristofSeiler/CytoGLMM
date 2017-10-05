@@ -30,15 +30,20 @@ plot_network = function(tb_B,title_str) {
   A = NULL
   if(nrow(nodes_all) > 0) {
     # make adjency matrices
-    A1 = matrix(data = 1,
-                nrow = nrow(nodes_set1),
-                ncol = nrow(nodes_set1))
-    A2 = matrix(data = 1,
-                nrow = nrow(nodes_set2),
-                ncol = nrow(nodes_set2))
+    A1 = diag(nrow(nodes_set1))
+    A1 = rbind(A1,rep(1,nrow(nodes_set1)))
+    A1 = cbind(A1,rep(1,nrow(nodes_set1)+1))
+    A2 = diag(nrow(nodes_set2))
+    A2 = rbind(A2,rep(1,nrow(nodes_set2)))
+    A2 = cbind(A2,rep(1,nrow(nodes_set2)+1))
     A = bdiag(A1,A2) %>% as.matrix
-    A[A==0] = -1
-    dimnames(A) = list(nodes_all$protein_name,nodes_all$protein_name)
+    pnames = c(nodes_set1$protein_name,"SuperProtein1",
+               nodes_set2$protein_name,"SuperProtein2")
+    dimnames(A) = list(pnames,pnames)
+    super1 = which(colnames(A)=="SuperProtein1")
+    super2 = which(colnames(A)=="SuperProtein2")
+    A[super1,super2] = -1
+    A[super2,super1] = -1
     
     # make network
     net = network(A,
@@ -46,8 +51,8 @@ plot_network = function(tb_B,title_str) {
                   ignore.eval = FALSE,
                   names.eval = "correlation")
     
-    # ploting using ggnetwork
-    net_df = ggnetwork(net,layout = "circle")
+    # ploting using ggnetwork (kamadakawai)
+    net_df = ggnetwork(net,layout = "kamadakawai")
     net_df$correlation %<>% factor(levels = c(-1,1),
                                    labels = c("negative", "positive"))
     set.seed(0xdada2)
@@ -58,8 +63,7 @@ plot_network = function(tb_B,title_str) {
       #scale_color_brewer(palette = "Dark2") +
       scale_color_manual(values=c("#F8766D", "#00BFC4")) +
       theme_blank() +
-      ggtitle(title_str) +
-      coord_fixed(ratio = 0.8)
+      ggtitle(title_str)
   } else {
     ggplot() + ggtitle("no significant nodes found")
   }
