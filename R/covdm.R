@@ -53,7 +53,7 @@ covdm = function(df_samples_subset,
       select(protein_names) %>%
       as.matrix
     X = model.matrix(as.formula(paste("~",condition)), data = df_boot)
-    donor = as.numeric(df_boot$donor)
+    donor = df_boot$donor %>% as.factor %>% as.numeric
     n = nrow(Y)
     d = ncol(Y)
     p = ncol(X)
