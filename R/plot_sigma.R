@@ -23,7 +23,7 @@ plot_sigma = function(dm_model_list,
            sigma_max = apply(sigma,2,function(x) quantile(x,probs = 0.95)),
            seed = seed)
   }) %>% bind_rows
-  
+
   # combine two plots
   tb$seed %<>% as.factor
   p1 = ggplot(tb,aes(x = protein_name,y = sigma_median,color = protein_name)) +
@@ -35,9 +35,9 @@ plot_sigma = function(dm_model_list,
   p2 = ggplot(tb,aes(x = protein_name,y = sigma_max-sigma_min,color = protein_name)) +
     geom_jitter(size = 1,height = 0.001,alpha = 0.5) +
     coord_flip() +
-    ylab("IQR") +
+    ylab("95% - 5% quantile") +
     theme(legend.position="none") +
     ggtitle("")
   plot_grid(p1,p2,align = "h")
-  
+
 }
