@@ -22,7 +22,17 @@ Imports:
     factoextra,
     pheatmap,
     RColorBrewer,
-    dplyr
+    dplyr,
+    magrittr,
+    tibble,
+    hexbin,
+    Matrix,
+    sna,
+    graphics,
+    network,
+    ggnetwork,
+    BiocParallel,
+    BatchJobs
 Depends:
     Rcpp
 Suggests:
