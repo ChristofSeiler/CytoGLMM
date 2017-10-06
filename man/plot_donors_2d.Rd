@@ -4,7 +4,7 @@
 \alias{plot_donors_2d}
 \title{Plot 2d histogram.}
 \usage{
-plot_donors_2d(df_samples, protein1, protein2)
+plot_donors_2d(df_samples, condition, protein1, protein2)
 }
 \description{
 Plot 2d histogram.

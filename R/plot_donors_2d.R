@@ -8,6 +8,7 @@
 #' @export
 #'
 plot_donors_2d = function(df_samples,
+                          condition,
                           protein1,
                           protein2) {
 
@@ -21,5 +22,6 @@ plot_donors_2d = function(df_samples,
   ggplot(df_samples,aes_string(x = protein1,y = protein2)) +
     stat_binhex(binwidth = c(0.2, 0.2)) +
     colorscale +
-    coord_fixed()
+    coord_fixed() +
+    facet_wrap(c(condition,"donor"),ncol = 8)
 }
