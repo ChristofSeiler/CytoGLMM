@@ -42,13 +42,26 @@ covdm = function(df_samples_subset,
     stan_file = system.file("exec", "covdm.stan", package = "CytoGLMM")
     model = rstan::stan_model(file = stan_file, model_name = "covdm_model")
 
-    # prepare bootstrap sample
-    boot_donors = sample(donors$donor,replace = TRUE)
-    df_boot = lapply(boot_donors,function(boot_donor)
-      df_samples_subset %>%
-        dplyr::filter(donor == boot_donor) %>%
-        sample_n(min(donors$n))
-    ) %>% bind_rows %>% droplevels
+    # # 1. bootstrap strategy:
+    # # a) boostrap donors, b) subsample cells
+    # boot_donors = sample(donors$donor,replace = TRUE)
+    # df_boot = lapply(boot_donors,function(boot_donor)
+    #   df_samples_subset %>%
+    #     dplyr::filter(donor == boot_donor) %>%
+    #     sample_n(min(donors$n))
+    # ) %>% bind_rows %>% droplevels
+
+    # 2. bootstrap strategy:
+    # a) subsample one donors from each group
+    boot_donors = donors %>%
+      group_by_(condition) %>%
+      sample_n(1) %>%
+      .$donor
+    df_boot = df_samples_subset %>%
+      dplyr::filter(donor %in% boot_donors) %>%
+      droplevels
+
+    # prepare data for rstan
     Y = df_boot %>%
       select(protein_names) %>%
       as.matrix
