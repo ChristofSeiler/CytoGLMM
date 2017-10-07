@@ -15,7 +15,7 @@ covdm = function(df_samples_subset,
   # prepare cluster script
   slurm_settings = system.file("exec", "slurm.tmpl", package = "CytoGLMM")
   param = BatchJobsParam(workers = num_boot,
-                         resources = list(ntasks=1,ncpus=1,mem=8000,walltime=60),
+                         resources = list(ntasks=1,ncpus=1,mem=32000,walltime=360),
                          cluster.functions = makeClusterFunctionsSLURM(slurm_settings),
                          log = TRUE,
                          logdir = ".",
@@ -42,24 +42,24 @@ covdm = function(df_samples_subset,
     stan_file = system.file("exec", "covdm.stan", package = "CytoGLMM")
     model = rstan::stan_model(file = stan_file, model_name = "covdm_model")
 
-    # # 1. bootstrap strategy:
-    # # a) boostrap donors, b) subsample cells
-    # boot_donors = sample(donors$donor,replace = TRUE)
-    # df_boot = lapply(boot_donors,function(boot_donor)
-    #   df_samples_subset %>%
-    #     dplyr::filter(donor == boot_donor) %>%
-    #     sample_n(min(donors$n))
-    # ) %>% bind_rows %>% droplevels
+    # 1. resampling strategy:
+    # a) boostrap donors, b) subsample cells
+    boot_donors = sample(donors$donor,replace = TRUE)
+    df_boot = lapply(boot_donors,function(boot_donor)
+      df_samples_subset %>%
+        dplyr::filter(donor == boot_donor) %>%
+        sample_n(min(donors$n))
+    ) %>% bind_rows %>% droplevels
 
-    # 2. bootstrap strategy:
-    # a) subsample one donors from each group
-    boot_donors = donors %>%
-      group_by_(condition) %>%
-      sample_n(1) %>%
-      .$donor
-    df_boot = df_samples_subset %>%
-      dplyr::filter(donor %in% boot_donors) %>%
-      droplevels
+    # # 2. resampling strategy:
+    # # a) subsample one donors from each group
+    # boot_donors = donors %>%
+    #   group_by_(condition) %>%
+    #   sample_n(1) %>%
+    #   .$donor
+    # df_boot = df_samples_subset %>%
+    #   dplyr::filter(donor %in% boot_donors) %>%
+    #   droplevels
 
     # prepare data for rstan
     Y = df_boot %>%
