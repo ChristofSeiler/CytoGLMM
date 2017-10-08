@@ -12,17 +12,35 @@ plot_sigma = function(dm_model_list,
 
   jobs_ok = which(bpok(dm_model_list))
 
-  # collect from result list
-  tb = lapply(jobs_ok,function(seed) {
-    fit = dm_model_list[[seed]]
-    post = rstan::extract(fit)[["sigma"]]
-    sigma = apply(post,c(2,3),median)
-    tibble(protein_name = protein_names,
-           sigma_median = apply(sigma,2,median),
-           sigma_min = apply(sigma,2,function(x) quantile(x,probs = 0.05)),
-           sigma_max = apply(sigma,2,function(x) quantile(x,probs = 0.95)),
-           seed = seed)
-  }) %>% bind_rows
+  tb = NULL
+  if(class(dm_model_list[[jobs_ok[1]]]) == "stanfit") {
+
+    # collect from result list
+    tb = lapply(jobs_ok,function(seed) {
+      fit = dm_model_list[[seed]]
+      post = rstan::extract(fit)[["sigma"]]
+      sigma = apply(post,c(2,3),median)
+      tibble(protein_name = protein_names,
+             sigma_median = apply(sigma,2,median),
+             sigma_min = apply(sigma,2,function(x) quantile(x,probs = 0.05)),
+             sigma_max = apply(sigma,2,function(x) quantile(x,probs = 0.95)),
+             seed = seed)
+    }) %>% bind_rows
+
+  } else {
+
+    # collect from result list
+    tb = lapply(jobs_ok,function(seed) {
+      fit = dm_model_list[[seed]]
+      sigma = fit$par$sigma
+      tibble(protein_name = protein_names,
+             sigma_median = apply(sigma,2,median),
+             sigma_min = apply(sigma,2,function(x) quantile(x,probs = 0.05)),
+             sigma_max = apply(sigma,2,function(x) quantile(x,probs = 0.95)),
+             seed = seed)
+    }) %>% bind_rows
+
+  }
 
   # combine two plots
   tb$seed %<>% as.factor

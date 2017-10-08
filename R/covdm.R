@@ -10,7 +10,8 @@ covdm = function(df_samples_subset,
                  donors,
                  protein_names,
                  condition,
-                 num_boot = 100) {
+                 num_boot = 100,
+                 cell_n_max = 1000) {
 
   # prepare cluster script
   slurm_settings = system.file("exec", "slurm.tmpl", package = "CytoGLMM")
@@ -42,24 +43,13 @@ covdm = function(df_samples_subset,
     stan_file = system.file("exec", "covdm.stan", package = "CytoGLMM")
     model = rstan::stan_model(file = stan_file, model_name = "covdm_model")
 
-    # 1. resampling strategy:
-    # a) boostrap donors, b) subsample cells
+    # cases bootstrap
+    # (sample with replacement at donor level)
     boot_donors = sample(donors$donor,replace = TRUE)
     df_boot = lapply(boot_donors,function(boot_donor)
       df_samples_subset %>%
-        dplyr::filter(donor == boot_donor) %>%
-        sample_n(min(donors$n))
+        dplyr::filter(donor == boot_donor)
     ) %>% bind_rows %>% droplevels
-
-    # # 2. resampling strategy:
-    # # a) subsample one donors from each group
-    # boot_donors = donors %>%
-    #   group_by_(condition) %>%
-    #   sample_n(1) %>%
-    #   .$donor
-    # df_boot = df_samples_subset %>%
-    #   dplyr::filter(donor %in% boot_donors) %>%
-    #   droplevels
 
     # prepare data for rstan
     Y = df_boot %>%
@@ -97,6 +87,16 @@ covdm = function(df_samples_subset,
                     pars = c("A","B","sigma"),
                     data = stan_data,
                     seed = 0xdada)
+    A = rstan::extract(fit)[["A"]] %>% apply(c(2,3),median)
+    B = rstan::extract(fit)[["B"]] %>% apply(c(2,3),median)
+    sigma = rstan::extract(fit)[["sigma"]] %>% apply(c(2,3),median)
+    par = NULL
+    par$A = A
+    par$B = B
+    par$sigma = sigma
+    res = NULL
+    res$par = par
+    res
 
     # # sample using HMC
     # fit = rstan::sampling(model,
@@ -106,10 +106,19 @@ covdm = function(df_samples_subset,
     #                       cores = 2,
     #                       seed = 0xdada)
 
-    names(fit)
-    object.size(fit) %>% print(units = "MB")
-    fit
   }
+
+  # subsample cells
+  # (to speed up computations we subsample at cell level,
+  # the results won't change much because the major
+  # variability happens at donor level)
+  df_samples_subset = apply(donors,1,function(donor_cells) {
+    df_donor = df_samples_subset %>%
+      dplyr::filter(donor == donor_cells["donor"])
+    if(nrow(df_donor) > cell_n_max)
+      df_donor %<>% sample_n(size = cell_n_max)
+    df_donor
+  }) %>% bind_rows
 
   # run in parallel on cluster
   dm_model_list = bptry({
