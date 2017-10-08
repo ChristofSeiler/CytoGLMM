@@ -16,7 +16,7 @@ covdm = function(df_samples_subset,
   # prepare cluster script
   slurm_settings = system.file("exec", "slurm.tmpl", package = "CytoGLMM")
   param = BatchJobsParam(workers = num_boot,
-                         resources = list(ntasks=1,ncpus=1,mem=32000,walltime=360),
+                         resources = list(ntasks=1,ncpus=1,mem=16000,walltime=360),
                          cluster.functions = makeClusterFunctionsSLURM(slurm_settings),
                          log = TRUE,
                          logdir = ".",
