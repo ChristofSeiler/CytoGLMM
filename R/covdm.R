@@ -69,18 +69,18 @@ covdm = function(df_samples_subset,
                      X = X,
                      k = k)
 
-    # maximum likelihood estimate
-    init = list(
-      gamma = rnorm(n),
-      A = matrix(rnorm(d*p),nrow = d,ncol = p),
-      B = matrix(rnorm(d*p),nrow = d,ncol = p)
-      )
-    fit = rstan::optimizing(model,
-                            data = stan_data,
-                            as_vector = FALSE,
-                            init = init,
-                            verbose = TRUE)
-    fit
+    # # maximum likelihood estimate
+    # init = list(
+    #   gamma = rnorm(n),
+    #   A = matrix(rnorm(d*p),nrow = d,ncol = p),
+    #   B = matrix(rnorm(d*p),nrow = d,ncol = p)
+    #   )
+    # fit = rstan::optimizing(model,
+    #                         data = stan_data,
+    #                         as_vector = FALSE,
+    #                         init = init,
+    #                         verbose = TRUE)
+    # fit
 
     # # sample from model using variatonal inference
     # fit = rstan::vb(model,
@@ -99,13 +99,23 @@ covdm = function(df_samples_subset,
     # res$par = par
     # res
 
-    # # sample using HMC
-    # fit = rstan::sampling(model,
-    #                       data = stan_data,
-    #                       iter = 1000,
-    #                       chains = 2,
-    #                       cores = 2,
-    #                       seed = 0xdada)
+    # sample using HMC
+    fit = rstan::sampling(model,
+                          data = stan_data,
+                          iter = 1000,
+                          chains = 1,
+                          cores = 1,
+                          seed = 0xdada)
+    A = rstan::extract(fit)[["A"]] %>% apply(c(2,3),median)
+    B = rstan::extract(fit)[["B"]] %>% apply(c(2,3),median)
+    sigma = rstan::extract(fit)[["sigma"]] %>% apply(c(2,3),median)
+    par = NULL
+    par$A = A
+    par$B = B
+    par$sigma = sigma
+    res = NULL
+    res$par = par
+    res
 
   }
 
