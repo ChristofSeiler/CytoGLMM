@@ -16,7 +16,7 @@ covdm = function(df_samples_subset,
   # prepare cluster script
   slurm_settings = system.file("exec", "slurm.tmpl", package = "CytoGLMM")
   param = BatchJobsParam(workers = num_boot,
-                         resources = list(ntasks=1,ncpus=1,mem=16000,walltime=360),
+                         resources = list(ntasks=1,ncpus=1,mem=24000,walltime=360),
                          cluster.functions = makeClusterFunctionsSLURM(slurm_settings),
                          log = TRUE,
                          logdir = ".",
@@ -82,30 +82,12 @@ covdm = function(df_samples_subset,
     #                         verbose = TRUE)
     # fit
 
-    # # sample from model using variatonal inference
-    # fit = rstan::vb(model,
-    #                 output_samples = 100,
-    #                 pars = c("A","B","sigma"),
-    #                 data = stan_data,
-    #                 seed = 0xdada)
-    # A = rstan::extract(fit)[["A"]] %>% apply(c(2,3),median)
-    # B = rstan::extract(fit)[["B"]] %>% apply(c(2,3),median)
-    # sigma = rstan::extract(fit)[["sigma"]] %>% apply(c(2,3),median)
-    # par = NULL
-    # par$A = A
-    # par$B = B
-    # par$sigma = sigma
-    # res = NULL
-    # res$par = par
-    # res
-
-    # sample using HMC
-    fit = rstan::sampling(model,
-                          data = stan_data,
-                          iter = 1000,
-                          chains = 1,
-                          cores = 1,
-                          seed = 0xdada)
+    # sample from model using variatonal inference
+    fit = rstan::vb(model,
+                    output_samples = 100,
+                    pars = c("A","B","sigma"),
+                    data = stan_data,
+                    seed = 0xdada)
     A = rstan::extract(fit)[["A"]] %>% apply(c(2,3),median)
     B = rstan::extract(fit)[["B"]] %>% apply(c(2,3),median)
     sigma = rstan::extract(fit)[["sigma"]] %>% apply(c(2,3),median)
@@ -116,6 +98,24 @@ covdm = function(df_samples_subset,
     res = NULL
     res$par = par
     res
+
+    # # sample using HMC
+    # fit = rstan::sampling(model,
+    #                       data = stan_data,
+    #                       iter = 1000,
+    #                       chains = 1,
+    #                       cores = 1,
+    #                       seed = 0xdada)
+    # A = rstan::extract(fit)[["A"]] %>% apply(c(2,3),median)
+    # B = rstan::extract(fit)[["B"]] %>% apply(c(2,3),median)
+    # sigma = rstan::extract(fit)[["sigma"]] %>% apply(c(2,3),median)
+    # par = NULL
+    # par$A = A
+    # par$B = B
+    # par$sigma = sigma
+    # res = NULL
+    # res$par = par
+    # res
 
   }
 
