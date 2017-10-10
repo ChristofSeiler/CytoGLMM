@@ -21,14 +21,14 @@ extract_B = function(dm_model_list,job_id,protein_names) {
     # extract from stan object
     fit = dm_model_list[[job_id]]
     post = rstan::extract(fit)[["B"]]
-    B_ref = apply(post,c(2,3),median)
+    B_ref = apply(post,c(2,3),median)[,1]
     
     # align other estimates
     lapply(jobs_ok,function(seed) {
       # extract from stan object
       fit = dm_model_list[[seed]]
       post = rstan::extract(fit)[["B"]]
-      B_target = apply(post,c(2,3),median)
+      B_target = apply(post,c(2,3),median)[,1]
       sign_flip = 1
       if(distance(B_ref,B_target) > distance(B_ref,-B_target))
         sign_flip = -1
@@ -44,18 +44,18 @@ extract_B = function(dm_model_list,job_id,protein_names) {
 
     # extract from list
     fit = dm_model_list[[job_id]]
-    B_ref = fit$par$B
+    B_ref = fit$par$B[,1]
 
     # collect from result list
     tb = lapply(jobs_ok,function(seed) {
       fit = dm_model_list[[seed]]
-      B_target = fit$par$B
+      B_target = fit$par$B[,1]
       sign_flip = 1
       if(distance(B_ref,B_target) > distance(B_ref,-B_target))
         sign_flip = -1
       B_target = sign_flip*B_target
       tibble(protein_name = protein_names,
-             coeff = B_target[,2],
+             coeff = B_target,
              seed = seed)
     }) %>% bind_rows
     
