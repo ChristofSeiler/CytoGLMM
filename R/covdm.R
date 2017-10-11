@@ -26,10 +26,11 @@ covdm = function(df_samples_subset,
   }) %>% bind_rows
 
   # prepare cluster script
+  cells_total = nrow(donors)*cell_n_max
   cells_per_minute = 400 # conservative value based on previous runs
-  expected_walltime = ceiling(nrow(df_samples_subset)/cells_per_minute)
-  cells_per_mb = 8 # conservative value based on previous runs
-  expected_mem = ceiling(nrow(df_samples_subset)/cells_per_mb)
+  expected_walltime = ceiling(cells_total/cells_per_minute)
+  cells_per_mb = 6 # conservative value based on previous runs
+  expected_mem = ceiling(cells_total/cells_per_mb)
   cat("requested walltime:",expected_walltime,"min\n")
   cat("requested mem:",expected_mem,"MB")
   slurm_settings = system.file("exec", "slurm.tmpl", package = "CytoGLMM")
@@ -118,6 +119,7 @@ run_vb = function(seed,
 
   # sample from model using variatonal inference
   fit = rstan::vb(model,
+                  iter = 2000,
                   output_samples = 100,
                   pars = c("A","B","sigma"),
                   data = stan_data,
