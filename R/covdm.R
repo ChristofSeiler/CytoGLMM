@@ -24,13 +24,13 @@ covdm = function(df_samples_subset,
       df_donor %<>% sample_n(size = cell_n_max)
     df_donor
   }) %>% bind_rows
-  
+
   # prepare cluster script
   cells_per_minute = 400 # conservative value based on previous runs
   expected_walltime = ceiling(nrow(df_samples_subset)/cells_per_minute)
-  cat("requested walltime:",expected_walltime,"min")
   cells_per_mb = 8 # conservative value based on previous runs
   expected_mem = ceiling(nrow(df_samples_subset)/cells_per_mb)
+  cat("requested walltime:",expected_walltime,"min\n")
   cat("requested mem:",expected_mem,"MB")
   slurm_settings = system.file("exec", "slurm.tmpl", package = "CytoGLMM")
   param = BatchJobsParam(workers = num_boot,
@@ -65,18 +65,18 @@ run_vb = function(seed,
                   donors,
                   protein_names,
                   condition) {
-  
+
   # need to load it here because this will be run on the cluster
   library("dplyr")
   library("magrittr")
   library("rstan")
   print(seed)
   set.seed(seed)
-  
+
   # load stan model from file
   stan_file = system.file("exec", "covdm.stan", package = "CytoGLMM")
   model = rstan::stan_model(file = stan_file, model_name = "covdm_model")
-  
+
   # cases bootstrap
   # (sample with replacement at donor level)
   boot_donors = sample(donors$donor,replace = TRUE)
@@ -84,7 +84,7 @@ run_vb = function(seed,
     df_samples_subset %>%
       dplyr::filter(donor == boot_donor)
   ) %>% bind_rows %>% droplevels
-  
+
   # prepare data for rstan
   Y = df_boot %>%
     select(protein_names) %>%
@@ -102,7 +102,7 @@ run_vb = function(seed,
                    Y = Y,
                    X = X,
                    k = k)
-  
+
   # # maximum likelihood estimate
   # init = list(
   #   gamma = rnorm(n),
@@ -115,7 +115,7 @@ run_vb = function(seed,
   #                         init = init,
   #                         verbose = TRUE)
   # fit
-  
+
   # sample from model using variatonal inference
   fit = rstan::vb(model,
                   output_samples = 100,
@@ -132,7 +132,7 @@ run_vb = function(seed,
   res = NULL
   res$par = par
   res
-  
+
   # # sample using HMC
   # fit = rstan::sampling(model,
   #                       data = stan_data,
@@ -150,5 +150,5 @@ run_vb = function(seed,
   # res = NULL
   # res$par = par
   # res
-  
+
 }
