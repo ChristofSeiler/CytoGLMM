@@ -32,7 +32,8 @@ Imports:
     network,
     ggnetwork,
     BiocParallel,
-    BatchJobs
+    BatchJobs,
+    batchtools
 Depends:
     Rcpp
 Suggests:

@@ -2,8 +2,7 @@
 #'
 #' @import rstan
 #' @import magrittr
-#' @import BiocParallel
-#' @import BatchJobs
+#' @import batchtools
 #' @export
 #'
 covdm = function(df_samples_subset,
@@ -36,29 +35,53 @@ covdm = function(df_samples_subset,
   cat("requested walltime:",expected_walltime,"min\n")
   cat("requested mem:",expected_mem,"MB")
   slurm_settings = system.file("exec", "slurm.tmpl", package = "CytoGLMM")
-  param = BatchJobsParam(workers = num_boot,
-                         resources = list(ntasks = 1,
-                                          ncpus = 1,
-                                          mem = expected_mem,
-                                          walltime = expected_walltime),
-                         cluster.functions = makeClusterFunctionsSLURM(slurm_settings),
-                         log = TRUE,
-                         logdir = ".",
-                         progressbar = TRUE,
-                         cleanup = FALSE,
-                         stop.on.error = FALSE,
-                         seed = 0xdada)
 
-  # run in parallel on cluster
-  dm_model_list = bptry({
-      bplapply(seq(num_boot),
-               run_vb,
-               BPPARAM = param,
-               df_samples_subset = df_samples_subset,
-               donors = donors,
-               protein_names = protein_names,
-               condition = condition)
-    })
+  # # OLD: use BiocParallel (which uses BatchJobs internally)
+  # param = BatchJobsParam(workers = num_boot,
+  #                        resources = list(ntasks = 1,
+  #                                         ncpus = 1,
+  #                                         mem = expected_mem,
+  #                                         walltime = expected_walltime),
+  #                        cluster.functions = makeClusterFunctionsSLURM(slurm_settings),
+  #                        log = TRUE,
+  #                        logdir = ".",
+  #                        progressbar = TRUE,
+  #                        cleanup = FALSE,
+  #                        stop.on.error = FALSE,
+  #                        seed = 0xdada)
+  #
+  # # run in parallel on cluster
+  # dm_model_list = bptry({
+  #     bplapply(seq(num_boot),
+  #              run_vb,
+  #              BPPARAM = param,
+  #              df_samples_subset = df_samples_subset,
+  #              donors = donors,
+  #              protein_names = protein_names,
+  #              condition = condition)
+  #   })
+
+  # replace BiocParallel,BatchJobs with batchtools
+  # NEW: use batchtools
+  reg = makeRegistry(file.dir = "registry",
+                     packages = c("dplyr","magrittr","rstan"))
+  reg$cluster.functions = makeClusterFunctionsSlurm(slurm_settings)
+  batchExport(export = list(df_samples_subset = df_samples_subset,
+                            donors = donors,
+                            protein_names = protein_names,
+                            condition = condition),
+              reg = reg)
+  batchMap(fun = run_vb, args = seq(num_boot), reg = reg)
+  submitJobs(resources = list(ntasks = 1,
+                              ncpus = 1,
+                              mem = expected_mem,
+                              walltime = expected_walltime))
+  waitForJobs(reg = reg)
+  getStatus()
+  findErrors()
+  getErrorMessages()
+  dm_model_list = reduceResultsList(missing.val = NULL, reg = reg)
+
   dm_model_list
 }
 
@@ -70,9 +93,9 @@ run_vb = function(seed,
                   condition) {
 
   # need to load it here because this will be run on the cluster
-  library("dplyr")
-  library("magrittr")
-  library("rstan")
+  #library("dplyr")
+  #library("magrittr")
+  #library("rstan")
   print(seed)
   set.seed(seed)
 
