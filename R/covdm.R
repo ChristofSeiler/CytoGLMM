@@ -64,10 +64,14 @@ covdm = function(df_samples_subset,
   # replace BiocParallel,BatchJobs with batchtools
   # NEW: use batchtools
   slurm_settings = system.file("exec", "slurm_batchtools.tmpl", package = "CytoGLMM")
-  reg = makeRegistry(file.dir = "registry4",
+  current_time = Sys.time() %>%
+    str_replace_all(":","") %>%
+    str_replace_all("-| ","_")
+  reg = makeRegistry(file.dir = paste0("registry_",current_time),
                      packages = c("dplyr","magrittr","rstan"))
   reg$cluster.functions = makeClusterFunctionsSlurm(slurm_settings)
-  batchMap(fun = run_vb, 
+  saveRegistry(reg)
+  batchMap(fun = run_vb,
            seed = seq(num_boot),
            more.args = list(df_samples_subset = df_samples_subset,
                             donors = donors,
