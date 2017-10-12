@@ -34,9 +34,9 @@ covdm = function(df_samples_subset,
   expected_mem = ceiling(cells_total/cells_per_mb)
   cat("requested walltime:",expected_walltime,"min\n")
   cat("requested mem:",expected_mem,"MB")
-  slurm_settings = system.file("exec", "slurm.tmpl", package = "CytoGLMM")
 
   # # OLD: use BiocParallel (which uses BatchJobs internally)
+  # slurm_settings = system.file("exec", "slurm.tmpl", package = "CytoGLMM")
   # param = BatchJobsParam(workers = num_boot,
   #                        resources = list(ntasks = 1,
   #                                         ncpus = 1,
@@ -63,6 +63,7 @@ covdm = function(df_samples_subset,
 
   # replace BiocParallel,BatchJobs with batchtools
   # NEW: use batchtools
+  slurm_settings = system.file("exec", "slurm_batchtools.tmpl", package = "CytoGLMM")
   reg = makeRegistry(file.dir = "registry",
                      packages = c("dplyr","magrittr","rstan"))
   reg$cluster.functions = makeClusterFunctionsSlurm(slurm_settings)
@@ -71,11 +72,11 @@ covdm = function(df_samples_subset,
                             protein_names = protein_names,
                             condition = condition),
               reg = reg)
-  batchMap(fun = run_vb, args = seq(num_boot), reg = reg)
-  submitJobs(resources = list(ntasks = 1,
-                              ncpus = 1,
-                              mem = expected_mem,
-                              walltime = expected_walltime))
+  batchMap(fun = run_vb, args = as.list(seq(num_boot)), reg = reg)
+  submitJobs(resources = list(ncpus = 1,
+                              memory = expected_mem,
+                              walltime = expected_walltime,
+                              partition = "hns,normal"))
   waitForJobs(reg = reg)
   getStatus()
   findErrors()
