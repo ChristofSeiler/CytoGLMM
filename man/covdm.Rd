@@ -5,7 +5,7 @@
 \title{Covariance Dirichlet multinomial model using Stan}
 \usage{
 covdm(df_samples_subset, donors, protein_names, condition, num_boot = 100,
-  cell_n_max = 1000)
+  cell_n_max = 1000, seed = 56026)
 }
 \description{
 Covariance Dirichlet multinomial model using Stan

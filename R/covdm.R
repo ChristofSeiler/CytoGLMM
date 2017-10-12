@@ -11,12 +11,14 @@ covdm = function(df_samples_subset,
                  protein_names,
                  condition,
                  num_boot = 100,
-                 cell_n_max = 1000) {
+                 cell_n_max = 1000,
+                 seed = 0xdada) {
 
   # subsample cells
   # (to speed up computations we subsample at cell level,
   # the results won't change much because the major
   # variability happens at donor level)
+  set.seed(seed)
   df_samples_subset = apply(donors,1,function(donor_cells) {
     df_donor = df_samples_subset %>%
       dplyr::filter(donor == donor_cells["donor"])
