@@ -4,29 +4,28 @@
 #' @import magrittr
 #' @import dplyr
 #' @import rstan
-#' @import BiocParallel
 #' @export
 #'
-extract_B = function(dm_model_list,job_id,protein_names) {
+extract_B = function(dm_model_list,ref_run,protein_names) {
 
-  # collect tables from result list
-  jobs_ok = which(bpok(dm_model_list))
-  if(length(jobs_ok) == 0) stop("no jobs completed successfully")
-  
+  # some jobs may fail (because of computing cluster instabilities)
+  if(length(dm_model_list) == 0)
+    stop("no jobs completed successfully")
+
   # measure distance between two B matrices
   distance = function(ref,target) sum(abs(target-ref))
-  
-  if(class(dm_model_list[[jobs_ok[1]]]) == "stanfit") {
-    
+
+  if(class(dm_model_list[[1]]) == "stanfit") {
+
     # extract from stan object
-    fit = dm_model_list[[job_id]]
+    fit = dm_model_list[[ref_run]]
     post = rstan::extract(fit)[["B"]]
     B_ref = apply(post,c(2,3),median)[,1]
-    
+
     # align other estimates
-    lapply(jobs_ok,function(seed) {
+    lapply(seq_along(dm_model_list),function(run) {
       # extract from stan object
-      fit = dm_model_list[[seed]]
+      fit = dm_model_list[[run]]
       post = rstan::extract(fit)[["B"]]
       B_target = apply(post,c(2,3),median)[,1]
       sign_flip = 1
@@ -37,18 +36,18 @@ extract_B = function(dm_model_list,job_id,protein_names) {
              coeff = apply(column_condition,2,median),
              min = apply(column_condition,2,quantile,probs = 0.05),
              max = apply(column_condition,2,quantile,probs = 0.95),
-             seed = seed)
+             run = run)
     }) %>% bind_rows
-    
+
   } else {
 
     # extract from list
-    fit = dm_model_list[[job_id]]
+    fit = dm_model_list[[ref_run]]
     B_ref = fit$par$B[,1]
 
     # collect from result list
-    tb = lapply(jobs_ok,function(seed) {
-      fit = dm_model_list[[seed]]
+    tb = lapply(seq_along(dm_model_list),function(run) {
+      fit = dm_model_list[[run]]
       B_target = fit$par$B[,1]
       sign_flip = 1
       if(distance(B_ref,B_target) > distance(B_ref,-B_target))
@@ -56,9 +55,9 @@ extract_B = function(dm_model_list,job_id,protein_names) {
       B_target = sign_flip*B_target
       tibble(protein_name = protein_names,
              coeff = B_target,
-             seed = seed)
+             run = run)
     }) %>% bind_rows
-    
+
   }
 
 }

@@ -9,7 +9,7 @@
 #'
 plot_coeff = function(tb,title_str,xlab_str) {
 
-  tb$seed %<>% as.factor
+  tb$run %<>% as.factor
 
   # median over seeds
   tb_summary = tb %>%

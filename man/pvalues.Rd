@@ -4,7 +4,7 @@
 \alias{pvalues}
 \title{Extract and adjust p-values from GLMM.}
 \usage{
-pvalues(res_glmm_ml)
+pvalues(fit)
 }
 \description{
 Extract and adjust p-values from GLMM.
