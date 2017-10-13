@@ -81,7 +81,8 @@ covdm = function(df_samples_subset,
   submitJobs(resources = list(ncpus = 1,
                               memory = expected_mem,
                               walltime = expected_walltime,
-                              partition = "hns,normal"))
+                              partition = "hns,normal",
+                              measure.memory = TRUE))
   waitForJobs(reg = reg,sleep = 300)
   getStatus()
   findErrors()
