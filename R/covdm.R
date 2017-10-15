@@ -28,10 +28,16 @@ covdm = function(df_samples_subset,
 
   # prepare cluster script
   cells_total = nrow(donors)*cell_n_max
-  cells_per_minute = 400 # conservative value based on previous runs
-  expected_walltime = ceiling(cells_total/cells_per_minute)
-  cells_per_mb = 6 # conservative value based on previous runs
-  expected_mem = ceiling(cells_total/cells_per_mb)
+  # data from previous runs
+  time = c(149,152,276,287) # min
+  cells = c(84000,86000,168000,172000) # cells
+  memory = c(9100,9500,17600,18000) # MB
+  expected_walltime = predict(lm(time ~ cells), 
+                              data.frame(cells = cells_total)) %>% ceiling
+  expected_walltime = expected_walltime + 120 # add two hours
+  expected_mem = predict(lm(memory ~ cells), 
+                         data.frame(cells = cells_total)) %>% ceiling
+  expected_mem = expected_mem + 4000 # add 4GBs
   cat("requested walltime:",expected_walltime,"min\n")
   cat("requested mem:",expected_mem,"MB")
 
