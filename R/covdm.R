@@ -32,10 +32,10 @@ covdm = function(df_samples_subset,
   time = c(149,152,276,287) # min
   cells = c(84000,86000,168000,172000) # cells
   memory = c(9100,9500,17600,18000) # MB
-  expected_walltime = predict(lm(time ~ cells), 
+  expected_walltime = predict(lm(time ~ cells),
                               data.frame(cells = cells_total)) %>% ceiling
   expected_walltime = expected_walltime + 120 # add two hours
-  expected_mem = predict(lm(memory ~ cells), 
+  expected_mem = predict(lm(memory ~ cells),
                          data.frame(cells = cells_total)) %>% ceiling
   expected_mem = expected_mem + 4000 # add 4GBs
   cat("requested walltime:",expected_walltime,"min\n")
@@ -113,7 +113,7 @@ run_vb = function(seed,
   set.seed(seed)
 
   # load stan model from file
-  stan_file = system.file("exec", "covdm.stan", package = "CytoGLMM")
+  stan_file = system.file("exec", "covdm2.stan", package = "CytoGLMM")
   model = rstan::stan_model(file = stan_file, model_name = "covdm_model")
 
   # cases bootstrap
@@ -159,7 +159,7 @@ run_vb = function(seed,
   fit = rstan::vb(model,
                   iter = 2000,
                   output_samples = 100,
-                  pars = c("A","B","sigma"),
+                  pars = c("A","B","sigma","z"),
                   data = stan_data,
                   seed = 0xdada)
   A = rstan::extract(fit)[["A"]] %>% apply(c(2,3),median)
