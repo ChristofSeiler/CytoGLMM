@@ -26,6 +26,5 @@ model {
   for (i in 1:n) {
     theta[i] ~ normal(A * X[i] + gamma[i] * B * X[i] + z[donor[i]], sigma);
     Y[i] ~ multinomial(softmax(theta[i]));
-    //Y[i] ~ multinomial(softmax(A * X[i] + gamma[i] * B * X[i]));
   }
 }

@@ -113,7 +113,7 @@ run_vb = function(seed,
   set.seed(seed)
 
   # load stan model from file
-  stan_file = system.file("exec", "covdm3.stan", package = "CytoGLMM")
+  stan_file = system.file("exec", "covdm2.stan", package = "CytoGLMM")
   model = rstan::stan_model(file = stan_file, model_name = "covdm_model")
 
   # cases bootstrap
@@ -159,23 +159,23 @@ run_vb = function(seed,
   fit = rstan::vb(model,
                   iter = 2000,
                   output_samples = 100,
-                  #pars = c("A","B","sigma","z"),
-                  pars = c("A","z","L_sigma","Omega"),
+                  pars = c("A","B","sigma","z"),
+                  #pars = c("A","z","L_sigma","Omega"),
                   data = stan_data,
                   seed = 0xdada)
   A = rstan::extract(fit)[["A"]] %>% apply(c(2,3),median)
-  #B = rstan::extract(fit)[["B"]] %>% apply(c(2,3),median)
+  B = rstan::extract(fit)[["B"]] %>% apply(c(2,3),median)
   z = rstan::extract(fit)[["z"]] %>% apply(c(2,3),median)
-  #sigma = rstan::extract(fit)[["sigma"]] %>% apply(2,median)
-  L_sigma = rstan::extract(fit)[["L_sigma"]] %>% apply(2,median)
-  Omega = rstan::extract(fit)[["Omega"]] %>% apply(c(2,3),median)
+  sigma = rstan::extract(fit)[["sigma"]] %>% apply(2,median)
+  #L_sigma = rstan::extract(fit)[["L_sigma"]] %>% apply(2,median)
+  #Omega = rstan::extract(fit)[["Omega"]] %>% apply(c(2,3),median)
   par = NULL
   par$A = A
-  #par$B = B
+  par$B = B
   par$z = z
-  #par$sigma = sigma
-  par$L_sigma = L_sigma
-  par$Omega = Omega
+  par$sigma = sigma
+  #par$L_sigma = L_sigma
+  #par$Omega = Omega
   res = NULL
   res$par = par
   res
