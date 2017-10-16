@@ -2,10 +2,10 @@
 % Please edit documentation in R/plot_sigma.R
 \name{plot_sigma}
 \alias{plot_sigma}
-\title{Extact coefficient matrix A}
+\title{Extact and plot noise term}
 \usage{
 plot_sigma(dm_model_list, protein_names = protein_names)
 }
 \description{
-Extact coefficient matrix A
+Extact and plot noise term
 }

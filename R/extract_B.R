@@ -20,22 +20,20 @@ extract_B = function(dm_model_list,ref_run,protein_names) {
     # extract from stan object
     fit = dm_model_list[[ref_run]]
     post = rstan::extract(fit)[["B"]]
-    B_ref = apply(post,c(2,3),median)[,1]
+    B_ref = apply(post,c(2,3),median)
 
     # align other estimates
     lapply(seq_along(dm_model_list),function(run) {
       # extract from stan object
       fit = dm_model_list[[run]]
       post = rstan::extract(fit)[["B"]]
-      B_target = apply(post,c(2,3),median)[,1]
+      B_target = apply(post,c(2,3),median)
       sign_flip = 1
       if(distance(B_ref,B_target) > distance(B_ref,-B_target))
         sign_flip = -1
-      column_condition = sign_flip*post[,,2]
+      B_target = sign_flip*B_target
       tibble(protein_name = protein_names,
-             coeff = apply(column_condition,2,median),
-             min = apply(column_condition,2,quantile,probs = 0.05),
-             max = apply(column_condition,2,quantile,probs = 0.95),
+             coeff = B_target[,2],
              run = run)
     }) %>% bind_rows
 
