@@ -113,7 +113,7 @@ run_vb = function(seed,
   set.seed(seed)
 
   # load stan model from file
-  stan_file = system.file("exec", "covdm2.stan", package = "CytoGLMM")
+  stan_file = system.file("exec", "covdm4.stan", package = "CytoGLMM")
   model = rstan::stan_model(file = stan_file, model_name = "covdm_model")
 
   # cases bootstrap
@@ -166,7 +166,8 @@ run_vb = function(seed,
   fit = rstan::vb(model,
                   iter = 2000,
                   output_samples = 100,
-                  pars = c("A","B","sigma","z"),
+                  pars = c("A","sigma","z"),
+                  #pars = c("A","B","sigma","z"),
                   #pars = c("A","z","L_sigma","Omega"),
                   data = stan_data,
                   seed = 0xdada)
