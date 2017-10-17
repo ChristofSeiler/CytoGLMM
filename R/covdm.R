@@ -155,38 +155,39 @@ run_vb = function(seed,
   #   A = matrix(rnorm(d*p),nrow = d,ncol = p),
   #   B = matrix(rnorm(d*p),nrow = d,ncol = p)
   #   )
-  # fit = rstan::optimizing(model,
-  #                         data = stan_data,
-  #                         as_vector = FALSE,
-  #                         init = init,
-  #                         verbose = TRUE)
-  # fit
+  fit = rstan::optimizing(model,
+                          data = stan_data,
+                          as_vector = FALSE,
+                          # init = init,
+                          verbose = TRUE)
+  fit$par$theta = NULL
+  fit
 
-  # sample from model using variatonal inference
-  fit = rstan::vb(model,
-                  iter = 2000,
-                  output_samples = 100,
-                  pars = c("A","sigma","z"),
-                  #pars = c("A","B","sigma","z"),
-                  #pars = c("A","z","L_sigma","Omega"),
-                  data = stan_data,
-                  seed = 0xdada)
-  A = rstan::extract(fit)[["A"]] %>% apply(c(2,3),median)
-  B = rstan::extract(fit)[["B"]] %>% apply(c(2,3),median)
-  z = rstan::extract(fit)[["z"]] %>% apply(c(2,3),median)
-  sigma = rstan::extract(fit)[["sigma"]] %>% apply(2,median)
-  #L_sigma = rstan::extract(fit)[["L_sigma"]] %>% apply(2,median)
-  #Omega = rstan::extract(fit)[["Omega"]] %>% apply(c(2,3),median)
-  par = NULL
-  par$A = A
-  par$B = B
-  par$z = z
-  par$sigma = sigma
-  #par$L_sigma = L_sigma
-  #par$Omega = Omega
-  res = NULL
-  res$par = par
-  res
+  # # sample from model using variatonal inference
+  # fit = rstan::vb(model,
+  #                 iter = 2000,
+  #                 output_samples = 100,
+  #                 pars = c("A","sigma","z"),
+  #                 #pars = c("A","B","sigma","z"),
+  #                 #pars = c("A","z","L_sigma","Omega"),
+  #                 data = stan_data,
+  #                 seed = 0xdada)
+  # A = rstan::extract(fit)[["A"]] %>% apply(c(2,3),median)
+  # #B = rstan::extract(fit)[["B"]] %>% apply(c(2,3),median)
+  # z = rstan::extract(fit)[["z"]] %>% apply(c(2,3),median)
+  # sigma = rstan::extract(fit)[["sigma"]] %>% apply(2,median)
+  # #L_sigma = rstan::extract(fit)[["L_sigma"]] %>% apply(2,median)
+  # #Omega = rstan::extract(fit)[["Omega"]] %>% apply(c(2,3),median)
+  # par = NULL
+  # par$A = A
+  # par$B = B
+  # par$z = z
+  # par$sigma = sigma
+  # #par$L_sigma = L_sigma
+  # #par$Omega = Omega
+  # res = NULL
+  # res$par = par
+  # res
 
   # # sample using HMC
   # fit = rstan::sampling(model,

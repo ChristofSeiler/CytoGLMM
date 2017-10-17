@@ -12,7 +12,6 @@
     vector[p] X[n]; // design matrix
 }
 parameters {
-  real gamma[n];
   matrix[d,p] A;
   vector<lower=0>[d] sigma;
   vector<lower=0>[d] z[k];
