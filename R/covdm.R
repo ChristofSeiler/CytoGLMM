@@ -118,7 +118,14 @@ run_vb = function(seed,
 
   # cases bootstrap
   # (sample with replacement at donor level)
-  boot_donors = sample(donors$donor,replace = TRUE)
+  # cases bootstrap
+  # (sample with replacement at donor level)
+  boot_donors = NULL
+  if(seed == 1) { # first seed is reserved for original bootstrap
+    boot_donors =  donors$donor
+  } else {
+    boot_donors = sample(donors$donor,replace = TRUE)
+  }
   df_boot = lapply(boot_donors,function(boot_donor)
     df_samples_subset %>%
       dplyr::filter(donor == boot_donor)
