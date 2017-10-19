@@ -140,7 +140,7 @@ run_vb = function(seed,
   donor = df_boot$donor %>% as.factor %>% as.numeric
   n = nrow(Y)
   d = ncol(Y)
-  p = ncol(X)
+  p = ncol(X1)
   k = length(table(donor))
   stan_data = list(n = n,
                    d = d,
