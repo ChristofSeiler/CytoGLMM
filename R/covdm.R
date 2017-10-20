@@ -113,23 +113,22 @@ run_vb = function(seed,
   set.seed(seed)
 
   # load stan model from file
-  stan_file = system.file("exec", "covdm5.stan", package = "CytoGLMM")
+  stan_file = system.file("exec", "covdm6.stan", package = "CytoGLMM")
   model = rstan::stan_model(file = stan_file, model_name = "covdm_model")
 
   # cases bootstrap
   # (sample with replacement at donor level)
-  # cases bootstrap
-  # (sample with replacement at donor level)
-  boot_donors = NULL
   if(seed == 1) { # first seed is reserved for original bootstrap
-    boot_donors =  donors$donor
+    df_boot = df_samples_subset
   } else {
-    boot_donors = sample(donors$donor,replace = TRUE)
+    df_boot = inner_join(donors %>%
+                           group_by_(condition) %>%
+                           sample_frac(replace = TRUE) %>%
+                           ungroup,
+                         df_samples_subset,
+                         by = "donor",
+                         suffix = c("",".y")) %>% droplevels
   }
-  df_boot = lapply(boot_donors,function(boot_donor)
-    df_samples_subset %>%
-      dplyr::filter(donor == boot_donor)
-  ) %>% bind_rows %>% droplevels
 
   # prepare data for rstan
   Y = df_boot %>%
@@ -175,16 +174,16 @@ run_vb = function(seed,
                   data = stan_data,
                   seed = 0xdada)
   A = rstan::extract(fit)[["A"]] %>% apply(c(2,3),median)
-  B = rstan::extract(fit)[["B"]] %>% apply(c(2,3),median)
-  z = rstan::extract(fit)[["z"]] %>% apply(c(2,3),median)
-  sigma = rstan::extract(fit)[["sigma"]] %>% apply(2,median)
+  #B = rstan::extract(fit)[["B"]] %>% apply(c(2,3),median)
+  #z = rstan::extract(fit)[["z"]] %>% apply(c(2,3),median)
+  #sigma = rstan::extract(fit)[["sigma"]] %>% apply(2,median)
   #L_sigma = rstan::extract(fit)[["L_sigma"]] %>% apply(2,median)
   #Omega = rstan::extract(fit)[["Omega"]] %>% apply(c(2,3),median)
   par = NULL
   par$A = A
-  par$B = B
-  par$z = z
-  par$sigma = sigma
+  #par$B = B
+  #par$z = z
+  #par$sigma = sigma
   #par$L_sigma = L_sigma
   #par$Omega = Omega
   res = NULL
