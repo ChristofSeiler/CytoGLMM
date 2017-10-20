@@ -134,20 +134,18 @@ run_vb = function(seed,
   Y = df_boot %>%
     select(protein_names) %>%
     as.matrix
-  X1 = model.matrix(as.formula(paste("~",condition)), data = df_boot)
-  X2 = model.matrix(~ donor, data = df_boot)
+  X = model.matrix(as.formula(paste("~",condition)), data = df_boot)
   donor = df_boot$donor %>% as.factor %>% as.numeric
   n = nrow(Y)
   d = ncol(Y)
-  p = ncol(X1)
+  p = ncol(X)
   k = length(table(donor))
   stan_data = list(n = n,
                    d = d,
                    p = p,
                    donor = donor,
                    Y = Y,
-                   X1 = X1,
-                   X2 = X2,
+                   X = X,
                    k = k)
 
   # # maximum likelihood estimate
