@@ -17,6 +17,7 @@ covdm = function(df_samples_subset,
   # (to speed up computations we subsample at cell level,
   # the results won't change much because the major
   # variability happens at donor level)
+  cell_n_max = min(min(donors$n),cell_n_max)
   set.seed(seed)
   df_samples_subset = apply(donors,1,function(donor_cells) {
     df_donor = df_samples_subset %>%
