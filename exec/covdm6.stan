@@ -13,7 +13,7 @@ parameters {
   matrix[d,p] A;
 }
 model {
-  to_vector(A) ~ normal(0,1);
+  to_vector(A) ~ normal(0,10);
   for (i in 1:n)
     Y[i] ~ multinomial(softmax(A * X[i]));
 }
