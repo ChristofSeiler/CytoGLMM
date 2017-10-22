@@ -35,10 +35,10 @@ covdm = function(df_samples_subset,
   memory = c(9100,9500,17600,18000) # MB
   expected_walltime = predict(lm(time ~ cells),
                               data.frame(cells = cells_total)) %>% ceiling
-  expected_walltime = expected_walltime + 0 # add 2 hours
+  expected_walltime = expected_walltime + 120 # add 2 hours
   expected_mem = predict(lm(memory ~ cells),
                          data.frame(cells = cells_total)) %>% ceiling
-  expected_mem = expected_mem + 0 # add 4GBs
+  expected_mem = expected_mem + 4000 # add 4GBs
   cat("requested walltime:",expected_walltime,"min\n")
   cat("requested mem:",expected_mem,"MB")
 
@@ -114,7 +114,7 @@ run_vb = function(seed,
   set.seed(seed)
 
   # load stan model from file
-  stan_file = system.file("exec", "covdm6.stan", package = "CytoGLMM")
+  stan_file = system.file("exec", "covdm7.stan", package = "CytoGLMM")
   model = rstan::stan_model(file = stan_file, model_name = "covdm_model")
 
   # cases bootstrap
@@ -132,10 +132,13 @@ run_vb = function(seed,
   }
 
   # prepare data for rstan
+  df_boot %<>% mutate(total = df_boot %>%
+                        select_at(protein_names) %>%
+                        rowSums)
   Y = df_boot %>%
     select(protein_names) %>%
     as.matrix
-  X = model.matrix(as.formula(paste("~",condition)), data = df_boot)
+  X = model.matrix(as.formula(paste("~",condition,"* total")), data = df_boot)
   donor = df_boot$donor %>% as.factor %>% as.numeric
   n = nrow(Y)
   d = ncol(Y)
@@ -145,9 +148,9 @@ run_vb = function(seed,
                    d = d,
                    p = p,
                    donor = donor,
+                   k = k,
                    Y = Y,
-                   X = X,
-                   k = k)
+                   X = X)
 
   # # maximum likelihood estimate
   # init = list(
@@ -167,25 +170,24 @@ run_vb = function(seed,
   fit = rstan::vb(model,
                   iter = 2000,
                   output_samples = 100,
-                  pars = "A",
-                  #pars = c("A","sigma","z"),
+                  pars = c("A"),
                   #pars = c("A","B","sigma","z"),
                   #pars = c("A","z","L_sigma","Omega"),
                   data = stan_data,
-                  seed = 0xdada,
-                  adapt_engaged = FALSE,
-                  eta = 1)
+                  seed = 0xdada)
+                  #,adapt_engaged = FALSE,
+                  #eta = 1)
   A = rstan::extract(fit)[["A"]] %>% apply(c(2,3),median)
   #B = rstan::extract(fit)[["B"]] %>% apply(c(2,3),median)
   #z = rstan::extract(fit)[["z"]] %>% apply(c(2,3),median)
-  #sigma = rstan::extract(fit)[["sigma"]] %>% apply(2,median)
+  sigma = rstan::extract(fit)[["sigma"]] %>% apply(2,median)
   #L_sigma = rstan::extract(fit)[["L_sigma"]] %>% apply(2,median)
   #Omega = rstan::extract(fit)[["Omega"]] %>% apply(c(2,3),median)
   par = NULL
   par$A = A
   #par$B = B
   #par$z = z
-  #par$sigma = sigma
+  par$sigma = sigma
   #par$L_sigma = L_sigma
   #par$Omega = Omega
   res = NULL
