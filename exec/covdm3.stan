@@ -1,5 +1,5 @@
 /*
- * Low-dimensional covariance multinomial regression
+ * Normal-multinomial regression with correlated errors
  * Author: Christof Seiler
  */
 data {
@@ -12,7 +12,6 @@ data {
   vector[p] X[n]; // design matrix
 }
 parameters {
-  //real gamma[n];
   matrix[d,p] A;
   vector<lower=0>[d] L_sigma;
   cholesky_factor_corr[d] L_Omega;
@@ -21,10 +20,9 @@ parameters {
 }
 model {
   matrix[d, d] L_Sigma;
-  //gamma ~ normal(0,1);
   to_vector(A) ~ normal(0,1);
-  L_Omega ~ lkj_corr_cholesky(4);
-  L_sigma ~ cauchy(0, 2.5);
+  L_Omega ~ lkj_corr_cholesky(1);
+  L_sigma ~ cauchy(0,5);
   L_Sigma = diag_pre_multiply(L_sigma, L_Omega);
   for (i in 1:n) {
     theta[i] ~ multi_normal_cholesky(A * X[i] + z[donor[i]], L_Sigma);
