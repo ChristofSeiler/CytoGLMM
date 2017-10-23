@@ -15,8 +15,8 @@ parameters {
   vector[d] theta[n];
 }
 model {
-  to_vector(A) ~ normal(0,10);
-  sigma ~ cauchy(0,5);
+  to_vector(A) ~ normal(0,1);
+  #sigma ~ cauchy(0,5);
   for (i in 1:n) {
     theta[i] ~ normal(A * X[i], sigma);
     Y[i] ~ multinomial(softmax(theta[i]));
