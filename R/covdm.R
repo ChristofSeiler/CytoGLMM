@@ -132,13 +132,13 @@ run_vb = function(seed,
   }
 
   # prepare data for rstan
-  df_boot %<>% mutate(total = df_boot %>%
-                        select_at(protein_names) %>%
-                        rowSums)
+  # df_boot %<>% mutate(total = df_boot %>%
+  #                       select_at(protein_names) %>%
+  #                       rowSums)
   Y = df_boot %>%
     select(protein_names) %>%
     as.matrix
-  X = model.matrix(as.formula(paste("~",condition,"* total")), data = df_boot)
+  X = model.matrix(as.formula(paste("~",condition)), data = df_boot)
   donor = df_boot$donor %>% as.factor %>% as.numeric
   n = nrow(Y)
   d = ncol(Y)
@@ -170,7 +170,7 @@ run_vb = function(seed,
   fit = rstan::vb(model,
                   iter = 2000,
                   output_samples = 100,
-                  pars = c("A"),
+                  pars = c("A","sigma"),
                   #pars = c("A","B","sigma","z"),
                   #pars = c("A","z","L_sigma","Omega"),
                   data = stan_data,
