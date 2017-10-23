@@ -114,7 +114,7 @@ run_vb = function(seed,
   set.seed(seed)
 
   # load stan model from file
-  stan_file = system.file("exec", "covdm7.stan", package = "CytoGLMM")
+  stan_file = system.file("exec", "covdm4.stan", package = "CytoGLMM")
   model = rstan::stan_model(file = stan_file, model_name = "covdm_model")
 
   # cases bootstrap
