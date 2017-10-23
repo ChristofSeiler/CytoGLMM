@@ -1,5 +1,5 @@
 /*
-  * Low-dimensional covariance multinomial regression
+* Normal-multinomial regression
 * Author: Christof Seiler
 */
   data {
@@ -19,6 +19,7 @@ parameters {
 }
 model {
   to_vector(A) ~ normal(0,1);
+  sigma ~ cauchy(0,5);
   for (i in 1:n) {
     theta[i] ~ normal(A * X[i] + z[donor[i]], sigma);
     Y[i] ~ multinomial(softmax(theta[i]));

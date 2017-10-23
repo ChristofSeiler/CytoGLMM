@@ -1,4 +1,4 @@
-#' Covariance Dirichlet multinomial model using Stan
+#' Normal-multinomial regression model using Stan
 #'
 #' @import rstan
 #' @import magrittr
@@ -91,11 +91,9 @@ covdm = function(df_samples_subset,
                               partition = "hns,normal",
                               measure.memory = TRUE))
   waitForJobs(reg = reg,sleep = 300)
-  getStatus()
-  findErrors()
-  getErrorMessages()
+  if(!"1" %in% findDone()$job.id)
+    stop("original bootstrap failed")
   dm_model_list = reduceResultsList(missing.val = NULL, reg = reg)
-
   dm_model_list
 }
 
@@ -179,14 +177,14 @@ run_vb = function(seed,
                   #eta = 1)
   A = rstan::extract(fit)[["A"]] %>% apply(c(2,3),median)
   #B = rstan::extract(fit)[["B"]] %>% apply(c(2,3),median)
-  #z = rstan::extract(fit)[["z"]] %>% apply(c(2,3),median)
+  z = rstan::extract(fit)[["z"]] %>% apply(c(2,3),median)
   sigma = rstan::extract(fit)[["sigma"]] %>% apply(2,median)
   #L_sigma = rstan::extract(fit)[["L_sigma"]] %>% apply(2,median)
   #Omega = rstan::extract(fit)[["Omega"]] %>% apply(c(2,3),median)
   par = NULL
   par$A = A
   #par$B = B
-  #par$z = z
+  par$z = z
   par$sigma = sigma
   #par$L_sigma = L_sigma
   #par$Omega = Omega

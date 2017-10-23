@@ -2,11 +2,11 @@
 % Please edit documentation in R/covdm.R
 \name{covdm}
 \alias{covdm}
-\title{Covariance Dirichlet multinomial model using Stan}
+\title{Normal-multinomial regression model using Stan}
 \usage{
 covdm(df_samples_subset, donors, protein_names, condition, num_boot = 100,
   cell_n_max = 1000, seed = 56026)
 }
 \description{
-Covariance Dirichlet multinomial model using Stan
+Normal-multinomial regression model using Stan
 }
