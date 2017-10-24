@@ -1,7 +1,7 @@
 /*
  * Normal-multinomial regression
  * Author: Christof Seiler
-*/
+ */
 data {
   int<lower=1> n; // num of cells
   int<lower=1> d; // num of markers
