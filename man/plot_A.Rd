@@ -4,7 +4,7 @@
 \alias{plot_A}
 \title{Extact and plot noise term}
 \usage{
-plot_A(df_samples_subset, dm_model_list, protein_names = protein_names)
+plot_A(fit)
 }
 \description{
 Extact and plot noise term

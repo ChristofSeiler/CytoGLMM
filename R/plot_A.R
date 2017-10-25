@@ -7,19 +7,20 @@
 #' @import cowplot
 #' @export
 #'
-plot_A = function(df_samples_subset,
-                  dm_model_list,
-                  protein_names = protein_names) {
+plot_A = function(fit) {
+
+  if(fit != "cytomlogit")
+    stop("Input needs to be a cytomlogit object computed by cytomlogit function.")
 
   # some jobs may fail (because of computing cluster instabilities)
-  if(length(dm_model_list) == 0)
+  if(length(fit$model_fit_list) == 0)
     stop("no jobs completed successfully")
 
-  xlab_str = df_samples_subset %>%
-    pull(condition) %>%
+  xlab_str = fit$df_samples_subset %>%
+    pull(fit$condition) %>%
     levels %>%
     paste(collapse = " <-> ")
-  tb_A = extract_A(dm_model_list,protein_names = protein_names)
+  tb_A = extract_A(fit$model_fit_list,protein_names = fit$protein_names)
   plot_coeff(tb_A,"Differential Expression",xlab_str)
 
 }

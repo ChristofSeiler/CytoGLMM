@@ -5,13 +5,16 @@
 #' @import batchtools
 #' @export
 #'
-covdm = function(df_samples_subset,
-                 donors,
-                 protein_names,
-                 condition,
-                 num_boot = 100,
-                 cell_n_max = 1000,
-                 seed = 0xdada) {
+cytomlogit = function(df_samples_subset,
+                      protein_names,
+                      condition,
+                      num_boot = 100,
+                      cell_n_max = 1000,
+                      seed = 0xdada) {
+
+  donors = df_samples_subset %>%
+    group_by_("donor",condition) %>%
+    tally()
 
   # subsample cells
   # (to speed up computations we subsample at cell level,
@@ -93,8 +96,20 @@ covdm = function(df_samples_subset,
   waitForJobs(reg = reg,sleep = 300)
   if(!"1" %in% findDone()$job.id)
     stop("original bootstrap failed")
-  dm_model_list = reduceResultsList(missing.val = NULL, reg = reg)
-  dm_model_list
+  model_fit_list = reduceResultsList(missing.val = NULL, reg = reg)
+
+  # return cytomlogit object
+  fit = NULL
+  fit$model_fit_list = model_fit_list
+  fit$df_samples_subset = df_samples_subset
+  fit$protein_names = protein_names
+  fit$condition = condition
+  fit$num_boot = num_boot
+  fit$cell_n_max = cell_n_max
+  fit$seed = seed
+  class(fit) = "cytomlogit"
+  fit
+
 }
 
 # cluster function
@@ -112,7 +127,7 @@ run_vb = function(seed,
   set.seed(seed)
 
   # load stan model from file
-  stan_file = system.file("exec", "covdm5.stan", package = "CytoGLMM")
+  stan_file = system.file("exec", "cytomlogit.stan", package = "CytoGLMM")
   model = rstan::stan_model(file = stan_file, model_name = "covdm_model")
 
   # cases bootstrap
