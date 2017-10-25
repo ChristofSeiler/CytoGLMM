@@ -7,9 +7,9 @@
 #' @import cowplot
 #' @export
 #'
-plot_A = function(fit) {
+plot.cytomlogit = function(fit) {
 
-  if(fit != "cytomlogit")
+  if(class(fit) != "cytomlogit")
     stop("Input needs to be a cytomlogit object computed by cytomlogit function.")
 
   # some jobs may fail (because of computing cluster instabilities)

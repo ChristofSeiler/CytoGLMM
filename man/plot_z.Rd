@@ -4,7 +4,7 @@
 \alias{plot_z}
 \title{Extact donor random effect z}
 \usage{
-plot_z(dm_model_list, protein_names = protein_names)
+plot_z(fit)
 }
 \description{
 Extact donor random effect z

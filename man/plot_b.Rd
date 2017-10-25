@@ -4,7 +4,7 @@
 \alias{plot_b}
 \title{Extact and plot noise term}
 \usage{
-plot_b(dm_model_list, protein_names = protein_names)
+plot_b(fit)
 }
 \description{
 Extact and plot noise term

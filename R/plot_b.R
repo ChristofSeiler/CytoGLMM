@@ -7,16 +7,18 @@
 #' @import cowplot
 #' @export
 #'
-plot_b = function(dm_model_list,
-                  protein_names = protein_names) {
+plot_b = function(fit) {
+
+  if(class(fit) != "cytomlogit")
+    stop("Input needs to be a cytomlogit object computed by cytomlogit function.")
 
   # some jobs may fail (because of computing cluster instabilities)
-  if(length(dm_model_list) == 0)
+  if(length(fit$model_fit_list) == 0)
     stop("no jobs completed successfully")
 
-  tb_B = extract_B(dm_model_list,
+  tb_B = extract_B(fit$model_fit_list,
                    ref_run = 1,
-                   protein_names = protein_names)
+                   protein_names = fit$protein_names)
   plot_coeff(tb_B,"Residual Co-Expression","b")
 
 }

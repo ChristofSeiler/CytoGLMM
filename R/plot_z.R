@@ -7,18 +7,20 @@
 #' @import cowplot
 #' @export
 #'
-plot_z = function(dm_model_list,
-                  protein_names = protein_names) {
+plot_z = function(fit) {
+
+  if(class(fit) != "cytomlogit")
+    stop("Input needs to be a cytomlogit object computed by cytomlogit function.")
 
   # some jobs may fail (because of computing cluster instabilities)
-  if(length(dm_model_list) == 0)
+  if(length(fit$model_fit_list) == 0)
     stop("no jobs completed successfully")
 
   # extract coefficients
-  tb = lapply(seq_along(dm_model_list),function(run) {
-    fit = dm_model_list[[run]]
-    z = fit$par$z
-    tibble(protein_name = protein_names,
+  tb = lapply(seq_along(fit$model_fit_list),function(run) {
+    model_fit = fit$model_fit_list[[run]]
+    z = model_fit$par$z
+    tibble(protein_name = fit$protein_names,
            coeff = apply(z,2,median),
            run = run)
   }) %>% bind_rows

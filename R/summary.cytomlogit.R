@@ -7,14 +7,16 @@
 #' @import cowplot
 #' @export
 #'
-pvalue_A = function(dm_model_list,
-                    protein_names = protein_names) {
+summary.cytomlogit = function(fit) {
+
+  if(class(fit) != "cytomlogit")
+    stop("Input needs to be a cytomlogit object computed by cytomlogit function.")
 
   # some jobs may fail (because of computing cluster instabilities)
-  if(length(dm_model_list) == 0)
+  if(length(fit$model_fit_list) == 0)
     stop("no jobs completed successfully")
 
-  tb_A = extract_A(dm_model_list,protein_names = protein_names)
+  tb_A = extract_A(fit$model_fit_list,protein_names = fit$protein_names)
   obsv = tb_A %>% dplyr::filter(run == 1)
   boot = tb_A %>% dplyr::filter(run > 1)
   tb_A = lapply(unique(boot$run),function(i)

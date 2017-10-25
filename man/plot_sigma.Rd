@@ -4,7 +4,7 @@
 \alias{plot_sigma}
 \title{Extact and plot noise term}
 \usage{
-plot_sigma(dm_model_list, protein_names = protein_names)
+plot_sigma(fit)
 }
 \description{
 Extact and plot noise term
