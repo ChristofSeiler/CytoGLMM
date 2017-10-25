@@ -7,7 +7,7 @@
 #' @import cowplot
 #' @export
 #'
-plot_z = function(fit) {
+plot_donor_expression = function(fit) {
 
   if(class(fit) != "cytomlogit")
     stop("Input needs to be a cytomlogit object computed by cytomlogit function.")
