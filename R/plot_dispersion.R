@@ -7,7 +7,7 @@
 #' @import cowplot
 #' @export
 #'
-plot_sigma = function(fit) {
+plot_dispersion = function(fit) {
 
   if(class(fit) != "cytomlogit")
     stop("Input needs to be a cytomlogit object computed by cytomlogit function.")
