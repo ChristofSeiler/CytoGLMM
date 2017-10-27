@@ -91,7 +91,7 @@ cytomlogit = function(df_samples_subset,
   submitJobs(resources = list(ncpus = 1,
                               memory = expected_mem,
                               walltime = expected_walltime,
-                              partition = "hns,normal",
+                              partition = "normal", # hns
                               measure.memory = TRUE))
   waitForJobs(reg = reg,sleep = 300)
   if(!"1" %in% findDone()$job.id)
