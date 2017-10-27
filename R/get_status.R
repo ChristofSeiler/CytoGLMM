@@ -2,11 +2,13 @@
 #'
 #' @export
 #'
-get_status = function(user = "cseiler",registry = "registry_2017_10_26_113306") {
+get_status = function(user = "cseiler",
+                      project = "Biogen",
+                      registry = "registry_2017_10_26_113306") {
 
   server = "login.sherlock.stanford.edu"
 
-  cd = "cd /scratch/users/cseiler/Biogen"
+  cd = paste0("cd /scratch/users/",user,"/",project)
   module = "module load R"
   library = "R -e 'library(batchtools)"
   load_registry = paste0("loadRegistry(as.character(substitute(",registry,")))")

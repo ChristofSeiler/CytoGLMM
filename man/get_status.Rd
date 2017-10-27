@@ -4,7 +4,8 @@
 \alias{get_status}
 \title{Check status of jobs on sherlock cluster}
 \usage{
-get_status(user = "cseiler", registry = "registry_2017_10_26_113306")
+get_status(user = "cseiler", project = "Biogen",
+  registry = "registry_2017_10_26_113306")
 }
 \description{
 Check status of jobs on sherlock cluster
