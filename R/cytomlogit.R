@@ -10,7 +10,8 @@ cytomlogit = function(df_samples_subset,
                       condition,
                       num_boot = 100,
                       cell_n_max = 1000,
-                      seed = 0xdada) {
+                      seed = 0xdada,
+                      partition = "normal") {
 
   donors = df_samples_subset %>%
     group_by_("donor",condition) %>%
@@ -91,7 +92,7 @@ cytomlogit = function(df_samples_subset,
   submitJobs(resources = list(ncpus = 1,
                               memory = expected_mem,
                               walltime = expected_walltime,
-                              partition = "normal", # hns
+                              partition = partition,
                               measure.memory = TRUE))
   waitForJobs(reg = reg,sleep = 300)
   if(!"1" %in% findDone()$job.id)
