@@ -23,13 +23,10 @@ cytomlogit = function(df_samples_subset,
   # variability happens at donor level)
   if(min(donors$n) < cell_n_max) stop("some donors have less than cell_n_max number of cells")
   set.seed(seed)
-  df_samples_subset = apply(donors,1,function(donor_cells) {
-    df_donor = df_samples_subset %>%
-      dplyr::filter(donor == donor_cells["donor"])
-    if(nrow(df_donor) > cell_n_max)
-      df_donor %<>% sample_n(size = cell_n_max)
-    df_donor
-  }) %>% bind_rows
+  df_samples_subset %<>%
+    group_by(donor,treatment) %>%
+    sample_n(size = cell_n_max) %>%
+    ungroup
 
   # prepare cluster script
   cells_total = nrow(donors)*cell_n_max
@@ -129,7 +126,7 @@ run_vb = function(seed,
 
   # load stan model from file
   stan_file = system.file("exec", "cytomlogit.stan", package = "CytoGLMM")
-  model = rstan::stan_model(file = stan_file, model_name = "covdm_model")
+  model = rstan::stan_model(file = stan_file, model_name = "cytomlogit")
 
   # cases bootstrap
   # (sample with replacement at donor level)
