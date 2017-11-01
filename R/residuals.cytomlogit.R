@@ -4,12 +4,13 @@
 #' @import tibble
 #' @import magrittr
 #' @import dplyr
+#' @import tidyr
 #' @export
 #'
 residuals.cytomlogit = function(fit,dispersion = TRUE) {
 
   donors = fit$df_samples_subset %>%
-    group_by_("donor",condition) %>%
+    group_by_("donor",fit$condition) %>%
     tally()
   df_sub = fit$df_samples_subset %>%
     group_by(donor) %>%
@@ -44,7 +45,7 @@ residuals.cytomlogit = function(fit,dispersion = TRUE) {
   df_residuals = bind_cols(df_sub[,non_marker_cols],as.tibble(Yres))
 
   df_residuals_long = df_residuals %>%
-    gather_("key","value",protein_names)
+    gather_("key","value",fit$protein_names)
   df_residuals_long %<>% dplyr::filter(value < 20 & value > -20)
 
   ggplot(df_residuals_long,aes(value, fill = key)) +
