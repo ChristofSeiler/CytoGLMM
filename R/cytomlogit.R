@@ -2,6 +2,7 @@
 #'
 #' @import rstan
 #' @import magrittr
+#' @import stringr
 #' @import batchtools
 #' @export
 #'
