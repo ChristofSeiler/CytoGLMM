@@ -80,8 +80,7 @@ cytomlogit = function(df_samples_subset,
                      packages = c("dplyr","magrittr","rstan"))
   reg$cluster.functions = makeClusterFunctionsSlurm(slurm_settings,
                                                     scheduler.latency = 120,
-                                                    fs.latency = 120,
-                                                    nodename = "login.sherlock.stanford.edu")
+                                                    fs.latency = 120)
   batchMap(fun = run_vb,
            seed = seq(num_boot),
            more.args = list(df_samples_subset = df_samples_subset,
