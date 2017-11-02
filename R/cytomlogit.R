@@ -77,7 +77,9 @@ cytomlogit = function(df_samples_subset,
     str_replace_all("-| ","_")
   reg = makeRegistry(file.dir = paste0("registry_",current_time),
                      packages = c("dplyr","magrittr","rstan"))
-  reg$cluster.functions = makeClusterFunctionsSlurm(slurm_settings)
+  reg$cluster.functions = makeClusterFunctionsSlurm(slurm_settings,
+                                                    scheduler.latency = 120,
+                                                    fs.latency = 120)
   batchMap(fun = run_vb,
            seed = seq(num_boot),
            more.args = list(df_samples_subset = df_samples_subset,
