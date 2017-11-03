@@ -37,10 +37,10 @@ cytomlogit = function(df_samples_subset,
   memory = c(9100,9500,17600,18000) # MB
   expected_walltime = predict(lm(time ~ cells),
                               data.frame(cells = cells_total)) %>% ceiling
-  expected_walltime = expected_walltime + 120 # add 2 hours
+  expected_walltime = expected_walltime + 240 # add 2 hours
   expected_mem = predict(lm(memory ~ cells),
                          data.frame(cells = cells_total)) %>% ceiling
-  expected_mem = expected_mem + 4000 # add 4GBs
+  expected_mem = expected_mem + 12000 # add 4GBs
   cat("requested walltime:",expected_walltime,"min\n")
   cat("requested mem:",expected_mem,"MB")
 
