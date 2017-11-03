@@ -79,7 +79,7 @@ cytomlogit = function(df_samples_subset,
   reg = makeRegistry(file.dir = paste0("registry_",current_time),
                      packages = c("dplyr","magrittr","rstan"))
   reg$cluster.functions = makeClusterFunctionsSlurm(slurm_settings,
-                                                    scheduler.latency = 1,
+                                                    scheduler.latency = 60,
                                                     fs.latency = 120)
   batchMap(fun = run_vb,
            seed = seq(num_boot),
@@ -94,7 +94,7 @@ cytomlogit = function(df_samples_subset,
                               partition = partition,
                               measure.memory = TRUE),
              reg = reg)
-  waitForJobs(expire.after = 120, reg = reg)
+  waitForJobs(sleep = 60, expire.after = 10, reg = reg)
   if(!"1" %in% findDone()$job.id)
     stop("original bootstrap failed")
   model_fit_list = reduceResultsList(missing.val = NULL, reg = reg)
