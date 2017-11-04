@@ -19,10 +19,6 @@ plot_coeff = function(tb,title_str,xlab_str,hline = 0) {
       min_median = quantile(coeff,probs = 0.05),
       max_median = quantile(coeff,probs = 0.95)
     )
-  tb_summary %<>%
-    left_join(tb %>% dplyr::filter(run == 1),
-              by = "protein_name") %>%
-    select(-run)
 
   # plot all bootstrap runs
   pall = ggplot(tb, aes(x = protein_name, y = coeff,color = protein_name)) +
@@ -35,7 +31,7 @@ plot_coeff = function(tb,title_str,xlab_str,hline = 0) {
     theme(legend.position="none")
 
   # plot summary
-  psummary = ggplot(tb_summary, aes(x = protein_name, y = coeff)) +
+  psummary = ggplot(tb_summary, aes(x = protein_name, y = coeff_median)) +
     geom_hline(yintercept = hline,color = "red") +
     geom_point(size = 2) +
     geom_errorbar(aes(ymin = min_median, ymax = max_median)) +

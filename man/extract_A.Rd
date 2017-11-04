@@ -4,7 +4,7 @@
 \alias{extract_A}
 \title{Extact coefficient matrix A}
 \usage{
-extract_A(dm_model_list, protein_names)
+extract_A(dm_model_list, protein_names, column = 2)
 }
 \description{
 Extact coefficient matrix A

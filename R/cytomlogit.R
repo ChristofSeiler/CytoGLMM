@@ -96,8 +96,8 @@ cytomlogit = function(df_samples_subset,
              sleep = 300,
              reg = reg)
   waitForJobs(sleep = 300, reg = reg)
-  if(!"1" %in% findDone()$job.id)
-    stop("original bootstrap failed")
+  # if(!"1" %in% findDone()$job.id)
+  #   stop("original bootstrap failed")
   model_fit_list = reduceResultsList(missing.val = NULL, reg = reg)
 
   # return cytomlogit object
