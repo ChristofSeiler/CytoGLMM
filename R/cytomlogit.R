@@ -134,17 +134,17 @@ run_vb = function(seed,
 
   # cases bootstrap
   # (sample with replacement at donor level)
-  if(seed == 1) { # first seed is reserved for original bootstrap
-    df_boot = df_samples_subset
-  } else {
-    df_boot = inner_join(donors %>%
-                           group_by_(condition) %>%
-                           sample_frac(replace = TRUE) %>%
-                           ungroup,
-                         df_samples_subset,
-                         by = "donor",
-                         suffix = c("",".y")) %>% droplevels
-  }
+  # if(seed == 1) { # first seed is reserved for original bootstrap
+  #   df_boot = df_samples_subset
+  # } else {
+  df_boot = inner_join(donors %>%
+                         group_by_(condition) %>%
+                         sample_frac(replace = TRUE) %>%
+                         ungroup,
+                       df_samples_subset,
+                       by = "donor",
+                       suffix = c("",".y")) %>% droplevels
+  # }
 
   # prepare data for rstan
   df_boot %<>% mutate(total = df_boot %>%
