@@ -18,7 +18,7 @@ parameters {
   vector[d] theta[n];
 }
 model {
-  to_vector(A) ~ normal(0,1);
+  #to_vector(A) ~ normal(0,1);
   for (j in 1:k)
     z[j] ~ normal(0,1);
   sigma ~ cauchy(0,5);
