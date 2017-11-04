@@ -15,9 +15,9 @@ parameters {
   matrix[d,p] A;
   vector<lower=0>[d] sigma;
   vector[d] z[k];
+  vector[d] theta[n];
 }
 model {
-  vector[d] theta[n];
   to_vector(A) ~ normal(0,10);
   for (j in 1:k)
     z[j] ~ normal(0,10);
