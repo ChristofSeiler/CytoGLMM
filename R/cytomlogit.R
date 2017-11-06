@@ -9,6 +9,7 @@
 cytomlogit = function(df_samples_subset,
                       protein_names,
                       condition,
+                      unpaired = TRUE,
                       num_boot = 100,
                       cell_n_max = 1000,
                       seed = 0xdada,
@@ -40,7 +41,8 @@ cytomlogit = function(df_samples_subset,
   expected_walltime = expected_walltime + 120 # add 2 hours
   expected_mem = predict(lm(memory ~ cells),
                          data.frame(cells = cells_total)) %>% ceiling
-  expected_mem = expected_mem + 12000 # add 4GBs
+  expected_mem = expected_mem + 4000 # add 4GBs
+  if(!unpaired) expected_mem = expected_mem + 8000 # paired analysis need more memory
   cat("requested walltime:",expected_walltime,"min\n")
   cat("requested mem:",expected_mem,"MB")
 
@@ -84,9 +86,9 @@ cytomlogit = function(df_samples_subset,
   batchMap(fun = run_vb,
            seed = seq(num_boot),
            more.args = list(df_samples_subset = df_samples_subset,
-                            donors = donors,
                             protein_names = protein_names,
-                            condition = condition),
+                            condition = condition,
+                            unpaired = unpaired),
            reg = reg)
   submitJobs(resources = list(ncpus = 1,
                               memory = expected_mem,
@@ -117,9 +119,9 @@ cytomlogit = function(df_samples_subset,
 # cluster function
 run_vb = function(seed,
                   df_samples_subset,
-                  donors,
                   protein_names,
-                  condition) {
+                  condition,
+                  unpaired = TRUE) {
 
   # need to load it here because this will be run on the cluster
   #library("dplyr")
@@ -137,14 +139,25 @@ run_vb = function(seed,
   # if(seed == 1) { # first seed is reserved for original bootstrap
   #   df_boot = df_samples_subset
   # } else {
-  df_boot = inner_join(donors %>%
-                         group_by_(condition) %>%
-                         sample_frac(replace = TRUE) %>%
-                         ungroup,
+  # }
+  donor_boot = NULL
+  if(unpaired) {
+    donor_boot = df_samples_subset %>%
+      group_by_("donor",condition) %>%
+      tally() %>%
+      group_by_(condition) %>%
+      sample_frac(replace = TRUE) %>%
+      ungroup
+  } else {
+    donor_boot = df_samples_subset %>%
+      group_by(donor) %>%
+      tally() %>%
+      sample_frac(replace = TRUE)
+  }
+  df_boot = inner_join(donor_boot,
                        df_samples_subset,
                        by = "donor",
                        suffix = c("",".y")) %>% droplevels
-  # }
 
   # prepare data for rstan
   df_boot %<>% mutate(total = df_boot %>%
