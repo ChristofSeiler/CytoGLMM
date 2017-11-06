@@ -4,8 +4,8 @@
 \alias{cytomlogit}
 \title{Normal-multinomial regression model using Stan}
 \usage{
-cytomlogit(df_samples_subset, protein_names, condition, num_boot = 100,
-  cell_n_max = 1000, seed = 56026, partition = "normal")
+cytomlogit(df_samples_subset, protein_names, condition, unpaired = TRUE,
+  num_boot = 100, cell_n_max = 1000, seed = 56026, partition = "normal")
 }
 \description{
 Normal-multinomial regression model using Stan
