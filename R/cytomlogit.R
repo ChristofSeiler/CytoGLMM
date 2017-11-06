@@ -95,7 +95,9 @@ cytomlogit = function(df_samples_subset,
                               measure.memory = TRUE),
              sleep = 300,
              reg = reg)
-    stop("original bootstrap failed")
+  waitForJobs(sleep = 300, reg = reg)
+  # if(!"1" %in% findDone()$job.id)
+  #   stop("original bootstrap failed")
   model_fit_list = reduceResultsList(missing.val = NULL, reg = reg)
 
   # return cytomlogit object
@@ -127,12 +129,22 @@ run_vb = function(seed,
   set.seed(seed)
 
   # load stan model from file
+  stan_file = system.file("exec", "cytomlogit_simple.stan", package = "CytoGLMM")
   model = rstan::stan_model(file = stan_file, model_name = "cytomlogit")
 
   # cases bootstrap
   # (sample with replacement at donor level)
-  if(seed == 1) { # first seed is reserved for original bootstrap
-                           group_by_(condition) %>%
+  # if(seed == 1) { # first seed is reserved for original bootstrap
+  #   df_boot = df_samples_subset
+  # } else {
+  df_boot = inner_join(donors %>%
+                         group_by_(condition) %>%
+                         sample_frac(replace = TRUE) %>%
+                         ungroup,
+                       df_samples_subset,
+                       by = "donor",
+                       suffix = c("",".y")) %>% droplevels
+  # }
 
   # prepare data for rstan
   df_boot %<>% mutate(total = df_boot %>%
