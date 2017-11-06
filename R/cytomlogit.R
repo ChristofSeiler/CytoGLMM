@@ -93,10 +93,8 @@ cytomlogit = function(df_samples_subset,
                               walltime = expected_walltime,
                               partition = partition,
                               measure.memory = TRUE),
-             sleep = 120,
+             sleep = 300,
              reg = reg)
-  waitForJobs(sleep = 120, reg = reg)
-  if(!"1" %in% findDone()$job.id)
     stop("original bootstrap failed")
   model_fit_list = reduceResultsList(missing.val = NULL, reg = reg)
 
@@ -129,31 +127,22 @@ run_vb = function(seed,
   set.seed(seed)
 
   # load stan model from file
-  stan_file = system.file("exec", "cytomlogit.stan", package = "CytoGLMM")
   model = rstan::stan_model(file = stan_file, model_name = "cytomlogit")
 
   # cases bootstrap
   # (sample with replacement at donor level)
   if(seed == 1) { # first seed is reserved for original bootstrap
-    df_boot = df_samples_subset
-  } else {
-    df_boot = inner_join(donors %>%
                            group_by_(condition) %>%
-                           sample_frac(replace = TRUE) %>%
-                           ungroup,
-                         df_samples_subset,
-                         by = "donor",
-                         suffix = c("",".y")) %>% droplevels
-  }
 
   # prepare data for rstan
-  # df_boot %<>% mutate(total = df_boot %>%
-  #                       select_at(protein_names) %>%
-  #                       rowSums)
+  df_boot %<>% mutate(total = df_boot %>%
+                        select_at(protein_names) %>%
+                        rowSums)
   Y = df_boot %>%
     select(protein_names) %>%
     as.matrix
-  X = model.matrix(as.formula(paste("~",condition)), data = df_boot)
+  #X = model.matrix(as.formula(paste("~",condition)), data = df_boot)
+  X = model.matrix(as.formula(paste("~",condition,"+ total")), data = df_boot)
   donor = df_boot$donor %>% as.factor %>% as.numeric
   n = nrow(Y)
   d = ncol(Y)
@@ -185,7 +174,8 @@ run_vb = function(seed,
   fit = rstan::vb(model,
                   iter = 2000,
                   output_samples = 100,
-                  pars = c("A","z","sigma","b"),
+                  pars = c("A","z","sigma"),
+                  #pars = c("A","z","sigma","b"),
                   data = stan_data,
                   seed = 0xdada)
                   #,adapt_engaged = FALSE,
@@ -193,12 +183,12 @@ run_vb = function(seed,
   A = rstan::extract(fit)[["A"]] %>% apply(c(2,3),median)
   z = rstan::extract(fit)[["z"]] %>% apply(c(2,3),median)
   sigma = rstan::extract(fit)[["sigma"]] %>% apply(2,median)
-  b = rstan::extract(fit)[["b"]] %>% apply(2,median)
+  #b = rstan::extract(fit)[["b"]] %>% apply(2,median)
   par = NULL
   par$A = A
   par$z = z
   par$sigma = sigma
-  par$b = b
+  #par$b = b
   res = NULL
   res$par = par
   res

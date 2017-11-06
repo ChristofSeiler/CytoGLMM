@@ -16,25 +16,14 @@ summary.cytomlogit = function(fit) {
   if(length(fit$model_fit_list) == 0)
     stop("no jobs completed successfully")
 
-  tb_A = extract_A(fit$model_fit_list,protein_names = fit$protein_names)
-  obsv = tb_A %>% dplyr::filter(run == 1)
-  boot = tb_A %>% dplyr::filter(run > 1)
-  tb_A = lapply(unique(boot$run),function(i)
-    boot %>%
-      dplyr::filter(run == i) %>%
-      mutate( coeff_translated = (coeff-obsv$coeff) ) %>%
-      add_column( coeff_obsv = obsv$coeff )
-    ) %>% bind_rows
-
-  tb_A_summary = tb_A %>%
+  tb = extract_A(fit$model_fit_list,protein_names = fit$protein_names,column = 2)
+  tb_summary = tb %>%
     group_by(protein_name) %>%
     summarize(
-      pvalue = mean(abs(coeff_obsv) <= abs(coeff_translated))
-    ) %>%
-    mutate(pvalue = ifelse(pvalue > 0,pvalue,1/length(unique(boot$run))) ) %>%
-    mutate(pvalue_adj = p.adjust(pvalue,method = "BH")) %>%
-    mutate(coeff = obsv$coeff)
-  tb_A_summary %>%
-    arrange(pvalue)
+      coeff_median = median(coeff),
+      min_median = quantile(coeff,probs = 0.05),
+      max_median = quantile(coeff,probs = 0.95)
+    )
+  tb_summary
 
 }

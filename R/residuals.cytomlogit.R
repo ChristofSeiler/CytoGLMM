@@ -16,12 +16,16 @@ residuals.cytomlogit = function(fit,dispersion = TRUE) {
     group_by(donor) %>%
     sample_n(min(donors$n)) %>%
     ungroup
+  df_sub %<>% mutate(total = df_sub %>%
+                       select_at(fit$protein_names) %>%
+                       rowSums)
 
   model_fit = fit$model_fit_list[[1]]
   Y = df_sub %>%
     select(fit$protein_names) %>%
     as.matrix
-  X = model.matrix(as.formula(paste("~",fit$condition)), data = df_sub)
+  #X = model.matrix(as.formula(paste("~",fit$condition)), data = df_sub)
+  X = model.matrix(as.formula(paste("~",fit$condition,"+ total")), data = df_sub)
   donor = df_sub$donor %>% as.factor %>% as.numeric
   theta_raw = X %*% t(model_fit$par$A) + model_fit$par$z[donor,]
   n_cells = nrow(Y)
@@ -49,7 +53,7 @@ residuals.cytomlogit = function(fit,dispersion = TRUE) {
   df_residuals_long %<>% dplyr::filter(value < 20 & value > -20)
 
   ggplot(df_residuals_long,aes(value, fill = key)) +
-    geom_histogram(bins = 30) +
+    geom_histogram(bins = 25) +
     facet_wrap(~key) +
     theme(legend.position="none") +
     ggtitle(title_str)

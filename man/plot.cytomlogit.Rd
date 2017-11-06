@@ -2,10 +2,10 @@
 % Please edit documentation in R/plot.cytomlogit.R
 \name{plot.cytomlogit}
 \alias{plot.cytomlogit}
-\title{Extact and plot noise term}
+\title{Extact and plot for experimental condition}
 \usage{
 plot.cytomlogit(fit)
 }
 \description{
-Extact and plot noise term
+Extact and plot for experimental condition
 }

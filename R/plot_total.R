@@ -1,4 +1,4 @@
-#' Extact and plot for experimental condition
+#' Extact and plot regression coefficients fot total cell count
 #'
 #' @import ggplot2
 #' @import tibble
@@ -7,7 +7,7 @@
 #' @import cowplot
 #' @export
 #'
-plot.cytomlogit = function(fit) {
+plot_total = function(fit) {
 
   if(class(fit) != "cytomlogit")
     stop("Input needs to be a cytomlogit object computed by cytomlogit function.")
@@ -20,7 +20,7 @@ plot.cytomlogit = function(fit) {
     pull(fit$condition) %>%
     levels %>%
     paste(collapse = " <-> ")
-  tb_A = extract_A(fit$model_fit_list,protein_names = fit$protein_names,column = 2)
-  plot_coeff(tb_A,"Differential Expression",xlab_str)
+  tb_A = extract_A(fit$model_fit_list,protein_names = fit$protein_names,column = 3)
+  plot_coeff(tb_A,"Total Protein Expression","asinh transformed count")
 
 }

@@ -14,11 +14,13 @@ data {
 parameters {
   matrix[d,p] A;
   vector<lower=0>[d] sigma;
-  vector<lower=0>[d] z[k];
+  vector[d] z[k];
   vector[d] theta[n];
 }
 model {
   to_vector(A) ~ normal(0,1);
+  for (j in 1:k)
+    z[j] ~ normal(0,1);
   sigma ~ cauchy(0,5);
   for (i in 1:n) {
     theta[i] ~ normal(A * X[i] + z[donor[i]], sigma);
