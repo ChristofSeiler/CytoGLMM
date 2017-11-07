@@ -7,7 +7,7 @@
 #' @import cowplot
 #' @export
 #'
-plot_total = function(fit) {
+plot_interaction = function(fit) {
 
   if(class(fit) != "cytomlogit")
     stop("Input needs to be a cytomlogit object computed by cytomlogit function.")
@@ -19,8 +19,9 @@ plot_total = function(fit) {
   xlab_str = fit$df_samples_subset %>%
     pull(fit$condition) %>%
     levels %>%
-    paste(collapse = " <-> ")
-  tb_A = extract_A(fit$model_fit_list,protein_names = fit$protein_names,column = 3)
-  plot_coeff(tb_A,"Differential Expression","total proteins per cell")
+    paste(collapse = " <-> ") %>%
+    paste(": total")
+  tb_A = extract_A(fit$model_fit_list,protein_names = fit$protein_names,column = 4)
+  plot_coeff(tb_A,"Differential Expression",xlab_str)
 
 }

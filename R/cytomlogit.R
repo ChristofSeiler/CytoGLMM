@@ -207,6 +207,7 @@ run_vb = function(seed,
                   #,adapt_engaged = FALSE,
                   #eta = 1)
   A = rstan::extract(fit)[["A"]] %>% apply(c(2,3),median)
+  colnames(A) = colnames(X)
   z = rstan::extract(fit)[["z"]] %>% apply(c(2,3),median)
   #sigma = rstan::extract(fit)[["sigma"]] %>% apply(2,median)
   #b = rstan::extract(fit)[["b"]] %>% apply(2,median)
