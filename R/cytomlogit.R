@@ -131,7 +131,7 @@ run_vb = function(seed,
   set.seed(seed)
 
   # load stan model from file
-  stan_file = system.file("exec", "cytomdir_simple.stan", package = "CytoGLMM")
+  stan_file = system.file("exec", "cytomlogit_simple.stan", package = "CytoGLMM")
   model = rstan::stan_model(file = stan_file, model_name = "cytomlogit")
 
   # cases bootstrap
@@ -167,7 +167,7 @@ run_vb = function(seed,
     select(protein_names) %>%
     as.matrix
   #X = model.matrix(as.formula(paste("~",condition)), data = df_boot)
-  X = model.matrix(as.formula(paste("~",condition,"+ total")), data = df_boot)
+  X = model.matrix(as.formula(paste("~",condition,"* total")), data = df_boot)
   donor = df_boot$donor %>% as.factor %>% as.numeric
   n = nrow(Y)
   d = ncol(Y)
