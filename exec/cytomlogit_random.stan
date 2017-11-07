@@ -13,30 +13,32 @@ data {
 }
 parameters {
   matrix[d,p] A;
-  vector<lower=0>[d] sigma; // donor random effects std
+  vector<lower=0>[d] sigma;
+  vector[d] z[k];
+  vector[d] theta[n];
+  vector<lower=0>[d] L_sigma; // donor random effects std
   cholesky_factor_corr[d] L; // cholesky factor of donor random effects corr matrix
-  vector[d] z[k]; // donor random effects
 }
 transformed parameters {
-  vector[d] theta[n];
   vector[d] u[k]; // donor random effects
   {
     matrix[d,d] Sigma; // donor random effects cov matrix
-    Sigma = diag_pre_multiply(sigma, L);
+    Sigma = diag_pre_multiply(L_sigma, L);
     for(j in 1:k)
       u[j] = Sigma * z[j];
   }
-  for(i in 1:n)
-    theta[i] = A * X[i] + u[donor[i]];
 }
 model {
-  to_vector(A) ~ normal(0,10);
-  L ~ lkj_corr_cholesky(1.0);
-  sigma ~ cauchy(0,5);
+  to_vector(A) ~ normal(0,5);
   for (j in 1:k)
-    z[j] ~ normal(0,1);
-  for (i in 1:n)
+    z[j] ~ normal(0,5);
+  sigma ~ cauchy(0,5);
+  L ~ lkj_corr_cholesky(1.0);
+  L_sigma ~ cauchy(0,5);
+  for (i in 1:n) {
+    theta[i] ~ normal(A * X[i] + u[donor[i]], sigma);
     Y[i] ~ multinomial(softmax(theta[i]));
+  }
 }
 generated quantities {
   matrix[d,d] Cor;
