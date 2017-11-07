@@ -22,9 +22,9 @@ transformed parameters {
     theta[i] = A * X[i] + z[donor[i]];
 }
 model {
-  to_vector(A) ~ normal(0,1);
+  to_vector(A) ~ normal(0,10);
   for (j in 1:k)
-    z[j] ~ normal(0,1);
+    z[j] ~ normal(0,10);
   //sigma ~ cauchy(0,5);
   for (i in 1:n) {
     //theta[i] ~ normal(A * X[i] + z[donor[i]], sigma);
