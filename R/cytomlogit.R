@@ -131,7 +131,7 @@ run_vb = function(seed,
   set.seed(seed)
 
   # load stan model from file
-  stan_file = system.file("exec", "cytomlogit_simple.stan", package = "CytoGLMM")
+  stan_file = system.file("exec", "cytomlogit_random.stan", package = "CytoGLMM")
   model = rstan::stan_model(file = stan_file, model_name = "cytomlogit")
 
   # cases bootstrap

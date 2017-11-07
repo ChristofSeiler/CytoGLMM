@@ -20,9 +20,9 @@ parameters {
   vector[d] b;
 }
 model {
-  to_vector(A) ~ normal(0,1);
+  to_vector(A) ~ normal(0,5);
   for (j in 1:k)
-    z[j] ~ normal(0,1);
+    z[j] ~ normal(0,5);
   sigma ~ cauchy(0,5);
   gamma ~ normal(0,1);
   b ~ normal(0,1);

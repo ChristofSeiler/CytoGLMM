@@ -31,7 +31,7 @@ transformed parameters {
 model {
   to_vector(A) ~ normal(0,5);
   for (j in 1:k)
-    z[j] ~ normal(0,5);
+    z[j] ~ normal(0,1);
   sigma ~ cauchy(0,5);
   L ~ lkj_corr_cholesky(1.0);
   L_sigma ~ cauchy(0,5);
