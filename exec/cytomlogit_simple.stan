@@ -13,17 +13,21 @@ data {
 }
 parameters {
   matrix[d,p] A;
-  vector<lower=0>[d] sigma;
+  //vector<lower=0>[d] sigma;
   vector[d] z[k];
+}
+transformed parameters {
   vector[d] theta[n];
+  for(i in 1:n)
+    theta[i] = A * X[i] + z[donor[i]];
 }
 model {
   to_vector(A) ~ normal(0,1);
   for (j in 1:k)
     z[j] ~ normal(0,1);
-  sigma ~ cauchy(0,5);
+  //sigma ~ cauchy(0,5);
   for (i in 1:n) {
-    theta[i] ~ normal(A * X[i] + z[donor[i]], sigma);
+    //theta[i] ~ normal(A * X[i] + z[donor[i]], sigma);
     Y[i] ~ multinomial(softmax(theta[i]));
   }
 }
