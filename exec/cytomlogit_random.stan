@@ -18,6 +18,7 @@ parameters {
   vector[d] z[k]; // donor random effects
 }
 transformed parameters {
+  vector[d] theta[n];
   vector[d] u[k]; // donor random effects
   {
     matrix[d,d] Sigma; // donor random effects cov matrix
@@ -25,6 +26,8 @@ transformed parameters {
     for(j in 1:k)
       u[j] = Sigma * z[j];
   }
+  for(i in 1:n)
+    theta[i] = A * X[i] + u[donor[i]];
 }
 model {
   to_vector(A) ~ normal(0,10);
@@ -33,7 +36,7 @@ model {
   for (j in 1:k)
     z[j] ~ normal(0,1);
   for (i in 1:n)
-    Y[i] ~ multinomial(softmax(A * X[i] + u[donor[i]]));
+    Y[i] ~ multinomial(softmax(theta[i]));
 }
 generated quantities {
   matrix[d,d] Cor;
