@@ -1,7 +1,7 @@
 /*
-* Normal-multinomial regression
-* Author: Christof Seiler
-*/
+ * Logistic normal multinomial regression (no donor effect)
+ * Author: Christof Seiler
+ */
 data {
   int<lower=1> n; // num of cells
   int<lower=1> d; // num of markers
@@ -15,8 +15,8 @@ parameters {
   vector[d] theta[n];
 }
 model {
-  to_vector(A) ~ normal(0,1);
-  //sigma ~ cauchy(0,5);
+  to_vector(A) ~ normal(0,5);
+  sigma ~ cauchy(0,5);
   for (i in 1:n) {
     theta[i] ~ normal(A * X[i], sigma);
     Y[i] ~ multinomial(softmax(theta[i]));
