@@ -166,8 +166,8 @@ run_vb = function(seed,
   Y = df_boot %>%
     select(protein_names) %>%
     as.matrix
-  #X = model.matrix(as.formula(paste("~",condition)), data = df_boot)
-  X = model.matrix(as.formula(paste("~",condition,"* total")), data = df_boot)
+  X = model.matrix(as.formula(paste("~",condition)), data = df_boot)
+  #X = model.matrix(as.formula(paste("~",condition,"* total")), data = df_boot)
   donor = df_boot$donor %>% as.factor %>% as.numeric
   n = nrow(Y)
   d = ncol(Y)
@@ -209,12 +209,12 @@ run_vb = function(seed,
   A = rstan::extract(fit)[["A"]] %>% apply(c(2,3),median)
   colnames(A) = colnames(X)
   z = rstan::extract(fit)[["z"]] %>% apply(c(2,3),median)
-  #sigma = rstan::extract(fit)[["sigma"]] %>% apply(2,median)
+  sigma = rstan::extract(fit)[["sigma"]] %>% apply(2,median)
   #b = rstan::extract(fit)[["b"]] %>% apply(2,median)
   par = NULL
   par$A = A
   par$z = z
-  #par$sigma = sigma
+  par$sigma = sigma
   #par$b = b
   res = NULL
   res$par = par

@@ -1,5 +1,5 @@
 /*
- * Normal-multinomial regression
+ * Logistic normal multinomial regression
  * Author: Christof Seiler
  */
 data {
