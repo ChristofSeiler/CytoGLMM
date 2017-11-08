@@ -160,9 +160,9 @@ run_vb = function(seed,
                        suffix = c("",".y")) %>% droplevels
 
   # prepare data for rstan
-  df_boot %<>% mutate(total = df_boot %>%
-                        select_at(protein_names) %>%
-                        rowSums)
+  # df_boot %<>% mutate(total = df_boot %>%
+  #                       select_at(protein_names) %>%
+  #                       rowSums)
   Y = df_boot %>%
     select(protein_names) %>%
     as.matrix
