@@ -28,7 +28,7 @@ log.file = normalizePath(log.file, winslash = "/", mustWork = FALSE)
 #SBATCH --error=<%= log.file %>
 #SBATCH --time=<%= resources$walltime %>
 #SBATCH --ntasks=1
-##SBATCH --exclude=sh-101-46,sh-101-35
+#SBATCH --exclude=sh-101-34
 #SBATCH --cpus-per-task=<%= resources$ncpus %>
 #SBATCH --mem-per-cpu=<%= resources$memory %>
 <%= if (!is.null(resources$partition)) sprintf(paste0("#SBATCH --partition='", resources$partition, "'")) %>
