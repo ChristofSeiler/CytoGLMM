@@ -131,7 +131,7 @@ run_vb = function(seed,
   set.seed(seed)
 
   # load stan model from file
-  stan_file = system.file("exec", "covdm6.stan", package = "CytoGLMM")
+  stan_file = system.file("exec", "cytomlogit_correlated_lowrank.stan", package = "CytoGLMM")
   model = rstan::stan_model(file = stan_file, model_name = "cytomlogit")
 
   # cases bootstrap
@@ -199,9 +199,8 @@ run_vb = function(seed,
   fit = rstan::vb(model,
                   iter = 2000,
                   output_samples = 100,
-                  pars = c("A"),
-                  #pars = c("A","sigma"),
-                  #pars = c("A","z","sigma"),
+                  pars = c("A","sigma"),
+                  #pars = c("A","sigma","Cor"),
                   data = stan_data,
                   seed = 0xdada)
                   #,adapt_engaged = FALSE,
@@ -209,12 +208,14 @@ run_vb = function(seed,
   A = rstan::extract(fit)[["A"]] %>% apply(c(2,3),median)
   colnames(A) = colnames(X)
   #z = rstan::extract(fit)[["z"]] %>% apply(c(2,3),median)
-  #sigma = rstan::extract(fit)[["sigma"]] %>% apply(2,median)
+  sigma = rstan::extract(fit)[["sigma"]] %>% apply(2,median)
+  Cor = rstan::extract(fit)[["Cor"]] %>% apply(c(2,3),median)
   #b = rstan::extract(fit)[["b"]] %>% apply(2,median)
   par = NULL
   par$A = A
   #par$z = z
   #par$sigma = sigma
+  par$Cor = Cor
   #par$b = b
   res = NULL
   res$par = par
