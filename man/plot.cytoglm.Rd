@@ -2,10 +2,10 @@
 % Please edit documentation in R/plot.cytoglm.R
 \name{plot.cytoglm}
 \alias{plot.cytoglm}
-\title{Extact and plot for experimental condition}
+\title{Plot bootstraped coefficients}
 \usage{
 plot.cytoglm(fit)
 }
 \description{
-Extact and plot for experimental condition
+Plot bootstraped coefficients
 }

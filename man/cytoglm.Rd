@@ -2,12 +2,12 @@
 % Please edit documentation in R/cytoglm.R
 \name{cytoglm}
 \alias{cytoglm}
-\title{Normal-multinomial regression model using Stan}
+\title{Logistic regression with cases bootstrap}
 \usage{
-cytoglm(df_samples_subset, protein_names, condition, unpaired = TRUE,
-  cell_n_max = Inf, subsample = FALSE, num_boot = 100, seed = 56026,
+cytoglm(df_samples_subset, protein_names, condition, cell_n_min = Inf,
+  cell_n_subsample = Inf, unpaired = TRUE, num_boot = 100, seed = 56026,
   num_cores = 4)
 }
 \description{
-Normal-multinomial regression model using Stan
+Logistic regression with cases bootstrap
 }

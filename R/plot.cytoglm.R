@@ -1,4 +1,4 @@
-#' Extact and plot for experimental condition
+#' Plot bootstraped coefficients
 #'
 #' @import ggplot2
 #' @import tibble
