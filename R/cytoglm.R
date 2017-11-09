@@ -1,9 +1,8 @@
 #' Normal-multinomial regression model using Stan
 #'
-#' @import rstan
 #' @import magrittr
 #' @import stringr
-#' @import batchtools
+#' @import parallel
 #' @export
 #'
 cytoglm = function(df_samples_subset,
