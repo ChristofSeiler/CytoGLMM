@@ -13,7 +13,8 @@ cytomlogit = function(df_samples_subset,
                       num_boot = 100,
                       cell_n_max = 1000,
                       seed = 0xdada,
-                      partition = "normal") {
+                      partition = "normal",
+                      exclude = "") {
 
   donors = df_samples_subset %>%
     group_by_("donor",condition) %>%
@@ -94,6 +95,7 @@ cytomlogit = function(df_samples_subset,
                               memory = expected_mem,
                               walltime = expected_walltime,
                               partition = partition,
+                              exclude = exclude,
                               measure.memory = TRUE),
              sleep = 300,
              reg = reg)
@@ -131,7 +133,7 @@ run_vb = function(seed,
   set.seed(seed)
 
   # load stan model from file
-  stan_file = system.file("exec", "cytomlogit_correlated_lowrank.stan", package = "CytoGLMM")
+  stan_file = system.file("exec", "cytomlogit.stan", package = "CytoGLMM")
   model = rstan::stan_model(file = stan_file, model_name = "cytomlogit")
 
   # cases bootstrap
