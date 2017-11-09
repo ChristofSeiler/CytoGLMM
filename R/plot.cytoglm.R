@@ -20,7 +20,6 @@ plot.cytoglm = function(fit) {
     pull(fit$condition) %>%
     levels %>%
     paste(collapse = " <-> ")
-  tb_A = extract_A(fit$model_fit_list,protein_names = fit$protein_names,column = 2)
-  plot_coeff(tb_A,"Differential Expression",xlab_str)
+  plot_coeff(fit$tb_coef,"Differential Expression",xlab_str)
 
 }
