@@ -10,7 +10,6 @@ cytoglm = function(df_samples_subset,
                    condition,
                    cell_n_min = Inf,
                    cell_n_subsample = 0,
-                   unpaired = TRUE,
                    num_boot = 100,
                    seed = 0xdada,
                    num_cores = 4) {
@@ -18,12 +17,20 @@ cytoglm = function(df_samples_subset,
   if(cell_n_subsample > cell_n_min) stop("cell_n_subsample is larger than cell_n_min")
   set.seed(seed)
 
+  # are the samples paired?
+  cell_count = table(df_samples_subset$donor,pull(df_samples_subset,condition))
+  unpaired = TRUE
+  if(sum(apply(cell_count,1,min) > 0) == nrow(cell_count))
+    unpaired = FALSE
+
   # remove donors with low cell count
   include = NULL
   if(cell_n_min < Inf) {
-    cell_count = table(df_samples_subset$donor,pull(df_samples_subset,condition))
-    exclude = which(rowSums(cell_count) < cell_n_min)
-    cell_count[exclude,]
+    if(unpaired) {
+      exclude = which(rowSums(cell_count) < cell_n_min)
+    } else {
+      exclude = which(apply(cell_count,1,min) < cell_n_min)
+    }
     include = rownames(cell_count)[rownames(cell_count) %nin% names(exclude)]
   } else {
     include = rownames(cell_count)
