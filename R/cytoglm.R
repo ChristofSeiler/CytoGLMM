@@ -9,7 +9,7 @@ cytoglm = function(df_samples_subset,
                    protein_names,
                    condition,
                    cell_n_min = Inf,
-                   cell_n_subsample = Inf,
+                   cell_n_subsample = 0,
                    unpaired = TRUE,
                    num_boot = 100,
                    seed = 0xdada,
@@ -33,7 +33,7 @@ cytoglm = function(df_samples_subset,
     droplevels()
 
   # subsample cells
-  if(cell_n_subsample < Inf) {
+  if(cell_n_subsample > 0) {
     df_samples_subset %<>%
       group_by_("donor",condition) %>%
       sample_n(size = cell_n_subsample) %>%
