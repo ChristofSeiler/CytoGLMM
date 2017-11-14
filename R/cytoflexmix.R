@@ -4,6 +4,7 @@
 #' @import stringr
 #' @import parallel
 #' @import flexmix
+#' @import cowplot
 #' @export
 #'
 cytoflexmix = function(df_samples_subset,
@@ -76,6 +77,12 @@ cytoflexmix = function(df_samples_subset,
     },mc.cores = num_cores)
   BICs = sapply(fits,BIC)
   best = which.min(BICs)
+  pbic = ggplot(tibble(k = ks,BIC = BICs),aes(k,BIC)) +
+    geom_point() +
+    geom_line() +
+    geom_vline(xintercept = best,color = "red") +
+    ggtitle("Model Selection")
+
   selected_fit = fits[[best]]
   tb = lapply(seq(selected_fit@components),
               function(comp_id) {
@@ -90,11 +97,13 @@ cytoflexmix = function(df_samples_subset,
   tb %<>% gather(protein_name,coeff,-comp_id)
   tb$comp_id %<>% as.factor
 
-  ggplot(tb,aes(x = protein_name,y = coeff,color = comp_id)) +
+  pcoef = ggplot(tb,aes(x = protein_name,y = coeff,color = comp_id)) +
     geom_hline(yintercept = 0, color = "black") +
     geom_point(size = 2) +
     ggtitle("Mixture of Regressions Coefficients") +
     ylab(xlab_str) +
     coord_flip()
+
+  plot_grid(pbic,pcoef,rel_widths = c(0.3,0.7))
 
 }
