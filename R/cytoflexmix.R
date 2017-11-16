@@ -56,14 +56,14 @@ cytoflexmix = function(df_samples_subset,
       ungroup
   }
 
-  # mixtures of logistic regressions
-  xlab_str = df_samples_subset %>%
-    pull(condition) %>%
-    levels %>% paste(collapse = " <-> ")
-  df_samples_subset$treatment = ifelse(df_samples_subset$treatment == "control",yes = 0,no = 1)
+  df_donors = df_samples_subset
+  df_donors$donor %<>% as.factor
+  df_donors = model.matrix(~-1 + donor, df_donors)
+  df_samples_subset %<>% bind_cols(as.tibble(df_donors))
   pnames = paste0("cbind(",condition,",1-",condition,") ~ ",
-                 paste(protein_names,
-                 collapse = " + "))
+                 paste(protein_names, collapse = " + "),
+                 " + ",
+                 paste(colnames(df_donors), collapse = " + "))
 
   # find best number of cluster
   #fo = as.numeric(as.factor(df_samples_subset$donor))

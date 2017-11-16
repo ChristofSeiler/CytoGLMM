@@ -1,18 +1,20 @@
-#' Logistic regression with cases bootstrap
+#' Group-specific fixed effects model
 #'
 #' @import magrittr
 #' @import stringr
 #' @import parallel
+#' @import flexmix
+#' @import cowplot
+#' @import caret
+#' @import speedglm
 #' @export
 #'
-cytoglm = function(df_samples_subset,
-                   protein_names,
-                   condition,
-                   cell_n_min = Inf,
-                   cell_n_subsample = 0,
-                   num_boot = 100,
-                   seed = 0xdada,
-                   num_cores = 4) {
+cytogroup = function(df_samples_subset,
+                     protein_names,
+                     condition,
+                     cell_n_min = Inf,
+                     cell_n_subsample = 0,
+                     seed = 0xdada) {
 
   # some error checks
   if(cell_n_subsample > cell_n_min) stop("cell_n_subsample is larger than cell_n_min")
@@ -54,53 +56,31 @@ cytoglm = function(df_samples_subset,
       ungroup
   }
 
-  bs = function(seed) {
-    set.seed(seed)
-    # bootstrap sample
-    donor_boot = NULL
-    if(unpaired) {
-      donor_boot = df_samples_subset %>%
-        group_by_("donor",condition) %>%
-        tally() %>%
-        group_by_(condition) %>%
-        sample_frac(replace = TRUE) %>%
-        ungroup
-    } else {
-      donor_boot = df_samples_subset %>%
-        group_by(donor) %>%
-        tally() %>%
-        sample_frac(replace = TRUE)
-    }
-    df_boot = inner_join(donor_boot,
-                         df_samples_subset,
-                         by = "donor",
-                         suffix = c("",".y")) %>% droplevels
+  # create formula
+  df_samples_subset$donor %<>% as.factor
+  donor_dummy = class2ind(df_samples_subset$donor)
+  df_samples_subset %<>% bind_cols(as.tibble(donor_dummy))
+  pnames = paste(protein_names, collapse = " + ")
+  dnames = paste(colnames(donor_dummy), collapse = " + ")
+  formula_str = paste0(condition," ~ (",pnames,") * (",dnames,")")
 
-    # logistic regression
-    fit_glm = glm(formula = paste(condition,"~",
-                                  paste(protein_names,
-                                        collapse = " + ")),
-                  family = binomial(),
-                  data = df_boot)
-    tibble(protein_name = protein_names,
-           coeff = fit_glm$coefficients[protein_names],
-           run = seed)
-  }
-  tb_coef = mclapply(1:num_boot,bs,mc.cores = num_cores) %>% bind_rows()
+  # logistic regression
+  #test = model.matrix(as.formula(formula_str), df_samples_subset)
+  # another option is gpuGlm from package gputools (issues with installation)
+  groupfit = speedglm(formula = formula_str,
+                      family = binomial(),
+                      data = df_samples_subset)
 
-  # return cytoglm object
+  # return cytoglmm object
   fit = NULL
-  fit$tb_coef = tb_coef
+  fit$groupfit = groupfit
   fit$df_samples_subset = df_samples_subset
   fit$protein_names = protein_names
   fit$condition = condition
   fit$cell_n_min = cell_n_min
   fit$cell_n_subsample = cell_n_subsample
-  fit$unpaired = unpaired
-  fit$num_boot = num_boot
   fit$seed = seed
-  fit$num_cores = num_cores
-  class(fit) = "cytoglm"
+  class(fit) = "cytogroup"
   fit
 
 }
