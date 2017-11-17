@@ -8,23 +8,24 @@
 #' @import flexmix
 #' @export
 #'
-plot.cytoflexmix = function(fit, model_selection = FALSE) {
+plot.cytoflexmix = function(fit) {
 
   if(class(fit) != "cytoflexmix")
     stop("Input needs to be a cytoflexmix object computed by cytoflexmix function.")
 
-  # select best model
-  BICs = sapply(fit$flexmixfits,BIC)
-  AICs = sapply(fit$flexmixfits,AIC)
-  best = which.min(BICs)
-
   # plot selection criteria
-  pmodel = ggplot(tibble(k = fit$ks,
-                         BIC = BICs,
-                         AIC = AICs) %>% gather(criterion,value,-k),
+  tb_sel = tibble(
+    id = seq(fit$flexmixfits),
+    k = sapply(fit$flexmixfits,function(fit) fit@components %>% length),
+    BIC = sapply(fit$flexmixfits,BIC),
+    AIC = sapply(fit$flexmixfits,AIC)
+    )
+  # select best model
+  best_id = tb_sel$id[which.min(tb_sel$BIC)]
+  pmodel = ggplot(tb_sel %>% gather(criterion,value,-c(k,id)),
                   aes(k,value,color = criterion)) +
-    geom_vline(xintercept = best,color = "darkgray") +
-    geom_hline(yintercept = BICs[best],color = "darkgray") +
+    geom_vline(xintercept = tb_sel$k[best_id],color = "darkgray") +
+    geom_hline(yintercept = tb_sel$BIC[best_id],color = "darkgray") +
     geom_point() +
     geom_line() +
     scale_x_continuous(breaks = fit$ks) +
@@ -33,7 +34,7 @@ plot.cytoflexmix = function(fit, model_selection = FALSE) {
 
   # plot cluster sizes
   ct = table(fit$df_samples_subset$donor,
-             fit$flexmixfits[[best]]@cluster)
+             fit$flexmixfits[[best_id]]@cluster)
   ct[ct > 0] = 1
   tb_size = tibble(comp = as.factor(colnames(ct)),
                    size = colSums(ct))
@@ -51,10 +52,10 @@ plot.cytoflexmix = function(fit, model_selection = FALSE) {
     levels %>%
     paste(collapse = " <-> ")
 
-  best_refit = refit(fit$flexmixfits[[best]],method = "mstep")
+  best_refit = refit(fit$flexmixfits[[best_id]],method = "mstep")
   alpha = 0.05
   ci = qnorm(1-alpha/2)
-  tb_coeff_all = lapply(seq(fit$ks[best]),function(comp) {
+  tb_coeff_all = lapply(seq(tb_sel$k[best_id]),function(comp) {
     summ = summary(best_refit@components[[1]][[comp]])
     tb_coeff = summ$coefficient
     tb_coeff = tb_coeff[fit$protein_names,]
