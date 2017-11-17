@@ -17,7 +17,7 @@ plot.cytoglmm = function(fit) {
   summ = summary(fit$glmmfit)
 
   # random effects
-  stdev = sqrt(diag(summ$varcor$donor)[-1])
+  stdev = sqrt(diag(summ$varcor[[1]])[-1])
   tb_random = tibble(protein_name = names(stdev),
                      stdev = stdev)
   prandom = ggplot(tb_random, aes(x = protein_name, y = stdev)) +

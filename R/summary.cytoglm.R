@@ -20,11 +20,13 @@ summary.cytoglm = function(fit) {
   }
   cat("\n#######################\n\n")
   cat("number of bootstrap samples:",fit$num_boot,"\n\n")
-  cat("number of cells per donor table:")
-  cell_count = table(fit$df_samples_subset$donor,pull(fit$df_samples_subset,fit$condition))
+  cat("number of cells per group and condition:")
+  cell_count = table(pull(fit$df_samples_subset,fit$group),
+                     pull(fit$df_samples_subset,fit$condition))
   print(cell_count)
 
   cat("\nproteins included in the analysis:\n",fit$protein_names,"\n\n")
   cat("condition compared:",fit$condition,"\n")
+  cat("grouping variable:",fit$group,"\n")
 
 }
