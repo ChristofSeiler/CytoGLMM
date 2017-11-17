@@ -37,7 +37,7 @@ plot.cytogroup = function(fit) {
   alpha = 0.05
   ci = qnorm(1-alpha/2)
   tb_coeff = summ$coefficient
-  tb_coeff = tb_coeff[protein_names,]
+  tb_coeff = tb_coeff[fit$protein_names,]
   tb_coeff %<>%
     as.data.frame %>%
     rownames_to_column(var = "protein_name") %>%

@@ -2,11 +2,11 @@
 % Please edit documentation in R/cytoflexmix.R
 \name{cytoflexmix}
 \alias{cytoflexmix}
-\title{Logistic regression with cases bootstrap}
+\title{Logistic mixture regression}
 \usage{
 cytoflexmix(df_samples_subset, protein_names, condition, cell_n_min = Inf,
-  cell_n_subsample = 0, ks = 1:4, seed = 56026, num_cores = 4)
+  cell_n_subsample = 0, ks = 1:10, seed = 56026, num_cores = 4)
 }
 \description{
-Logistic regression with cases bootstrap
+Logistic mixture regression
 }

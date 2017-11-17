@@ -1,10 +1,9 @@
-#' Logistic regression with cases bootstrap
+#' Logistic mixture regression
 #'
 #' @import magrittr
 #' @import stringr
-#' @import parallel
 #' @import flexmix
-#' @import cowplot
+#' @import BiocParallel
 #' @export
 #'
 cytoflexmix = function(df_samples_subset,
@@ -12,7 +11,7 @@ cytoflexmix = function(df_samples_subset,
                        condition,
                        cell_n_min = Inf,
                        cell_n_subsample = 0,
-                       ks = 1:4,
+                       ks = 1:10,
                        seed = 0xdada,
                        num_cores = 4) {
 
@@ -56,54 +55,46 @@ cytoflexmix = function(df_samples_subset,
       ungroup
   }
 
-  df_donors = df_samples_subset
-  df_donors$donor %<>% as.factor
-  df_donors = model.matrix(~-1 + donor, df_donors)
-  df_samples_subset %<>% bind_cols(as.tibble(df_donors))
-  pnames = paste0("cbind(",condition,",1-",condition,") ~ ",
-                 paste(protein_names, collapse = " + "),
-                 " + ",
-                 paste(colnames(df_donors), collapse = " + "))
+  # create formulas
+  df_samples_subset$donor %<>% as.factor
+  df_samples_subset %<>% mutate(
+    xtreatment = ifelse(df_samples_subset$treatment ==
+                          levels(df_samples_subset$treatment)[1],yes = 0,no = 1)
+  )
+  #varying_formula = paste0("cbind(xtreatment,1-xtreatment) ~ 1 | donor")
+  #fixed_formula = paste("~",paste(protein_names, collapse = " + "))
+  varying_formula = paste0("cbind(xtreatment,1-xtreatment) ~ (",
+                           paste(protein_names, collapse = " + "),
+                           ") | donor")
 
   # find best number of cluster
-  #fo = as.numeric(as.factor(df_samples_subset$donor))
-  fits = mclapply(ks,FUN = function(k) {
-    flexmix(as.formula(pnames),
-            data = df_samples_subset,
-            k = k,
-            model = FLXMRglm(family = "binomial"),
-            #model = FLXMRglmnet(family = "binomial",foldid = fo),
-            control = list(iter.max = 10))
-    },mc.cores = num_cores)
-  BICs = sapply(fits,BIC)
-  best = which.min(BICs)
-  pbic = ggplot(tibble(k = ks,BIC = BICs),aes(k,BIC)) +
-    geom_point() +
-    geom_line() +
-    geom_vline(xintercept = best,color = "red") +
-    ggtitle("Model Selection")
+  param = MulticoreParam(workers = num_cores,
+                         tasks = length(ks),
+                         progressbar = TRUE)
+  flexmixfits = bplapply(ks,
+                         function(k) {
+                           stepFlexmix(as.formula(varying_formula),
+                                       data = df_samples_subset,
+                                       model = FLXMRglm(family = "binomial"),
+                                       #model = FLXMRglmfix(family = "binomial",
+                                       #                    fixed = as.formula(fixed_formula)),
+                                       k = k,
+                                       nrep = 5)
+                           },
+                         BPPARAM = param)
 
-  selected_fit = fits[[best]]
-  tb = lapply(seq(selected_fit@components),
-              function(comp_id) {
-                selected_fit@components[[comp_id]][[1]]@parameters[1]$coef %>%
-                  data.frame %>%
-                  t %>%
-                  as.tibble
-              }
-         ) %>% bind_rows
-  tb = tb[,protein_names]
-  tb %<>% mutate(comp_id = seq(selected_fit@components))
-  tb %<>% gather(protein_name,coeff,-comp_id)
-  tb$comp_id %<>% as.factor
-
-  pcoef = ggplot(tb,aes(x = protein_name,y = coeff,color = comp_id)) +
-    geom_hline(yintercept = 0, color = "black") +
-    geom_point(size = 2) +
-    ggtitle("Mixture of Regressions Coefficients") +
-    ylab(xlab_str) +
-    coord_flip()
-
-  plot_grid(pbic,pcoef,rel_widths = c(0.3,0.7))
+  # return cytoflexmix object
+  fit = NULL
+  fit$flexmixfits = flexmixfits
+  fit$df_samples_subset = df_samples_subset
+  fit$protein_names = protein_names
+  fit$condition = condition
+  fit$cell_n_min = cell_n_min
+  fit$cell_n_subsample = cell_n_subsample
+  fit$seed = seed
+  fit$ks = ks
+  fit$num_cores = num_cores
+  class(fit) = "cytoflexmix"
+  fit
 
 }
