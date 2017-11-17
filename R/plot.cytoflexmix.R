@@ -26,7 +26,7 @@ plot.cytoflexmix = function(fit, model_selection = FALSE) {
     geom_hline(yintercept = BICs[best],color = "darkgray") +
     geom_point() +
     geom_line() +
-    scale_x_continuous(breaks = ks) +
+    scale_x_continuous(breaks = fit$ks) +
     ggtitle("Model Selection") +
     theme(legend.position = c(0.8, 0.8))
 
