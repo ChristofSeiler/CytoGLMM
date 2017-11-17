@@ -5,6 +5,7 @@
 #' @import magrittr
 #' @import dplyr
 #' @import cowplot
+#' @import flexmix
 #' @export
 #'
 plot.cytoflexmix = function(fit, model_selection = FALSE) {
@@ -34,11 +35,13 @@ plot.cytoflexmix = function(fit, model_selection = FALSE) {
   ct = table(fit$df_samples_subset$donor,
              fit$flexmixfits[[best]]@cluster)
   ct[ct > 0] = 1
-  psize = ggplot(tibble(comp = as.factor(colnames(ct)),
-                        size = colSums(ct)),
+  tb_size = tibble(comp = as.factor(colnames(ct)),
+                   size = colSums(ct))
+  psize = ggplot(tb_size,
                  aes(size,comp,color = comp,label = size)) +
     geom_point(size = 2) +
     #geom_text() +
+    scale_x_continuous(breaks = tb_size$size) +
     ggtitle("Cluster Size") +
     theme(legend.position="none")
 
