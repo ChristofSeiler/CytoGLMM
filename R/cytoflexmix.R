@@ -70,7 +70,8 @@ cytoflexmix = function(df_samples_subset,
   # find best number of cluster
   param = MulticoreParam(workers = num_cores,
                          tasks = length(ks),
-                         progressbar = TRUE)
+                         progressbar = TRUE,
+                         RNGseed = seed)
   flexmixfits = bplapply(ks,
                          function(k) {
                            stepFlexmix(as.formula(varying_formula),
