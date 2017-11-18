@@ -4,8 +4,8 @@
 \alias{cytogroup}
 \title{Group-specific fixed effects model}
 \usage{
-cytogroup(df_samples_subset, protein_names, condition, cell_n_min = Inf,
-  cell_n_subsample = 0, seed = 56026)
+cytogroup(df_samples_subset, protein_names, condition, group = "donor",
+  cell_n_min = Inf, cell_n_subsample = 0, seed = 56026)
 }
 \description{
 Group-specific fixed effects model

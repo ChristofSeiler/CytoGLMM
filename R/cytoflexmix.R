@@ -9,63 +9,50 @@
 cytoflexmix = function(df_samples_subset,
                        protein_names,
                        condition,
+                       group = "donor",
                        cell_n_min = Inf,
                        cell_n_subsample = 0,
                        ks = 1:10,
                        seed = 0xdada,
                        num_cores = 4) {
 
-  # some error checks
-  if(cell_n_subsample > cell_n_min) stop("cell_n_subsample is larger than cell_n_min")
-  if(sum(str_detect(protein_names,"/")) > 0) stop("protein names cannot contain '/'")
-  starts_with_number = sapply(protein_names,
-         function(x) str_locate(x, "[0-9]")[1] == 1)
-  if(sum(starts_with_number,na.rm = TRUE) > 0) stop("protein names cannot start with numbers")
-  if(sum(make.names(protein_names) != protein_names) > 0)
-    stop("cleanup your protein names (don't use special characters)")
   set.seed(seed)
 
+  # some error checks
+  cyto_check(cell_n_subsample = cell_n_subsample,
+             cell_n_min = cell_n_min,
+             protein_names = protein_names)
+
   # are the samples paired?
-  cell_count = table(df_samples_subset$donor,pull(df_samples_subset,condition))
-  unpaired = TRUE
-  if(sum(apply(cell_count,1,min) > 0) == nrow(cell_count))
-    unpaired = FALSE
+  unpaired = is_unpaired(df_samples_subset,
+                         condition = condition,
+                         group = group)
 
   # remove donors with low cell count
-  include = NULL
-  if(cell_n_min < Inf) {
-    if(unpaired) {
-      exclude = which(rowSums(cell_count) < cell_n_min)
-    } else {
-      exclude = which(apply(cell_count,1,min) < cell_n_min)
-    }
-    include = rownames(cell_count)[rownames(cell_count) %nin% names(exclude)]
-  } else {
-    include = rownames(cell_count)
-  }
-  df_samples_subset %<>%
-    dplyr::filter(donor %in% include) %>%
-    droplevels()
+  df_samples_subset = remove_samples(df_samples_subset,
+                                     condition = condition,
+                                     group = group,
+                                     cell_n_min = cell_n_min)
 
   # subsample cells
   if(cell_n_subsample > 0) {
     df_samples_subset %<>%
-      group_by_("donor",condition) %>%
+      group_by_(group,condition) %>%
       sample_n(size = cell_n_subsample) %>%
       ungroup
   }
 
   # create formulas
-  df_samples_subset$donor %<>% as.factor
+  df_samples_subset %<>% mutate_at(.vars = condition,.funs = as.factor)
   df_samples_subset %<>% mutate(
-    xtreatment = ifelse(df_samples_subset$treatment ==
-                          levels(df_samples_subset$treatment)[1],yes = 0,no = 1)
+    xtreatment = ifelse(pull(df_samples_subset,condition) ==
+                          levels(pull(df_samples_subset,condition))[1],yes = 0,no = 1)
   )
   #varying_formula = paste0("cbind(xtreatment,1-xtreatment) ~ 1 | donor")
   #fixed_formula = paste("~",paste(protein_names, collapse = " + "))
   varying_formula = paste0("cbind(xtreatment,1-xtreatment) ~ (",
                            paste(protein_names, collapse = " + "),
-                           ") | donor")
+                           ") | ",group)
 
   # find best number of cluster
   param = MulticoreParam(workers = num_cores,
@@ -90,6 +77,7 @@ cytoflexmix = function(df_samples_subset,
   fit$df_samples_subset = df_samples_subset
   fit$protein_names = protein_names
   fit$condition = condition
+  fit$group = group
   fit$cell_n_min = cell_n_min
   fit$cell_n_subsample = cell_n_subsample
   fit$seed = seed
