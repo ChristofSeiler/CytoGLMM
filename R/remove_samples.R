@@ -15,7 +15,7 @@ remove_samples = function(df_samples_subset,
     } else {
       exclude = which(apply(cell_count,1,min) < cell_n_min)
     }
-    include = rownames(cell_count)[rownames(cell_count) %nin% names(exclude)]
+    include = rownames(cell_count)[!rownames(cell_count) %in% names(exclude)]
   } else {
     include = rownames(cell_count)
   }
