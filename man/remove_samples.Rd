@@ -4,7 +4,7 @@
 \alias{remove_samples}
 \title{Remove samples based on low cell counts}
 \usage{
-remove_samples(df_samples_subset, condition, group, cell_n_min)
+remove_samples(df_samples_subset, condition, group, unpaired, cell_n_min)
 }
 \description{
 Remove samples based on low cell counts

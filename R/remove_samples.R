@@ -3,6 +3,7 @@
 remove_samples = function(df_samples_subset,
                           condition,
                           group,
+                          unpaired,
                           cell_n_min) {
 
   cell_count = table(pull(df_samples_subset,group),

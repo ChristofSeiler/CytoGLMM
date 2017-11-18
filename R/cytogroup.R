@@ -33,6 +33,7 @@ cytogroup = function(df_samples_subset,
   df_samples_subset = remove_samples(df_samples_subset,
                                      condition = condition,
                                      group = group,
+                                     unpaired = unpaired,
                                      cell_n_min = cell_n_min)
 
   # subsample cells
