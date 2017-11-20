@@ -12,7 +12,7 @@ plot_mds = function(df_samples,
                     sample_info_names,
                     color,
                     sample_label = "") {
-  
+
   # compute median marker expression
   expr_median = df_samples %>%
     group_by(.dots = sample_info_names) %>%
@@ -22,7 +22,7 @@ plot_mds = function(df_samples,
   explained_var = (100*mds_res$eig[1:2]/sum(mds_res$eig)) %>% round(digits = 1)
   expr_median %<>% bind_cols(tibble(MDS1 = mds_res$points[,1],
                                     MDS2 = mds_res$points[,2]))
-  
+
   # make circle of correlation plot
   protein_sd = apply(expr_median[,protein_names],2,sd)
   # only keep makers that have some variability
@@ -42,13 +42,13 @@ plot_mds = function(df_samples,
     return(tibble(x = xx, y = yy))
   }
   corcir = circle(c(0, 0), npoints = 100)
-  circle_plot = ggplot() + geom_path(data = corcir, aes(x = x, y = y), colour = "gray65") + 
-    geom_hline(yintercept = 0, colour = "gray65") + 
-    geom_vline(xintercept = 0, colour = "gray65") + 
-    xlim(-1.1, 1.1) + ylim(-1.1, 1.1) + 
-    geom_segment(data = expr_cor, aes(x = x0, y = y0, xend = MDS1, yend = MDS2), 
-                 colour = "gray65") + 
-    geom_text(data = expr_cor, aes(x = MDS1, y = MDS2, label = protein_selection)) + 
+  circle_plot = ggplot() + geom_path(data = corcir, aes(x = x, y = y), colour = "gray65") +
+    geom_hline(yintercept = 0, colour = "gray65") +
+    geom_vline(xintercept = 0, colour = "gray65") +
+    xlim(-1.1, 1.1) + ylim(-1.1, 1.1) +
+    geom_segment(data = expr_cor, aes(x = x0, y = y0, xend = MDS1, yend = MDS2),
+                 colour = "gray65") +
+    geom_text(data = expr_cor, aes(x = MDS1, y = MDS2, label = protein_selection)) +
     labs(x = "MDS1") +
     labs(y = "MDS2") +
     coord_fixed()
@@ -61,6 +61,6 @@ plot_mds = function(df_samples,
     ylab(paste0("MDS2 (",explained_var[2],"%)"))
   if(nchar(sample_label) > 1)
     mds_plot  = mds_plot + geom_label(aes_string(label = sample_label))
-  
-  plot_grid(mds_plot, circle_plot, nrow = 2)
+
+  plot_grid(mds_plot, circle_plot, nrow = 1, rel_widths = c(0.6,0.4))
 }
