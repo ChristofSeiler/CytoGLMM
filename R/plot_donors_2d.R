@@ -18,9 +18,9 @@ plot_donors_2d = function(df_samples,
   )
 
   # 2d histogram
-  ggplot(df_samples,aes_string(x = protein1,y = protein2)) +
+  ggplot(df_samples_tfm,aes_string(x = protein1,y = protein2)) +
     stat_binhex(binwidth = c(0.2, 0.2)) +
     colorscale +
-    coord_fixed() +
-    facet_wrap("donor",nrow = 4)
+    coord_fixed()
+
 }
