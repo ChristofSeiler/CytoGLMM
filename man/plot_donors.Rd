@@ -5,7 +5,7 @@
 \title{Plot one density plot faceted by donors.}
 \usage{
 plot_donors(df_samples, protein_name, condition = "condition",
-  density = TRUE)
+  group = "donor", density = TRUE)
 }
 \description{
 Plot one density plot faceted by donors.

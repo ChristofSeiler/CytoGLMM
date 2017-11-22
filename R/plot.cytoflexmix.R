@@ -30,7 +30,8 @@ plot.cytoflexmix = function(fit) {
     geom_line() +
     scale_x_continuous(breaks = fit$ks) +
     ggtitle("Model Selection") +
-    theme(legend.position = c(0.8, 0.8))
+    #theme(legend.position = c(0.15, 0.15))
+    theme(legend.position = "top")
 
   # plot cluster sizes
   ct = table(fit$df_samples_subset$donor,
@@ -79,7 +80,7 @@ plot.cytoflexmix = function(fit) {
     coord_flip()
 
   pleft = plot_grid(psize, pmodel,
-                    nrow = 2, rel_heights = c(0.3,0.7), align = "v")
+                    nrow = 2, rel_heights = c(0.4,0.6), align = "v")
   plot_grid(pleft, peffects,
             rel_widths = c(0.4,0.6))
 
