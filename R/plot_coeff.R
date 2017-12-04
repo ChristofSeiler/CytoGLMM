@@ -7,7 +7,7 @@
 #' @import cowplot
 #' @export
 #'
-plot_coeff = function(tb,title_str,xlab_str,hline = 0) {
+plot_coeff = function(tb,title_str,title_str_right,xlab_str,hline = 0) {
 
   tb$run %<>% as.factor
 
@@ -35,7 +35,7 @@ plot_coeff = function(tb,title_str,xlab_str,hline = 0) {
     geom_hline(yintercept = hline,color = "red") +
     geom_point(size = 2) +
     geom_errorbar(aes(ymin = min_median, ymax = max_median)) +
-    ggtitle("") +
+    ggtitle(title_str_right) +
     ylab(xlab_str) +
     coord_flip()
 

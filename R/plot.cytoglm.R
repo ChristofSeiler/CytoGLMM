@@ -20,6 +20,6 @@ plot.cytoglm = function(fit) {
     pull(fit$condition) %>%
     levels %>%
     paste(collapse = " <-> ")
-  plot_coeff(fit$tb_coef,"Differential Expression",xlab_str)
+  plot_coeff(fit$tb_coef,"Bootstraps","Summary",xlab_str)
 
 }
