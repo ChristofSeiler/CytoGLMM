@@ -4,7 +4,7 @@
 \alias{plot.cytoflexmix}
 \title{Plot all components of mixture regression}
 \usage{
-plot.cytoflexmix(fit)
+plot.cytoflexmix(fit, k = NULL)
 }
 \description{
 Plot all components of mixture regression

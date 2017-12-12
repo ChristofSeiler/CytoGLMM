@@ -8,7 +8,7 @@
 #' @import flexmix
 #' @export
 #'
-plot.cytoflexmix = function(fit) {
+plot.cytoflexmix = function(fit,k = NULL) {
 
   if(class(fit) != "cytoflexmix")
     stop("Input needs to be a cytoflexmix object computed by cytoflexmix function.")
@@ -22,6 +22,7 @@ plot.cytoflexmix = function(fit) {
     )
   # select best model
   best_id = tb_sel$id[which.min(tb_sel$BIC)]
+  if(!is.null(k)) best_id = k
   pmodel = ggplot(tb_sel %>% gather(criterion,value,-c(k,id)),
                   aes(k,value,color = criterion)) +
     geom_vline(xintercept = tb_sel$k[best_id],color = "darkgray") +
