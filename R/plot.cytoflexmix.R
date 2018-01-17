@@ -18,21 +18,21 @@ plot.cytoflexmix = function(fit,k = NULL) {
     id = seq(fit$flexmixfits),
     k = sapply(fit$flexmixfits,function(fit) fit@components %>% length),
     BIC = sapply(fit$flexmixfits,BIC),
-    AIC = sapply(fit$flexmixfits,AIC)
+    #AIC = sapply(fit$flexmixfits,AIC)
     )
   # select best model
   best_id = tb_sel$id[which.min(tb_sel$BIC)]
   if(!is.null(k)) best_id = k
   pmodel = ggplot(tb_sel %>% gather(criterion,value,-c(k,id)),
-                  aes(k,value,color = criterion)) +
+                  aes(k,value,shape = criterion)) +
     geom_vline(xintercept = tb_sel$k[best_id],color = "darkgray") +
     geom_hline(yintercept = tb_sel$BIC[best_id],color = "darkgray") +
     geom_point() +
     geom_line() +
     scale_x_continuous(breaks = fit$ks) +
-    ggtitle("Model Selection") +
+    ggtitle("Model Selection") #+
     #theme(legend.position = c(0.15, 0.15))
-    theme(legend.position = "top")
+    #theme(legend.position = "top")
 
   # plot cluster sizes
   ct = table(fit$df_samples_subset$donor,
@@ -45,8 +45,8 @@ plot.cytoflexmix = function(fit,k = NULL) {
     geom_point(size = 2) +
     #geom_text() +
     scale_x_continuous(breaks = tb_size$size) +
-    ggtitle("Cluster Size") +
-    theme(legend.position="none")
+    ggtitle("Cluster Size") #+
+    #theme(legend.position="none")
 
   # plot component-wise coefficients
   xlab_str = fit$df_samples_subset %>%
@@ -76,13 +76,15 @@ plot.cytoflexmix = function(fit,k = NULL) {
     geom_hline(yintercept = 0,color = "red") +
     geom_point(size = 2) +
     geom_errorbar(aes(ymin = low, ymax = high)) +
-    ggtitle("Fixed Mixture Component Effects") +
+    ggtitle("Fixed Mixture Effects") +
     ylab(xlab_str) +
-    coord_flip()
+    coord_flip() +
+    theme(legend.position="none")
+    #theme(legend.position = "bottom")
 
   pleft = plot_grid(psize, pmodel,
                     nrow = 2, rel_heights = c(0.4,0.6), align = "v")
   plot_grid(pleft, peffects,
-            rel_widths = c(0.4,0.6))
+            rel_widths = c(0.5,0.5))
 
 }
