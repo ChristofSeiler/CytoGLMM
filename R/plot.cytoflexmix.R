@@ -24,13 +24,13 @@ plot.cytoflexmix = function(fit,k = NULL) {
   best_id = tb_sel$id[which.min(tb_sel$BIC)]
   if(!is.null(k)) best_id = k
   pmodel = ggplot(tb_sel %>% gather(criterion,value,-c(k,id)),
-                  aes(k,value,shape = criterion)) +
+                  aes(k,value)) +
     geom_vline(xintercept = tb_sel$k[best_id],color = "darkgray") +
     geom_hline(yintercept = tb_sel$BIC[best_id],color = "darkgray") +
     geom_point() +
     geom_line() +
     scale_x_continuous(breaks = fit$ks) +
-    ggtitle("Model Selection") #+
+    ggtitle("Model Selection (BIC)") #+
     #theme(legend.position = c(0.15, 0.15))
     #theme(legend.position = "top")
 
@@ -45,8 +45,8 @@ plot.cytoflexmix = function(fit,k = NULL) {
     geom_point(size = 2) +
     #geom_text() +
     scale_x_continuous(breaks = tb_size$size) +
-    ggtitle("Cluster Size") #+
-    #theme(legend.position="none")
+    ggtitle("Cluster Size") +
+    theme(legend.position="none")
 
   # plot component-wise coefficients
   xlab_str = fit$df_samples_subset %>%
@@ -84,7 +84,8 @@ plot.cytoflexmix = function(fit,k = NULL) {
 
   pleft = plot_grid(psize, pmodel,
                     nrow = 2, rel_heights = c(0.4,0.6), align = "v")
-  plot_grid(pleft, peffects,
-            rel_widths = c(0.5,0.5))
+  plot_grid(pleft, NULL, peffects,
+            ncol = 3,
+            rel_widths = c(0.45,0.05,0.5))
 
 }
