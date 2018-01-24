@@ -7,7 +7,7 @@
 #' @import cowplot
 #' @export
 #'
-plot.cytogroup = function(fit) {
+plot.cytogroup = function(fit,order = FALSE) {
 
   if(class(fit) != "cytogroup")
     stop("Input needs to be a cytogroup object computed by cytogroup function.")
@@ -19,19 +19,12 @@ plot.cytogroup = function(fit) {
     paste(collapse = " <-> ")
 
   # donor-specific effects
-  tb_coeff = tibble(names = names(fit$groupfit$coefficients),
+  tb_coeff_donor = tibble(names = names(fit$groupfit$coefficients),
                     value = fit$groupfit$coefficients)
-  tb_coeff %<>%
-    mutate(protein_name = sapply(str_split(tb_coeff$names,":"),function(x) x[1]),
-           donor = sapply(str_split(tb_coeff$names,":"),function(x) x[2]))
-  tb_coeff %<>% dplyr::filter(!is.na(donor))
-  pdonor = ggplot(tb_coeff, aes(x = protein_name, y = value, group = donor, color = protein_name)) +
-    geom_hline(yintercept = 0,color = "red") +
-    geom_jitter(size = 1,height = 0.001,alpha = 0.5) +
-    ggtitle("Donor-Specific Effects") +
-    ylab(xlab_str) +
-    coord_flip() +
-    theme(legend.position="none")
+  tb_coeff_donor %<>%
+    mutate(protein_name = sapply(str_split(tb_coeff_donor$names,":"),function(x) x[1]),
+           donor = sapply(str_split(tb_coeff_donor$names,":"),function(x) x[2]))
+  tb_coeff_donor %<>% dplyr::filter(!is.na(donor))
 
   # fixed effects
   alpha = 0.05
@@ -50,13 +43,33 @@ plot.cytogroup = function(fit) {
     mutate(high = tb_coeff$Estimate+ci*tb_coeff$`Std. Error`,
            low = tb_coeff$Estimate-ci*tb_coeff$`Std. Error`)
 
-  pcoef = ggplot(tb_coeff, aes(x = protein_name, y = Estimate)) +
-    geom_hline(yintercept = 0,color = "red") +
+  # order proteins according to coefficients
+  if(order) {
+    ind = sort.int(tb_coeff$Estimate,index.return=TRUE)$ix
+    reordered_names = tb_coeff$protein_name[ind]
+    tb_coeff$protein_name %<>% factor(levels = reordered_names)
+    tb_coeff_donor$protein_name %<>% factor(levels = reordered_names)
+  }
+
+  # plotting
+  set.seed(0xdada2)
+  pdonor = ggplot(tb_coeff_donor, aes(x = value,
+                                      y = protein_name,
+                                      group = donor,
+                                      color = protein_name)) +
+    geom_vline(xintercept = 0,color = "red") +
+    geom_jitter(size = 1,width = 0.001,alpha = 0.5) +
+    ggtitle("Donor-Specific Effects") +
+    xlab(xlab_str) +
+    theme(legend.position="none",
+          axis.title.y = element_blank())
+  pcoef = ggplot(tb_coeff, aes(x = Estimate, y = protein_name)) +
+    geom_vline(xintercept = 0,color = "red") +
     geom_point(size = 2) +
-    geom_errorbar(aes(ymin = low, ymax = high)) +
+    geom_errorbarh(aes(xmin = low, xmax = high)) +
     ggtitle("Fixed Effects") +
-    ylab(xlab_str) +
-    coord_flip()
+    xlab(xlab_str) +
+    theme(axis.title.y = element_blank())
 
   plot_grid(pdonor,pcoef)
 

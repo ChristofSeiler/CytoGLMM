@@ -4,7 +4,8 @@
 \alias{plot_coeff}
 \title{Extact coefficient matrix A}
 \usage{
-plot_coeff(tb, title_str, title_str_right, xlab_str, hline = 0)
+plot_coeff(tb, title_str, title_str_right, xlab_str, redline = 0,
+  order = FALSE)
 }
 \description{
 Extact coefficient matrix A

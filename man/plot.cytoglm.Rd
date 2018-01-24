@@ -4,7 +4,7 @@
 \alias{plot.cytoglm}
 \title{Plot bootstraped coefficients}
 \usage{
-plot.cytoglm(fit)
+plot.cytoglm(fit, order = FALSE)
 }
 \description{
 Plot bootstraped coefficients

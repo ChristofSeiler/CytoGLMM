@@ -7,7 +7,7 @@
 #' @import cowplot
 #' @export
 #'
-plot.cytoglm = function(fit) {
+plot.cytoglm = function(fit,order = FALSE) {
 
   if(class(fit) != "cytoglm")
     stop("Input needs to be a cytoglm object computed by cytoglm function.")
@@ -20,6 +20,11 @@ plot.cytoglm = function(fit) {
     pull(fit$condition) %>%
     levels %>%
     paste(collapse = " <-> ")
-  plot_coeff(fit$tb_coef,"Bootstraps","Summary",xlab_str)
+
+  plot_coeff(tb = fit$tb_coef,
+             title_str = "Bootstraps",
+             title_str_right = "Summary",
+             xlab_str = xlab_str,
+             order = order)
 
 }

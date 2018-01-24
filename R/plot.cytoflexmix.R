@@ -72,18 +72,19 @@ plot.cytoflexmix = function(fit,k = NULL) {
     tb_coeff
   }) %>% bind_rows
   tb_coeff_all$comp %<>% as.factor
-  peffects = ggplot(tb_coeff_all, aes(x = protein_name, y = Estimate, color = comp)) +
-    geom_hline(yintercept = 0,color = "red") +
+
+  peffects = ggplot(tb_coeff_all, aes(x = Estimate, y = protein_name, color = comp)) +
+    geom_vline(xintercept = 0,color = "red") +
     geom_point(size = 2) +
-    geom_errorbar(aes(ymin = low, ymax = high)) +
+    geom_errorbarh(aes(xmin = low, xmax = high)) +
     ggtitle("Fixed Mixture Effects") +
-    ylab(xlab_str) +
-    coord_flip() +
-    theme(legend.position="none")
-    #theme(legend.position = "bottom")
+    xlab(xlab_str) +
+    theme(legend.position="none",
+          axis.title.y = element_blank())
 
   pleft = plot_grid(psize, pmodel,
                     nrow = 2, rel_heights = c(0.4,0.6), align = "v")
+
   plot_grid(pleft, NULL, peffects,
             ncol = 3,
             rel_widths = c(0.45,0.05,0.5))

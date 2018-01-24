@@ -4,7 +4,7 @@
 \alias{plot.cytoglmm}
 \title{Plot fixded coefficients of random effects model}
 \usage{
-plot.cytoglmm(fit)
+plot.cytoglmm(fit, order = FALSE)
 }
 \description{
 Plot fixded coefficients of random effects model

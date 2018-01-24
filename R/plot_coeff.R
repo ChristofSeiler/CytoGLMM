@@ -7,7 +7,7 @@
 #' @import cowplot
 #' @export
 #'
-plot_coeff = function(tb,title_str,title_str_right,xlab_str,hline = 0) {
+plot_coeff = function(tb,title_str,title_str_right,xlab_str,redline = 0,order = FALSE) {
 
   tb$run %<>% as.factor
 
@@ -19,25 +19,31 @@ plot_coeff = function(tb,title_str,title_str_right,xlab_str,hline = 0) {
       min_median = quantile(coeff,probs = 0.05),
       max_median = quantile(coeff,probs = 0.95)
     )
+  if(order) {
+    ind = sort.int(tb_summary$coeff_median,index.return=TRUE)$ix
+    reordered_names = tb_summary$protein_name[ind]
+    tb_summary$protein_name %<>% factor(levels = reordered_names)
+    tb$protein_name %<>% factor(levels = reordered_names)
+  }
 
   # plot all bootstrap runs
-  pall = ggplot(tb, aes(x = protein_name, y = coeff,color = protein_name)) +
-    geom_hline(yintercept = hline,color = "red") +
-    geom_jitter(size = 1,height = 0.001,alpha = 0.5) +
-    #geom_errorbar(aes(ymin = min, ymax = max)) +
+  set.seed(0xdada2)
+  pall = ggplot(tb, aes(x = coeff, y = protein_name, color = protein_name)) +
+    geom_vline(xintercept = redline,color = "red") +
+    geom_jitter(size = 1,width = 0.001,alpha = 0.5) +
     ggtitle(title_str) +
-    ylab(xlab_str) +
-    coord_flip() +
-    theme(legend.position="none")
+    xlab(xlab_str) +
+    theme(legend.position="none",
+          axis.title.y = element_blank())
 
   # plot summary
-  psummary = ggplot(tb_summary, aes(x = protein_name, y = coeff_median)) +
-    geom_hline(yintercept = hline,color = "red") +
+  psummary = ggplot(tb_summary, aes(x = coeff_median, y = protein_name)) +
+    geom_vline(xintercept = redline,color = "red") +
     geom_point(size = 2) +
-    geom_errorbar(aes(ymin = min_median, ymax = max_median)) +
+    geom_errorbarh(aes(xmin = min_median, xmax = max_median)) +
     ggtitle(title_str_right) +
-    ylab(xlab_str) +
-    coord_flip()
+    xlab(xlab_str) +
+    theme(axis.title.y = element_blank())
 
   # combine
   plot_grid(pall,psummary)

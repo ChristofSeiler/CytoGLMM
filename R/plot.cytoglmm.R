@@ -7,7 +7,7 @@
 #' @import cowplot
 #' @export
 #'
-plot.cytoglmm = function(fit) {
+plot.cytoglmm = function(fit,order = FALSE) {
 
   if(class(fit) != "cytoglmm")
     stop("Input needs to be a cytoglmm object computed by cytoglmm function.")
@@ -20,11 +20,6 @@ plot.cytoglmm = function(fit) {
   stdev = sqrt(diag(summ$varcor[[1]])[-1])
   tb_random = tibble(protein_name = names(stdev),
                      stdev = stdev)
-  prandom = ggplot(tb_random, aes(x = protein_name, y = stdev)) +
-    geom_point(size = 2) +
-    ggtitle("Random Effects") +
-    ylab("standard deviation") +
-    coord_flip()
 
   # fixed effects
   alpha = 0.05
@@ -38,17 +33,32 @@ plot.cytoglmm = function(fit) {
   tb_coeff %<>%
     mutate(high = tb_coeff$Estimate+ci*tb_coeff$`Std. Error`,
            low = tb_coeff$Estimate-ci*tb_coeff$`Std. Error`)
+
+  # order proteins according to coefficients
+  if(order) {
+    ind = sort.int(tb_coeff$Estimate,index.return=TRUE)$ix
+    reordered_names = tb_coeff$protein_name[ind]
+    tb_coeff$protein_name %<>% factor(levels = reordered_names)
+    tb_random$protein_name %<>% factor(levels = reordered_names)
+  }
+
+  # plotting
+  prandom = ggplot(tb_random, aes(x = stdev, y = protein_name)) +
+    geom_point(size = 2) +
+    ggtitle("Random Effects") +
+    xlab("standard deviation") +
+    theme(axis.title.y = element_blank())
   xlab_str = fit$df_samples_subset %>%
     pull(fit$condition) %>%
     levels %>%
     paste(collapse = " <-> ")
-  pcoef = ggplot(tb_coeff, aes(x = protein_name, y = Estimate)) +
-    geom_hline(yintercept = 0,color = "red") +
+  pcoef = ggplot(tb_coeff, aes(x = Estimate, y = protein_name)) +
+    geom_vline(xintercept = 0,color = "red") +
     geom_point(size = 2) +
-    geom_errorbar(aes(ymin = low, ymax = high)) +
+    geom_errorbarh(aes(xmin = low, xmax = high)) +
     ggtitle("Fixed Effects") +
-    ylab(xlab_str) +
-    coord_flip()
+    xlab(xlab_str) +
+    theme(axis.title.y = element_blank())
 
   plot_grid(prandom,pcoef)
 
