@@ -34,7 +34,8 @@ Imports:
     ggnetwork,
     batchtools,
     caret,
-    speedglm
+    speedglm,
+    BiocParallel
 Depends:
     Rcpp
 Suggests:
@@ -43,3 +44,4 @@ Suggests:
     testthat
 VignetteBuilder: knitr
 RoxygenNote: 6.0.1
+biocViews:
