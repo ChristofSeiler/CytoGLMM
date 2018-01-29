@@ -35,7 +35,7 @@ plot.cytoflexmix = function(fit,k = NULL) {
     #theme(legend.position = "top")
 
   # plot cluster sizes
-  ct = table(fit$df_samples_subset$donor,
+  ct = table(pull(fit$df_samples_subset,fit$group),
              fit$flexmixfits[[best_id]]@cluster)
   ct[ct > 0] = 1
   tb_size = tibble(comp = as.factor(colnames(ct)),

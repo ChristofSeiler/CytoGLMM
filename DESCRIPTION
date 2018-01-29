@@ -35,7 +35,8 @@ Imports:
     batchtools,
     caret,
     speedglm,
-    BiocParallel
+    BiocParallel,
+    strucchange
 Depends:
     Rcpp
 Suggests:
