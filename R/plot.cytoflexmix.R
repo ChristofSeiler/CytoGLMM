@@ -17,7 +17,7 @@ plot.cytoflexmix = function(fit,k = NULL) {
   tb_sel = tibble(
     id = seq(fit$flexmixfits),
     k = sapply(fit$flexmixfits,function(fit) fit@components %>% length),
-    BIC = sapply(fit$flexmixfits,BIC),
+    BIC = sapply(fit$flexmixfits,BIC)
     #AIC = sapply(fit$flexmixfits,AIC)
     )
   # select best model
