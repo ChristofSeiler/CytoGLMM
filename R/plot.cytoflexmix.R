@@ -30,7 +30,9 @@ plot.cytoflexmix = function(fit,k = NULL) {
     geom_point() +
     geom_line() +
     scale_x_continuous(breaks = fit$ks) +
-    ggtitle("Model Selection (BIC)") #+
+    xlab("number of clusters") +
+    ylab("BIC")
+    #ggtitle("Model Selection (BIC)") #+
     #theme(legend.position = c(0.15, 0.15))
     #theme(legend.position = "top")
 
@@ -43,9 +45,9 @@ plot.cytoflexmix = function(fit,k = NULL) {
   psize = ggplot(tb_size,
                  aes(size,comp,color = comp,label = size)) +
     geom_point(size = 2) +
-    #geom_text() +
     scale_x_continuous(breaks = tb_size$size) +
-    ggtitle("Cluster Size") +
+    xlab("cluster size") +
+    ylab("cluster label") +
     theme(legend.position="none")
 
   # plot component-wise coefficients
