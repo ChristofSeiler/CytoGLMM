@@ -8,6 +8,7 @@ cytoglmm = function(df_samples_subset,
                     protein_names,
                     condition,
                     group = "donor",
+                    covariate_names = NULL,
                     cell_n_min = Inf,
                     cell_n_subsample = 0,
                     seed = 0xdada,
@@ -19,6 +20,8 @@ cytoglmm = function(df_samples_subset,
   cyto_check(cell_n_subsample = cell_n_subsample,
              cell_n_min = cell_n_min,
              protein_names = protein_names)
+  if(sum(make.names(covariate_names) != covariate_names) > 0)
+    stop("cleanup your covariates names (don't use special characters)")
 
   # are the samples paired?
   unpaired = is_unpaired(df_samples_subset,
@@ -43,7 +46,8 @@ cytoglmm = function(df_samples_subset,
   glmmfit = glmm_ml(df_samples = df_samples_subset,
                     protein_names = protein_names,
                     response = condition,
-                    random_var = group)
+                    random_var = group,
+                    covariate_names = covariate_names)
 
   # return cytoglmm object
   fit = NULL

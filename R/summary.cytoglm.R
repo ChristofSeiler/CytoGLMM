@@ -28,5 +28,7 @@ summary.cytoglm = function(fit) {
   cat("\nproteins included in the analysis:\n",fit$protein_names,"\n\n")
   cat("condition compared:",fit$condition,"\n")
   cat("grouping variable:",fit$group,"\n")
+  cat("controlled covariates:",fit$covariate_names,"\n")
+  cat("formula:\n",fit$formula_str,"\n")
 
 }

@@ -5,7 +5,7 @@
 \title{Generalized linear mixed model with maximum likelihood.}
 \usage{
 glmm_ml(df_samples, protein_names, response, random_var = "donor",
-  cores = detectCores())
+  covariate_names = NULL, cores = detectCores())
 }
 \description{
 Generalized linear mixed model with maximum likelihood.

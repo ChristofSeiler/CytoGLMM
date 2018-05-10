@@ -9,6 +9,7 @@ cytoglm = function(df_samples_subset,
                    protein_names,
                    condition,
                    group = "donor",
+                   covariate_names = NULL,
                    cell_n_min = Inf,
                    cell_n_subsample = 0,
                    num_boot = 100,
@@ -21,6 +22,8 @@ cytoglm = function(df_samples_subset,
   cyto_check(cell_n_subsample = cell_n_subsample,
              cell_n_min = cell_n_min,
              protein_names = protein_names)
+  if(sum(make.names(covariate_names) != covariate_names) > 0)
+    stop("cleanup your covariates names (don't use special characters)")
 
   # are the samples paired?
   unpaired = is_unpaired(df_samples_subset,
@@ -42,6 +45,12 @@ cytoglm = function(df_samples_subset,
       ungroup
   }
 
+  # formula
+  formula_str = paste(condition,"~",
+                      paste(c(protein_names, covariate_names),
+                            collapse = " + "))
+
+  # bootstrap
   bs = function(seed) {
     set.seed(seed)
     # bootstrap sample
@@ -65,9 +74,7 @@ cytoglm = function(df_samples_subset,
                          suffix = c("",".y")) %>% droplevels
 
     # logistic regression
-    fit_glm = glm(formula = paste(condition,"~",
-                                  paste(protein_names,
-                                        collapse = " + ")),
+    fit_glm = glm(formula = formula_str,
                   family = binomial(),
                   data = df_boot)
     tibble(protein_name = protein_names,
@@ -83,12 +90,14 @@ cytoglm = function(df_samples_subset,
   fit$protein_names = protein_names
   fit$condition = condition
   fit$group = group
+  fit$covariate_names = covariate_names
   fit$cell_n_min = cell_n_min
   fit$cell_n_subsample = cell_n_subsample
   fit$unpaired = unpaired
   fit$num_boot = num_boot
   fit$seed = seed
   fit$num_cores = num_cores
+  fit$formula_str = formula_str
   class(fit) = "cytoglm"
   fit
 

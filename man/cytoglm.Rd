@@ -5,8 +5,8 @@
 \title{Logistic regression with cases bootstrap}
 \usage{
 cytoglm(df_samples_subset, protein_names, condition, group = "donor",
-  cell_n_min = Inf, cell_n_subsample = 0, num_boot = 100, seed = 56026,
-  num_cores = 4)
+  covariate_names = NULL, cell_n_min = Inf, cell_n_subsample = 0,
+  num_boot = 100, seed = 56026, num_cores = 4)
 }
 \description{
 Logistic regression with cases bootstrap

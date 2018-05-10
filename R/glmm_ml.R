@@ -9,9 +9,10 @@ glmm_ml <- function(df_samples,
                     protein_names,
                     response,
                     random_var = "donor",
+                    covariate_names = NULL,
                     cores = detectCores()) {
   registerDoParallel(cores = cores)
-  markers_str = paste0(protein_names,collapse = " + ")
+  markers_str = paste0(c(protein_names,covariate_names),collapse = " + ")
   formula_expr = NULL
   if( is.factor(pull(df_samples,response)) ) {
     formula_expr = parse(text = paste0("mhglm(",

@@ -20,6 +20,7 @@ plot.cytoglmm = function(fit,order = FALSE) {
   stdev = sqrt(diag(summ$varcor[[1]])[-1])
   tb_random = tibble(protein_name = names(stdev),
                      stdev = stdev)
+  tb_random = tb_random[tb_random$protein_name %in% fit$protein_names,]
 
   # fixed effects
   alpha = 0.05
@@ -33,6 +34,7 @@ plot.cytoglmm = function(fit,order = FALSE) {
   tb_coeff %<>%
     mutate(high = tb_coeff$Estimate+ci*tb_coeff$`Std. Error`,
            low = tb_coeff$Estimate-ci*tb_coeff$`Std. Error`)
+  tb_coeff = tb_coeff[tb_coeff$protein_name %in% fit$protein_names,]
 
   # order proteins according to coefficients
   if(order) {
