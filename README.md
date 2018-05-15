@@ -17,4 +17,4 @@ devtools::install_github("ChristofSeiler/CytoGLMM")
 
 Read the vignette for a step-by-step example workflow:
 
-* [http://christofseiler.github.io/CytoGLMM/Workflow.html](Workflow.html)
+* [Workflow.html](http://christofseiler.github.io/CytoGLMM/Workflow.html)
