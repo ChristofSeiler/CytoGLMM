@@ -4,7 +4,7 @@ Title: Regression Models for Mass Cytometry Experiments
 Version: 0.1.0
 Author: Christof Seiler
 Maintainer: Christof Seiler <christof.seiler@stanford.edu>
-Description: Quality control, exploratory plots, and regression analysis for mass cytometric experiments.
+Description: Exploratory plots and regression analysis for mass cytometric experiments.
 License: LGPL-3
 Encoding: UTF-8
 LazyData: true
