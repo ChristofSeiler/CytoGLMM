@@ -313,11 +313,7 @@ df_samples_subset %>% group_by(term,donor) %>% tally %>% arrange(desc(n))
 
 # Regression Analysis of NK Cells
 
-We will now focus only on NK cells.
-
-```{r subset_nk_cells}
-df_samples_subset = df_samples %>% dplyr::filter(celltype == "NK")
-```
+For the regression analysis, we will again focus only on NK cells subset stored in `df_samples_subset`.
 
 ## Generalized Linear Mixed Models
 
@@ -360,7 +356,7 @@ plot(mix_fit)
 
 The plotting function automatically uses the BIC criterion to select the number of clusters.
 
-```{r bic_model_selection}
+```{r bic_model_selection, fig.small=TRUE}
 plot_model_selection(mix_fit)
 ```
 
