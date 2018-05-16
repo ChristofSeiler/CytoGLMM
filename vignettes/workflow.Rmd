@@ -365,7 +365,7 @@ summary(glmm_fit)
 
 ## Generalized Linear Model with Bootstrap
 
-Instead of modeling the donor effect, we can use bootstrap resampling. This also an option if we do not have samples repeated (under different conditions) from the same donor.
+Instead of modeling the donor effect, we can use bootstrap resampling. This also an option if we do not have samples repeated (under different conditions) from the same donor. This function is a wrapper around the package `mbest` [@perry2017fast].
 
 ```{r glm_fit}
 glm_fit = CytoGLMM::cytoglm(df_samples_subset, 
@@ -377,7 +377,7 @@ summary(glm_fit)
 
 ## Mixture of Regressions
 
-Fit a mixture of regression model to identity if there are clusters of donors.
+Fit a mixture of regression model to identity if there are clusters of donors. This function is a wrapper around the package `flexmix` [@grun2007fitting].
 
 ```{r mix_fit}
 num_donors = nlevels(as.factor(df_samples_subset$donor))
