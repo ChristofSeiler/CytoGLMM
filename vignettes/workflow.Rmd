@@ -19,7 +19,7 @@ This is a step-by-step guide for a complete analysis of mass cytometry data.
 
 # Prerequisites
 
-Install [R](https://www.r-project.org/) and [RStudio](https://www.rstudio.com/). Open this `Rmd` file in Rstudio. Then run the following code code to install all required packages.
+Install [R](https://www.r-project.org/) and [RStudio](https://www.rstudio.com/). Open this `Rmd` file in Rstudio. Then run the following code to install all required packages.
 
 ```{r install_packages, warning=FALSE, message=FALSE, eval=FALSE}
 pkgs_needed = c("devtools","tidyverse","magrittr",
@@ -50,7 +50,7 @@ library("parallel")
 library("RColorBrewer")
 ```
 
-Set style and computational parameters.
+Set plotting style and assign computational resources.
 
 ```{r set_parameters}
 theme_set(theme_few())
@@ -62,7 +62,7 @@ ncores = parallel::detectCores()
 
 ## FCS Files
 
-Reanalysis of mass cytometry data from [@aghaeepour2017immune]. The `fcs` files can be downloaded from [FlowRepository](http://flowrepository.org/id/FR-FCM-ZY3Q). We use the package `FlowRepositoryR` to download `fcs` files. We download mass cytometry data measured on whole blood samples collected from 16 women during pregnancy stimulated with IFNa at first and third trimester.
+Reanalysis of mass cytometry data from [@aghaeepour2017immune]. We use the package `FlowRepositoryR` to download `fcs` files from [FlowRepository](http://flowrepository.org/id/FR-FCM-ZY3Q). We download mass cytometry data measured on whole blood samples collected from 16 women during pregnancy stimulated with IFNa at first and third trimester.
 
 ```{r download_data, eval=FALSE}
 repo = flowRep.get("FR-FCM-ZY3Q")
@@ -72,7 +72,7 @@ data = download(repo, only.files = ".*_BL_IFNa.*fcs")
 
 ## Sample Table
 
-The previous commands downloaded `fcs` files to the `FR-FCM-ZY3Q` folder. Now, we prepare sample table by parsing the `fcs` filenames. For some studies, it might be easier to prepare `sample_table.csv` and load it using the `readr` package.
+The previous commands downloaded `fcs` files to the `FR-FCM-ZY3Q` folder. Now, we prepare the sample table by parsing the `fcs` filenames. For some studies, it might be easier to prepare a `sample_table.csv` textfile and load it using the `readr` package.
 
 ```{r read_csv}
 fcs_files = list.files(path = "FR-FCM-ZY3Q/", pattern = "fcs")
@@ -91,7 +91,7 @@ sample_table
 
 ## Marker Table
 
-Load marker isotopes and protein names. Make sure that maker names don't have `-` or start with a number. This is important to be compatible with the formula syntax of `R`.
+Load marker isotopes and protein names. Make sure that marker names don't have `-` or start with a number. This is important to be compatible with the formula syntax of `R`.
 
 ```{r load_markers}
 markers = read_csv("markers.csv")
@@ -231,7 +231,7 @@ protein_names = markers %>%
 protein_names
 ```
 
-Define the columns in `df_samples` that are not protein markers. In our example, we have donor ID, `FCS` filename, if the cell was collected during the first or second trimester, and the cell types that we have just defined through gating.
+Declare the columns in `df_samples` that are not protein markers. In our example, we have donor ID, time point when the sample was collected, `FCS` filename, and the cell type that we have defined through gating.
 
 ```{r}
 sample_info_names = c(names(sample_table),"celltype")
@@ -308,15 +308,14 @@ CytoGLMM::plot_prcomp(df_samples_subset,
 Density plots of one marker for all donors.
 
 ```{r density_plot, fig.wide=TRUE}
-ggplot(df_samples_subset, 
-       aes_string(x = "pCREB", color = "term")) + 
+ggplot(df_samples_subset, aes_string(x = "pCREB", color = "term")) + 
   geom_density() + 
   facet_wrap(~donor)
 ```
 
 Two-dimensional histograms for plotting two markers for all donors.
 
-```{r hist2_donors, fig.wide=TRUE}
+```{r hist2_donors}
 colorscale = scale_fill_gradientn(
   colors = rev(brewer.pal(9, "YlGnBu")), 
   values = c(0, exp(seq(-5, 0, length.out = 100)))
@@ -325,10 +324,10 @@ ggplot(df_samples_subset, aes_string(x = "pSTAT1", y = "pSTAT3")) +
   geom_hex(bins = 64) +
   colorscale + 
   coord_fixed() +
-  facet_wrap(~donor, nrow = 3)
+  facet_wrap(~donor)
 ```
 
-And for group comparisons.
+Two-dimensional histograms for group comparisons.
 
 ```{r hist2_groups}
 ggplot(df_samples_subset, aes_string(x = "pSTAT1", y = "pSTAT3")) + 
@@ -338,7 +337,7 @@ ggplot(df_samples_subset, aes_string(x = "pSTAT1", y = "pSTAT3")) +
   facet_wrap(~term)
 ```
 
-NK cell count. List the smallest and largest term and donor combinations.
+NK cell count. List the smallest and largest.
 
 ```{r cell_count}
 df_samples_subset %>% group_by(term,donor) %>% tally %>% arrange(n)
@@ -351,7 +350,7 @@ For the regression analysis, we will focus only on NK cells. We can repeat the s
 
 ## Generalized Linear Mixed Models
 
-Fit a Generalized Linear Mixed Models (GLMM) with donor random effects.
+Fit a Generalized Linear Mixed Models (GLMM) with donor random effects. This function is a wrapper around the package `mbest` [@perry2017fast].
 
 ```{r glmm_fit}
 df_samples_subset$term %<>% factor(levels = c("1st trimester",
@@ -360,12 +359,12 @@ glmm_fit = CytoGLMM::cytoglmm(df_samples_subset,
                               protein_names = protein_names,
                               condition = "term", group = "donor")
 plot(glmm_fit)
-summary(glmm_fit)
+summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
 ```
 
 ## Generalized Linear Model with Bootstrap
 
-Instead of modeling the donor effect, we can use bootstrap resampling. This also an option if we do not have samples repeated (under different conditions) from the same donor. This function is a wrapper around the package `mbest` [@perry2017fast].
+Instead of modeling the donor effect, we can use bootstrap resampling. In our experiences, this type of regression gives also good results when samples are not matched between conditions on the same donor.
 
 ```{r glm_fit}
 glm_fit = CytoGLMM::cytoglm(df_samples_subset, 
@@ -377,7 +376,7 @@ summary(glm_fit)
 
 ## Mixture of Regressions
 
-Fit a mixture of regression model to identity if there are clusters of donors. This function is a wrapper around the package `flexmix` [@grun2007fitting].
+Fit a mixture of regression model to identity clusters of donors or outliers. This function is a wrapper around the package `flexmix` [@grun2007fitting].
 
 ```{r mix_fit}
 num_donors = nlevels(as.factor(df_samples_subset$donor))
@@ -388,7 +387,7 @@ mix_fit = CytoGLMM::cytoflexmix(df_samples_subset,
 plot(mix_fit)
 ```
 
-The plotting function automatically uses the BIC criterion to select the number of clusters.
+The plotting function automatically uses the BIC criterion to select the number of clusters. In this case, it picks 10 clusters.
 
 ```{r bic_model_selection, fig.small=TRUE}
 plot_model_selection(mix_fit)
