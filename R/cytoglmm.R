@@ -43,11 +43,11 @@ cytoglmm = function(df_samples_subset,
       ungroup
   }
 
-  glmmfit = glmm_ml(df_samples = df_samples_subset,
-                    protein_names = protein_names,
-                    response = condition,
-                    random_var = group,
-                    covariate_names = covariate_names)
+  glmmfit = glmm_moment(df_samples = df_samples_subset,
+                        protein_names = protein_names,
+                        response = condition,
+                        group = group,
+                        covariate_names = covariate_names)
 
   # return cytoglmm object
   fit = NULL

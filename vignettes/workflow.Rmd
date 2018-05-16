@@ -24,7 +24,7 @@ Install [R](https://www.r-project.org/) and [RStudio](https://www.rstudio.com/).
 ```{r install_packages, warning=FALSE, message=FALSE, eval=FALSE}
 pkgs_needed = c("devtools","tidyverse","magrittr",
                 "FlowRepositoryR","flowCore","openCyto","ggcyto",
-                "scales","ggthemes","parallel")
+                "scales","ggthemes","parallel","RColorBrewer")
 letsinstall = setdiff(pkgs_needed, installed.packages())
 if (length(letsinstall) > 0) {
   source("http://bioconductor.org/biocLite.R")
@@ -47,6 +47,7 @@ library("ggcyto")
 library("scales")
 library("ggthemes")
 library("parallel")
+library("RColorBrewer")
 ```
 
 Set style and computational parameters.
@@ -304,6 +305,39 @@ CytoGLMM::plot_prcomp(df_samples_subset,
                       repel = TRUE)
 ```
 
+Density plots of one marker for all donors.
+
+```{r density_plot, fig.wide=TRUE}
+ggplot(df_samples_subset, 
+       aes_string(x = "pCREB", color = "term")) + 
+  geom_density() + 
+  facet_wrap(~donor)
+```
+
+Two-dimensional histograms for plotting two markers for all donors.
+
+```{r hist2_donors, fig.wide=TRUE}
+colorscale = scale_fill_gradientn(
+  colors = rev(brewer.pal(9, "YlGnBu")), 
+  values = c(0, exp(seq(-5, 0, length.out = 100)))
+  )
+ggplot(df_samples_subset, aes_string(x = "pSTAT1", y = "pSTAT3")) + 
+  geom_hex(bins = 64) +
+  colorscale + 
+  coord_fixed() +
+  facet_wrap(~donor, nrow = 3)
+```
+
+And for group comparisons.
+
+```{r hist2_groups}
+ggplot(df_samples_subset, aes_string(x = "pSTAT1", y = "pSTAT3")) + 
+  geom_hex(bins = 64) +
+  colorscale + 
+  coord_fixed() +
+  facet_wrap(~term)
+```
+
 NK cell count. List the smallest and largest term and donor combinations.
 
 ```{r cell_count}
@@ -313,7 +347,7 @@ df_samples_subset %>% group_by(term,donor) %>% tally %>% arrange(desc(n))
 
 # Regression Analysis
 
-For the regression analysis, we will again focus only on NK cells subset stored in `df_samples_subset`.
+For the regression analysis, we will focus only on NK cells. We can repeat the same analysis for each cell type of interest.
 
 ## Generalized Linear Mixed Models
 
