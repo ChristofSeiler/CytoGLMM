@@ -1,11 +1,12 @@
 ---
-title: "Reanalysis of CyTOF Data from Aghaeepour 2017"
+title: "CytoGLMM Workflow"
 author:
   name: Christof Seiler
   affiliation: Department of Statistics, Stanford University
 output:
   BiocStyle::html_document2:
     toc_float: true
+bibliography: bibliography.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -14,17 +15,16 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 # Goal
 
-This is a step-by-step guide to illustrated a complete analysis of mass cytometry data.
+This is a step-by-step guide for a complete analysis of mass cytometry data.
 
 # Prerequisites
 
-Install [R](https://www.r-project.org/) and [RStudio](https://www.rstudio.com/). Open this `Rmd` file in Rstudio. Then run the follwing code code to install all required packages.
+Install [R](https://www.r-project.org/) and [RStudio](https://www.rstudio.com/). Open this `Rmd` file in Rstudio. Then run the following code code to install all required packages.
 
 ```{r install_packages, warning=FALSE, message=FALSE, eval=FALSE}
-pkgs_needed = c("devtools","tidyverse","readr","magrittr","stringr",
-                "reshape2",
-                "flowCore","openCyto","ggcyto","FlowRepositoryR",
-                "scales","parallel")
+pkgs_needed = c("devtools","tidyverse","magrittr",
+                "FlowRepositoryR","flowCore","openCyto","ggcyto",
+                "scales","ggthemes","parallel")
 letsinstall = setdiff(pkgs_needed, installed.packages())
 if (length(letsinstall) > 0) {
   source("http://bioconductor.org/biocLite.R")
@@ -38,26 +38,18 @@ Load packages.
 
 ```{r load_packages}
 library("CytoGLMM")
-library("cytoeffect")
 library("tidyverse")
-library("readr")
 library("magrittr")
-library("stringr")
+library("FlowRepositoryR")
 library("flowCore")
-library("cowplot")
-library("batchtools")
-library("rstan")
-library("reshape2")
-library("cluster")
 library("openCyto")
 library("ggcyto")
 library("scales")
 library("ggthemes")
 library("parallel")
-library("FlowRepositoryR")
 ```
 
-Set some parameters.
+Set style and computational parameters.
 
 ```{r set_parameters}
 theme_set(theme_few())
@@ -69,7 +61,7 @@ ncores = parallel::detectCores()
 
 ## FCS Files
 
-Reanalysis of mass cytometry data from *An immune clock of human pregnancy* by Aghaeepour and co-authors published in 2017. The `fcs` files can be downloaded from [http://flowrepository.org/id/FR-FCM-ZY3Q](http://flowrepository.org/id/FR-FCM-ZY3Q). We use the package `FlowRepositoryR` to download `fcs` files. We download mass cytometry data measured on whole blood samples collected from 16 women during pregnancy stimulated with IFNa at first and third trimester.
+Reanalysis of mass cytometry data from [@saghaeepour2017immune]. The `fcs` files can be downloaded from [FlowRepository](http://flowrepository.org/id/FR-FCM-ZY3Q). We use the package `FlowRepositoryR` to download `fcs` files. We download mass cytometry data measured on whole blood samples collected from 16 women during pregnancy stimulated with IFNa at first and third trimester.
 
 ```{r download_data, eval=FALSE}
 repo = flowRep.get("FR-FCM-ZY3Q")
@@ -79,7 +71,7 @@ data = download(repo, only.files = ".*_BL_IFNa.*fcs")
 
 ## Sample Table
 
-We downloaded the `fcs` files to the `FR-FCM-ZY3Q` folder. Prepare sample table.
+The previous commands downloaded `fcs` files to the `FR-FCM-ZY3Q` folder. Now, we prepare sample table by parsing the `fcs` filenames. For some studies, it might be easier to prepare `sample_table.csv` and load it using the `readr` package.
 
 ```{r read_csv}
 fcs_files = list.files(path = "FR-FCM-ZY3Q/", pattern = "fcs")
@@ -91,7 +83,6 @@ map_time = function(x) {
 sample_table = tibble(
   donor = str_extract(fcs_files, "PTLG[0-9]{3}"),
   term = sapply(fcs_files, map_time) %>% as.factor,
-  treatment = rep("IFNa",length(fcs_files)),
   file_name = paste0("FR-FCM-ZY3Q/",fcs_files)
 )
 sample_table
@@ -99,7 +90,7 @@ sample_table
 
 ## Marker Table
 
-Load marker isotopes and protein names. Make sure that maker names don't havw `-` or start with a number. This is important to be compatible with the forumla syntax of `R`.
+Load marker isotopes and protein names. Make sure that maker names don't have `-` or start with a number. This is important to be compatible with the formula syntax of `R`.
 
 ```{r load_markers}
 markers = read_csv("markers.csv")
@@ -108,7 +99,7 @@ markers$protein_name %<>% make.names
 markers
 ```
 
-Check if bead normalized.
+Check if bead normalized. This only works if the bead normalizer added an additional column `beadDist` to the `fcs`.
 
 ```{r bead}
 ifelse(sum(colnames(read.FCS(sample_table$file_name[1])) == "beadDist")==1,
@@ -118,7 +109,7 @@ ifelse(sum(colnames(read.FCS(sample_table$file_name[1])) == "beadDist")==1,
 
 # Gating
 
-Gate with `openCyto` according to supplementary material (Fig. S1).
+Gate with `openCyto` according to supplementary material (Fig. S1) from [@saghaeepour2017immune].
 
 ```{r opencyto, fig.wide=TRUE}
 # load data
@@ -224,7 +215,7 @@ df_samples %<>% rename_at(vars(oldnames), ~ newnames)
 str(df_samples)
 ```
 
-List cells per donor.
+List cell counts per donor and trimester.
 
 ```{r list_cells_per_donor}
 table(df_samples$donor,df_samples$term)
@@ -236,23 +227,32 @@ Focus on functional proteins.
 protein_names = markers %>% 
   dplyr::filter(type == "function") %>% 
   .$protein_name
-sample_info_names = c(names(sample_table),"celltype")
+protein_names
 ```
 
-# Quality Control and Data Exploration
+Define the columns in `df_samples` that are not protein markers. In our example, we have donor ID, `FCS` filename, if the cell was collected during the first or second trimester, and the cell types that we have just defined through gating.
 
-MDS on median marker expression on original.
+```{r}
+sample_info_names = c(names(sample_table),"celltype")
+sample_info_names
+```
 
-```{r plot_mds, fig.wide=TRUE}
+# Data Exploration 
+
+## All Cell Types
+
+MDS on median marker expression of all cell types.
+
+```{r plot_mds_celltype, fig.wide=TRUE}
 CytoGLMM::plot_mds(df_samples,
                    protein_names = protein_names,
                    sample_info_names = sample_info_names,
                    color = "celltype")
 ```
 
-Heatmap of median marker expression.
+Heatmap of median marker expression of all cell types.
 
-```{r plot_heatmap}
+```{r plot_heatmap_celltype}
 CytoGLMM::plot_heatmap(df_samples,
                        protein_names = protein_names,
                        sample_info_names = sample_info_names,
@@ -260,55 +260,63 @@ CytoGLMM::plot_heatmap(df_samples,
                        arrange_by_2 = "celltype")
 ```
 
-PCA plot of all cells color coded by cell type.
+PCA plot of all cell types.
 
-```{r plot_prcomp, fig.wide=TRUE}
+```{r plot_prcomp_celltype, fig.wide=TRUE}
 CytoGLMM::plot_prcomp(df_samples,
                       protein_names = protein_names,
                       color_var = "celltype",
                       repel = TRUE)
 ```
 
-# Analysis of NK Cells Subset
+## NK Cells
 
-We will now focus only on the NK cells.
+We will now focus only on NK cells.
 
 ```{r subset_nk_cells}
 df_samples_subset = df_samples %>% dplyr::filter(celltype == "NK")
 ```
 
-MDS on median marker expression on original.
+MDS on median marker expression of NK cells.
 
-```{r plot_mds, fig.wide=TRUE}
+```{r plot_mds_nk, fig.wide=TRUE}
 CytoGLMM::plot_mds(df_samples_subset,
                    protein_names = protein_names,
                    sample_info_names = sample_info_names,
                    color = "term")
 ```
 
-Heatmap of median marker expression.
+Heatmap of median marker expression of NK cells.
 
-```{r plot_heatmap}
+```{r plot_heatmap_nk}
 CytoGLMM::plot_heatmap(df_samples_subset,
                        protein_names = protein_names,
                        sample_info_names = sample_info_names,
                        arrange_by_1 = "term")
 ```
 
-PCA plot of all cells color coded by cell type.
+PCA plot of NK cells.
 
-```{r plot_prcomp, fig.wide = TRUE}
+```{r plot_prcomp_nk, fig.wide = TRUE}
 CytoGLMM::plot_prcomp(df_samples_subset,
                       protein_names = protein_names,
                       color_var = "term",
                       repel = TRUE)
 ```
 
-Cells count of subsets.
+NK cell count. List the smallest and largest term and donor combinations.
 
 ```{r cell_count}
 df_samples_subset %>% group_by(term,donor) %>% tally %>% arrange(n)
 df_samples_subset %>% group_by(term,donor) %>% tally %>% arrange(desc(n))
+```
+
+# Regression Analysis of NK Cells
+
+We will now focus only on NK cells.
+
+```{r subset_nk_cells}
+df_samples_subset = df_samples %>% dplyr::filter(celltype == "NK")
 ```
 
 ## Generalized Linear Mixed Models
@@ -327,7 +335,7 @@ summary(glmm_fit)
 
 ## Generalized Linear Model with Bootstrap
 
-Instead of modeling the donor effect, we use bootstrap resampling. This can also be used if we do not have samples from the same donor under different conditions.
+Instead of modeling the donor effect, we can use bootstrap resampling. This also an option if we do not have samples repeated (under different conditions) from the same donor.
 
 ```{r glm_fit}
 glm_fit = CytoGLMM::cytoglm(df_samples_subset, 
@@ -361,3 +369,5 @@ plot_model_selection(mix_fit)
 ```{r session_info}
 sessionInfo()
 ```
+
+# References {.unnumbered}
