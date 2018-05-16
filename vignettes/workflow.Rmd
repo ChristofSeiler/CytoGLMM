@@ -364,7 +364,7 @@ summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
 
 ## Generalized Linear Model with Bootstrap
 
-Instead of modeling the donor effect, we can use bootstrap resampling. In our experiences, this type of regression gives also good results when samples are not matched between conditions on the same donor.
+Instead of modeling the donor effect, we can use bootstrap resampling. In our experience, this type of regression gives also good results when samples are not matched between conditions on the same donor.
 
 ```{r glm_fit}
 glm_fit = CytoGLMM::cytoglm(df_samples_subset, 
