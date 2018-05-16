@@ -62,7 +62,7 @@ ncores = parallel::detectCores()
 
 ## FCS Files
 
-Reanalysis of mass cytometry data from [@aghaeepour2017immune]. We use the package `FlowRepositoryR` to download `fcs` files from [FlowRepository](http://flowrepository.org/id/FR-FCM-ZY3Q). We download mass cytometry data measured on whole blood samples collected from 16 women during pregnancy stimulated with IFNa at first and third trimester.
+Reanalysis of mass cytometry data from @aghaeepour2017immune. We use the package `FlowRepositoryR` to download `fcs` files from [FlowRepository](http://flowrepository.org/id/FR-FCM-ZY3Q). We download mass cytometry data measured on whole blood samples collected from 16 women during pregnancy stimulated with IFNa at first and third trimester.
 
 ```{r download_data, eval=FALSE}
 repo = flowRep.get("FR-FCM-ZY3Q")
@@ -110,7 +110,7 @@ ifelse(sum(colnames(read.FCS(sample_table$file_name[1])) == "beadDist")==1,
 
 # Gating
 
-Gate with `openCyto` according to supplementary material (Fig. S1) from [@aghaeepour2017immune].
+Gate with `openCyto` according to supplementary material (Fig. S1) from @aghaeepour2017immune.
 
 ```{r opencyto, fig.wide=TRUE}
 # load data
