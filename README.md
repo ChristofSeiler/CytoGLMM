@@ -2,7 +2,7 @@
 
 ## Goal
 
-Quality control, exploratory plots, and regression analysis for mass cytometric experiments.
+Exploratory plots and regression analysis for mass cytometric experiments.
 
 ## Installation
 
