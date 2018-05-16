@@ -18,7 +18,7 @@ This is a step-by-step guide to illustrated a complete analysis of mass cytometr
 
 # Prerequisites
 
-Install [R](https://www.r-project.org/) (currently testes on R 3.4 and higher) and [RStudio](https://www.rstudio.com/). Open this `Rmd` file in Rstudio. Then run the follwing code code to install all required packages.
+Install [R](https://www.r-project.org/) and [RStudio](https://www.rstudio.com/). Open this `Rmd` file in Rstudio. Then run the follwing code code to install all required packages.
 
 ```{r install_packages, warning=FALSE, message=FALSE, eval=FALSE}
 pkgs_needed = c("devtools","tidyverse","readr","magrittr","stringr",
@@ -342,11 +342,11 @@ summary(glm_fit)
 Fit a mixture of regression model to identity if there are clusters of donors.
 
 ```{r mix_fit}
+num_donors = nlevels(as.factor(df_samples_subset$donor))
 mix_fit = CytoGLMM::cytoflexmix(df_samples_subset, 
                                 protein_names = protein_names,
-                                condition = "term", group = "donor",
-                                cell_n_min = 1000, cell_n_subsample = 1000, 
-                                ks = 1:nlevels(df_samples_subset$donor))
+                                condition = "term", group = "donor", 
+                                ks = 1:num_donors)
 plot(mix_fit)
 ```
 
@@ -354,12 +354,6 @@ The plotting function automatically uses the BIC criterion to select the number 
 
 ```{r bic_model_selection}
 plot_model_selection(mix_fit)
-```
-
-In this case, it would also make sense to select only seven clusters, as there is not much improvements with seven or more clusters.
-
-```{r plot_mix_fit}
-plot(mix_fit, k = 6)
 ```
 
 # Session Info {.unnumbered}
