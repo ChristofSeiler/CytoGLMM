@@ -1,25 +1,369 @@
 ---
-title: "CytoGLMM Workflow"
-author: "Christof Seiler"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+title: "Reanalysis of CyTOF Data from Aghaeepour 2017"
+author:
+  name: Christof Seiler
+  affiliation: Department of Statistics, Stanford University
+output:
+  BiocStyle::html_document2:
+    toc_float: true
 ---
 
-In this vignette we go through an example with simulated data. Similar to the ``cydar`` package: [vignette](https://bioconductor.org/packages/release/bioc/vignettes/cydar/inst/doc/cydar.html).
-
-## Load Packages
-
-```{r load_packages}
-library(CytoGLMM)
-library(devtools)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
-## Session Info
+# Goal
 
-```{r}
-session_info()
+This is a step-by-step guide to illustrated a complete analysis of mass cytometry data.
+
+# Prerequisites
+
+Install [R](https://www.r-project.org/) (currently testes on R 3.4 and higher) and [RStudio](https://www.rstudio.com/). Open this `Rmd` file in Rstudio. Then run the follwing code code to install all required packages.
+
+```{r install_packages, warning=FALSE, message=FALSE, eval=FALSE}
+pkgs_needed = c("devtools","tidyverse","readr","magrittr","stringr",
+                "reshape2",
+                "flowCore","openCyto","ggcyto","FlowRepositoryR",
+                "scales","parallel")
+letsinstall = setdiff(pkgs_needed, installed.packages())
+if (length(letsinstall) > 0) {
+  source("http://bioconductor.org/biocLite.R")
+  biocLite(letsinstall)
+}
+# package is still private
+devtools::install_github("ChristofSeiler/CytoGLMM", auth_token = "7e51f0606cfec76eb1328812ac263f335c5f285f")
+```
+
+Load packages.
+
+```{r load_packages}
+library("CytoGLMM")
+library("cytoeffect")
+library("tidyverse")
+library("readr")
+library("magrittr")
+library("stringr")
+library("flowCore")
+library("cowplot")
+library("batchtools")
+library("rstan")
+library("reshape2")
+library("cluster")
+library("openCyto")
+library("ggcyto")
+library("scales")
+library("ggthemes")
+library("parallel")
+library("FlowRepositoryR")
+```
+
+Set some parameters.
+
+```{r set_parameters}
+theme_set(theme_few())
+scale_colour_discrete = function(...) scale_colour_few()
+ncores = parallel::detectCores()
+```
+
+# Download and Prepare Data
+
+## FCS Files
+
+Reanalysis of mass cytometry data from *An immune clock of human pregnancy* by Aghaeepour and co-authors published in 2017. The `fcs` files can be downloaded from [http://flowrepository.org/id/FR-FCM-ZY3Q](http://flowrepository.org/id/FR-FCM-ZY3Q). We use the package `FlowRepositoryR` to download `fcs` files. We download mass cytometry data measured on whole blood samples collected from 16 women during pregnancy stimulated with IFNa at first and third trimester.
+
+```{r download_data, eval=FALSE}
+repo = flowRep.get("FR-FCM-ZY3Q")
+data = download(repo, only.files = ".*_2_IFNa.*fcs")
+data = download(repo, only.files = ".*_BL_IFNa.*fcs")
+```
+
+## Sample Table
+
+We downloaded the `fcs` files to the `FR-FCM-ZY3Q` folder. Prepare sample table.
+
+```{r read_csv}
+fcs_files = list.files(path = "FR-FCM-ZY3Q/", pattern = "fcs")
+map_time = function(x) {
+  if (str_detect(x, "_2_")) "3rd trimester"
+  else if (str_detect(x, "_BL_")) "1st trimester"
+  else NA
+}
+sample_table = tibble(
+  donor = str_extract(fcs_files, "PTLG[0-9]{3}"),
+  term = sapply(fcs_files, map_time) %>% as.factor,
+  treatment = rep("IFNa",length(fcs_files)),
+  file_name = paste0("FR-FCM-ZY3Q/",fcs_files)
+)
+sample_table
+```
+
+## Marker Table
+
+Load marker isotopes and protein names. Make sure that maker names don't havw `-` or start with a number. This is important to be compatible with the forumla syntax of `R`.
+
+```{r load_markers}
+markers = read_csv("markers.csv")
+markers$protein_name %<>% str_replace_all("-","_")
+markers$protein_name %<>% make.names
+markers
+```
+
+Check if bead normalized.
+
+```{r bead}
+ifelse(sum(colnames(read.FCS(sample_table$file_name[1])) == "beadDist")==1,
+       yes = "bead normalized",
+       no = "not bead normalized")
+```
+
+# Gating
+
+Gate with `openCyto` according to supplementary material (Fig. S1).
+
+```{r opencyto, fig.wide=TRUE}
+# load data
+ncfs = read.ncdfFlowSet(sample_table$file_name, mc.cores = ncores)
+gs = GatingSet(ncfs)
+pData(gs) = cbind(pData(gs),sample_table)
+trans_func = function(x) asinh(x/5)
+inv_func = function(x) 5*sinh(x)
+trans_obj = trans_new("asinh_cytof", trans_func, inv_func)
+translist = transformerList(markers$isotope[-1], trans_obj)
+gs = transform(gs, translist)
+# apply gating template
+gt_aghaeepour = gatingTemplate("gating_template.csv")
+plot(gt_aghaeepour)
+gating(gt_aghaeepour, gs, mc.cores = ncores, parallel_type = "multicore")
+# rename some subsets
+setNode(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4+CD8a-/CD45RA+", 
+        "CD4+Tnaive") %>% invisible
+setNode(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4+CD8a-/CD45RA-", 
+        "CD4+Tmem") %>% invisible
+setNode(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4-CD8a+/CD45RA+", 
+        "CD8+Tnaive") %>% invisible
+setNode(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4-CD8a+/CD45RA-", 
+        "CD8+Tmem") %>% invisible
+setNode(gs, "CD3-CD19+", "B") %>% invisible
+setNode(gs, "CD3+CD19-", "T") %>% invisible
+setNode(gs, "CD4+CD8a-", "CD4+T") %>% invisible
+setNode(gs, "CD4-CD8a+", "CD8+T") %>% invisible
+setNode(gs, "CD7+", "NK") %>% invisible
+setNode(gs, "CD14+CD16-", "cMC") %>% invisible
+setNode(gs, "CD14-CD16+", "ncMC") %>% invisible
+setNode(gs, "CD14+CD16+", "intMC") %>% invisible
+plot(gs)
+# hide nodes
+dodes_to_hide = c(
+  "granulocyte", "CD19+", "CD3+", "CD3+CD19+",
+  "CD8a+", "CD4+", "CD16+", "CD14+", "CD14-CD16-",
+  "CD4+CD8a+", "CD4+Tnaive/CD25+", "CD4+Tmem/CD25+", 
+  "CD4+Tnaive/FoxP3+", "CD4+Tmem/FoxP3+"
+  )
+for(this_node in dodes_to_hide) setNode(gs, this_node, FALSE)
+plot(gs)
+```
+
+Visualize gates with `ggcyto`.
+
+```{r ggcyto}
+set.seed(0xdada)
+ids = sample(length(gs), size = 6)
+ggcyto(gs[ids], aes(x = CD66, y = CD45), subset = "leukocyte") + 
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) + 
+  geom_gate(c("mononuclear","granulocyte"))
+ggcyto(gs[ids], aes(x = CD3, y = CD19), subset = "mononuclear") + 
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate(c("B","T","CD3-CD19-"))
+ggcyto(gs[ids], aes(x = CD14, y = CD7), subset = "CD3-CD19-") + 
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate("NK")
+ggcyto(gs[ids], aes(x = CD14, y = CD16), subset = "CD7-") + 
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate(c("cMC","ncMC","intMC"))
+ggcyto(gs[ids], aes(x = CD4, y = CD8a), subset = "T") + 
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate(c("CD4+T","CD8+T","CD4-CD8a-"))
+ggcyto(gs[ids], aes(x = TCRgd, y = CD3), subset = "CD4-CD8a-") + 
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate("gdT")
+ggcyto(gs[ids], aes(x = CD4, y = CD45RA), subset = "CD4+T") + 
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate(c("CD4+Tnaive","CD4+Tmem"))
+ggcyto(gs[ids], aes(x = FoxP3, y = CD25), subset = "CD4+Tnaive") + 
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate("Tregsnaive")
+ggcyto(gs[ids], aes(x = FoxP3, y = CD25), subset = "CD4+Tmem") + 
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate("Tregsmem")
+ggcyto(gs[ids], aes(x = CD8a, y = CD45RA), subset = "CD8+T") + 
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate(c("CD8+Tnaive","CD8+Tmem"))
+```
+
+Combine cell types of interest into one data frame. Change marker name from isotope name to protein name and remove markers that are unmapped.
+
+```{r convert}
+nodes_exclude = c("root","singlet","leukocyte","mononuclear",
+                  "CD3-CD19-","CD7-","CD4-CD8a-",
+                  "CD4+T","CD8+T","T")
+nodes_all = getNodes(gs, path = "auto") 
+nodes_select = nodes_all[!nodes_all %in% nodes_exclude]
+df_samples = lapply(nodes_select, function(celltype) {
+  fset = getData(gs, celltype)
+  lapply(seq(fset), function(sample_id) {
+    marker_ids = which(fset@colnames %in% markers$isotope)
+    exprs = as_tibble(exprs(fset[[sample_id]]))[,marker_ids]
+    file_name = pData(fset[sample_id])$file_name
+    exprs %>% add_column(file_name, celltype)
+  }) %>% bind_rows
+}) %>% bind_rows
+df_samples %<>% inner_join(sample_table,by = "file_name")
+oldnames = markers$isotope
+newnames = markers$protein_name
+df_samples %<>% rename_at(vars(oldnames), ~ newnames)
+str(df_samples)
+```
+
+List cells per donor.
+
+```{r list_cells_per_donor}
+table(df_samples$donor,df_samples$term)
+```
+
+Focus on functional proteins.
+
+```{r select_proteins}
+protein_names = markers %>% 
+  dplyr::filter(type == "function") %>% 
+  .$protein_name
+sample_info_names = c(names(sample_table),"celltype")
+```
+
+# Quality Control and Data Exploration
+
+MDS on median marker expression on original.
+
+```{r plot_mds, fig.wide=TRUE}
+CytoGLMM::plot_mds(df_samples,
+                   protein_names = protein_names,
+                   sample_info_names = sample_info_names,
+                   color = "celltype")
+```
+
+Heatmap of median marker expression.
+
+```{r plot_heatmap}
+CytoGLMM::plot_heatmap(df_samples,
+                       protein_names = protein_names,
+                       sample_info_names = sample_info_names,
+                       arrange_by_1 = "term",
+                       arrange_by_2 = "celltype")
+```
+
+PCA plot of all cells color coded by cell type.
+
+```{r plot_prcomp, fig.wide=TRUE}
+CytoGLMM::plot_prcomp(df_samples,
+                      protein_names = protein_names,
+                      color_var = "celltype",
+                      repel = TRUE)
+```
+
+# Analysis of NK Cells Subset
+
+We will now focus only on the NK cells.
+
+```{r subset_nk_cells}
+df_samples_subset = df_samples %>% dplyr::filter(celltype == "NK")
+```
+
+MDS on median marker expression on original.
+
+```{r plot_mds, fig.wide=TRUE}
+CytoGLMM::plot_mds(df_samples_subset,
+                   protein_names = protein_names,
+                   sample_info_names = sample_info_names,
+                   color = "term")
+```
+
+Heatmap of median marker expression.
+
+```{r plot_heatmap}
+CytoGLMM::plot_heatmap(df_samples_subset,
+                       protein_names = protein_names,
+                       sample_info_names = sample_info_names,
+                       arrange_by_1 = "term")
+```
+
+PCA plot of all cells color coded by cell type.
+
+```{r plot_prcomp, fig.wide = TRUE}
+CytoGLMM::plot_prcomp(df_samples_subset,
+                      protein_names = protein_names,
+                      color_var = "term",
+                      repel = TRUE)
+```
+
+Cells count of subsets.
+
+```{r cell_count}
+df_samples_subset %>% group_by(term,donor) %>% tally %>% arrange(n)
+df_samples_subset %>% group_by(term,donor) %>% tally %>% arrange(desc(n))
+```
+
+## Generalized Linear Mixed Models
+
+Fit a Generalized Linear Mixed Models (GLMM) with donor random effects.
+
+```{r glmm_fit}
+df_samples_subset$term %<>% factor(levels = c("1st trimester",
+                                              "3rd trimester"))
+glmm_fit = CytoGLMM::cytoglmm(df_samples_subset, 
+                              protein_names = protein_names,
+                              condition = "term", group = "donor")
+plot(glmm_fit)
+summary(glmm_fit)
+```
+
+## Generalized Linear Model with Bootstrap
+
+Instead of modeling the donor effect, we use bootstrap resampling. This can also be used if we do not have samples from the same donor under different conditions.
+
+```{r glm_fit}
+glm_fit = CytoGLMM::cytoglm(df_samples_subset, 
+                            protein_names = protein_names,
+                            condition = "term", group = "donor")
+plot(glm_fit)
+summary(glm_fit)
+```
+
+## Mixture of Regressions
+
+Fit a mixture of regression model to identity if there are clusters of donors.
+
+```{r mix_fit}
+mix_fit = CytoGLMM::cytoflexmix(df_samples_subset, 
+                                protein_names = protein_names,
+                                condition = "term", group = "donor",
+                                cell_n_min = 1000, cell_n_subsample = 1000, 
+                                ks = 1:nlevels(df_samples_subset$donor))
+plot(mix_fit)
+```
+
+The plotting function automatically uses the BIC criterion to select the number of clusters.
+
+```{r bic_model_selection}
+plot_model_selection(mix_fit)
+```
+
+In this case, it would also make sense to select only seven clusters, as there is not much improvements with seven or more clusters.
+
+```{r plot_mix_fit}
+plot(mix_fit, k = 6)
+```
+
+# Session Info {.unnumbered}
+
+```{r session_info}
+sessionInfo()
 ```
