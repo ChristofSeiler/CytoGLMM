@@ -61,7 +61,7 @@ ncores = parallel::detectCores()
 
 ## FCS Files
 
-Reanalysis of mass cytometry data from [@saghaeepour2017immune]. The `fcs` files can be downloaded from [FlowRepository](http://flowrepository.org/id/FR-FCM-ZY3Q). We use the package `FlowRepositoryR` to download `fcs` files. We download mass cytometry data measured on whole blood samples collected from 16 women during pregnancy stimulated with IFNa at first and third trimester.
+Reanalysis of mass cytometry data from [@aghaeepour2017immune]. The `fcs` files can be downloaded from [FlowRepository](http://flowrepository.org/id/FR-FCM-ZY3Q). We use the package `FlowRepositoryR` to download `fcs` files. We download mass cytometry data measured on whole blood samples collected from 16 women during pregnancy stimulated with IFNa at first and third trimester.
 
 ```{r download_data, eval=FALSE}
 repo = flowRep.get("FR-FCM-ZY3Q")
@@ -109,7 +109,7 @@ ifelse(sum(colnames(read.FCS(sample_table$file_name[1])) == "beadDist")==1,
 
 # Gating
 
-Gate with `openCyto` according to supplementary material (Fig. S1) from [@saghaeepour2017immune].
+Gate with `openCyto` according to supplementary material (Fig. S1) from [@aghaeepour2017immune].
 
 ```{r opencyto, fig.wide=TRUE}
 # load data
@@ -311,7 +311,7 @@ df_samples_subset %>% group_by(term,donor) %>% tally %>% arrange(n)
 df_samples_subset %>% group_by(term,donor) %>% tally %>% arrange(desc(n))
 ```
 
-# Regression Analysis of NK Cells
+# Regression Analysis
 
 For the regression analysis, we will again focus only on NK cells subset stored in `df_samples_subset`.
 
