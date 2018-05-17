@@ -348,9 +348,9 @@ df_samples_subset %>% group_by(term,donor) %>% tally %>% arrange(desc(n))
 
 For the regression analysis, we will focus only on NK cells. We can repeat the same analysis for each cell type of interest.
 
-## Generalized Linear Mixed Models
+## Generalized Linear Mixed Model
 
-Fit a Generalized Linear Mixed Models (GLMM) with donor random effects. This function is a wrapper around the package `mbest` [@perry2017fast].
+Fit a Generalized Linear Mixed Model (GLMM) with donor random effects. This function is a wrapper around the package `mbest` [@perry2017fast].
 
 ```{r glmm_fit}
 df_samples_subset$term %<>% factor(levels = c("1st trimester",
