@@ -19,7 +19,7 @@ This is a step-by-step guide for a complete analysis of mass cytometry data.
 
 # Prerequisites
 
-Install [R](https://www.r-project.org/) and [RStudio](https://www.rstudio.com/). Open this `Rmd` file in Rstudio. Then run the following code to install all required packages.
+Install [R](https://www.r-project.org/) and [RStudio](https://www.rstudio.com/). Open this `Rmd` file in RStudio. Then run the following code to install all required packages.
 
 ```{r install_packages, warning=FALSE, message=FALSE, eval=FALSE}
 pkgs_needed = c("devtools","tidyverse","magrittr",
