@@ -6,7 +6,7 @@
 \usage{
 cytoglm(df_samples_subset, protein_names, condition, group = "donor",
   covariate_names = NULL, cell_n_min = Inf, cell_n_subsample = 0,
-  num_boot = 100, seed = 56026, num_cores = 4)
+  num_boot = 100, seed = 56026, num_cores = parallel::detectCores())
 }
 \description{
 Logistic regression with cases bootstrap

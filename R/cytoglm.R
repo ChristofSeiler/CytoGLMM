@@ -3,6 +3,7 @@
 #' @import magrittr
 #' @import stringr
 #' @import parallel
+#' @import BiocParallel
 #' @export
 #'
 cytoglm = function(df_samples_subset,
@@ -14,7 +15,7 @@ cytoglm = function(df_samples_subset,
                    cell_n_subsample = 0,
                    num_boot = 100,
                    seed = 0xdada,
-                   num_cores = 4) {
+                   num_cores = parallel::detectCores()) {
 
   set.seed(seed)
 
@@ -81,7 +82,12 @@ cytoglm = function(df_samples_subset,
            coeff = fit_glm$coefficients[protein_names],
            run = seed)
   }
-  tb_coef = mclapply(1:num_boot,bs,mc.cores = num_cores) %>% bind_rows()
+  if(.Platform$OS.type == "windows") {
+    bpparam = SnowParam(workers = num_cores, type = "SOCK")
+  } else {
+    bpparam = MulticoreParam(workers = num_cores)
+  }
+  tb_coef = bplapply(1:num_boot, bs, BPPARAM = bpparam) %>% bind_rows()
 
   # return cytoglm object
   fit = NULL
