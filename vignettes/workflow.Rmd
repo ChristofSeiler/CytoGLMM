@@ -24,7 +24,8 @@ Install [R](https://www.r-project.org/) and [RStudio](https://www.rstudio.com/).
 ```{r install_packages, warning=FALSE, message=FALSE, eval=FALSE}
 pkgs_needed = c("devtools","tidyverse","magrittr",
                 "FlowRepositoryR","flowCore","openCyto","ggcyto",
-                "scales","ggthemes","parallel","RColorBrewer")
+                "scales","ggthemes","parallel","RColorBrewer",
+                "ggcorrplot")
 letsinstall = setdiff(pkgs_needed, installed.packages())
 if (length(letsinstall) > 0) {
   source("http://bioconductor.org/biocLite.R")
@@ -48,6 +49,7 @@ library("scales")
 library("ggthemes")
 library("parallel")
 library("RColorBrewer")
+library("ggcorrplot")
 ```
 
 Set plotting style and assign computational resources.
@@ -342,6 +344,14 @@ NK cell count. List the smallest and largest.
 ```{r cell_count}
 df_samples_subset %>% group_by(term,donor) %>% tally %>% arrange(n)
 df_samples_subset %>% group_by(term,donor) %>% tally %>% arrange(desc(n))
+```
+
+Plot marker correlations.
+
+```{r marker_correlations}
+ggcorrplot(mcor, hc.order = TRUE, type = "lower", 
+           outline.col = "lightgray",
+           colors = c("#6D9EC1", "white", "#E46726"))
 ```
 
 # Regression Analysis
