@@ -56,6 +56,7 @@ cytoglmm = function(df_samples_subset,
   fit$protein_names = protein_names
   fit$condition = condition
   fit$group = group
+  fit$covariate_names = covariate_names
   fit$cell_n_min = cell_n_min
   fit$cell_n_subsample = cell_n_subsample
   fit$seed = seed

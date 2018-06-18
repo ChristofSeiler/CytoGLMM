@@ -1,10 +1,8 @@
-#' Extact and plot noise term
+#' Extact and calculate p-values of bootstrap GLM fit
 #'
-#' @import ggplot2
 #' @import tibble
 #' @import magrittr
 #' @import dplyr
-#' @import cowplot
 #' @export
 #'
 summary.cytoglm = function(fit) {
@@ -12,23 +10,17 @@ summary.cytoglm = function(fit) {
   if(class(fit) != "cytoglm")
     stop("Input needs to be a cytoglm object computed by cytoglm function.")
 
-  cat("\n#######################\n")
-  if(fit$unpaired)  {
-    cat("## unpaired anlaysis ##")
-  } else {
-    cat("## paired analysis ####")
-  }
-  cat("\n#######################\n\n")
-  cat("number of bootstrap samples:",fit$num_boot,"\n\n")
-  cat("number of cells per group and condition:")
-  cell_count = table(pull(fit$df_samples_subset,fit$group),
-                     pull(fit$df_samples_subset,fit$condition))
-  print(cell_count)
-
-  cat("\nproteins included in the analysis:\n",fit$protein_names,"\n\n")
-  cat("condition compared:",fit$condition,"\n")
-  cat("grouping variable:",fit$group,"\n")
-  cat("controlled covariates:",fit$covariate_names,"\n")
-  cat("formula:\n",fit$formula_str,"\n")
+  # calculate p-values from bootstrap distribution
+  df_pvalues = fit$tb_coef %>%
+    group_by(protein_name) %>%
+    summarize(pvalues_unadj = min(mean(coeff < 0), mean(coeff > 0)))
+  df_pvalues %<>% mutate(pvalues_unadj = if_else(
+    condition = pvalues_unadj == 0,
+    true = 1/fit$num_boot,
+    false = pvalues_unadj))
+  df_pvalues %<>% mutate(pvalues_adj = p.adjust(pvalues_unadj,
+                                                method = "BH"))
+  df_pvalues = df_pvalues[order(df_pvalues$pvalues_unadj),]
+  df_pvalues
 
 }

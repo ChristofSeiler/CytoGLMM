@@ -369,6 +369,7 @@ df_samples_subset$term %<>% factor(levels = c("1st trimester",
 glmm_fit = CytoGLMM::cytoglmm(df_samples_subset, 
                               protein_names = protein_names,
                               condition = "term", group = "donor")
+glmm_fit
 plot(glmm_fit)
 summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
 ```
@@ -379,10 +380,12 @@ Instead of modeling the donor effect, we can use bootstrap resampling. In our ex
 
 ```{r glm_fit}
 glm_fit = CytoGLMM::cytoglm(df_samples_subset, 
+                            num_boot = 1000,
                             protein_names = protein_names,
                             condition = "term", group = "donor")
+glm_fit
 plot(glm_fit)
-summary(glm_fit)
+summary(glm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
 ```
 
 ## Mixture of Regressions

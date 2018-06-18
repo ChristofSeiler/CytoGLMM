@@ -2,10 +2,10 @@
 % Please edit documentation in R/summary.cytoglmm.R
 \name{summary.cytoglmm}
 \alias{summary.cytoglmm}
-\title{Extact and plot noise term}
+\title{Extact and calculate p-values of GLMM fit}
 \usage{
 summary.cytoglmm(fit)
 }
 \description{
-Extact and plot noise term
+Extact and calculate p-values of GLMM fit
 }

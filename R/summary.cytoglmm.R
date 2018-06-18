@@ -1,4 +1,4 @@
-#' Extact and plot noise term
+#' Extact and calculate p-values of GLMM fit
 #'
 #' @import tibble
 #' @import magrittr
@@ -12,10 +12,10 @@ summary.cytoglmm = function(fit) {
 
   pvalues_unadj = summary(fit$glmmfit)$coefficients[-1,4]
   pvalues_adj = p.adjust(pvalues_unadj,method = "BH")
-  df_pvalues = tibble(protein_names = names(pvalues_unadj),
+  df_pvalues = tibble(protein_name = names(pvalues_unadj),
                       pvalues_unadj,
                       pvalues_adj)
-  df_pvalues$protein_names = as.character(df_pvalues$protein_names)
+  df_pvalues$protein_name = as.character(df_pvalues$protein_name)
   df_pvalues = df_pvalues[order(df_pvalues$pvalues_unadj),]
   rownames(df_pvalues) = NULL
   df_pvalues

@@ -2,10 +2,10 @@
 % Please edit documentation in R/summary.cytoglm.R
 \name{summary.cytoglm}
 \alias{summary.cytoglm}
-\title{Extact and plot noise term}
+\title{Extact and calculate p-values of bootstrap GLM fit}
 \usage{
 summary.cytoglm(fit)
 }
 \description{
-Extact and plot noise term
+Extact and calculate p-values of bootstrap GLM fit
 }
