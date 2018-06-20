@@ -13,7 +13,7 @@ summary.cytoglm = function(fit) {
   # calculate p-values from bootstrap distribution
   df_pvalues = fit$tb_coef %>%
     group_by(protein_name) %>%
-    summarize(pvalues_unadj = min(mean(coeff < 0), mean(coeff > 0)))
+    summarize(pvalues_unadj = 2*min(mean(coeff < 0), mean(coeff > 0)))
   df_pvalues %<>% mutate(pvalues_unadj = if_else(
     condition = pvalues_unadj == 0,
     true = 1/fit$num_boot,
