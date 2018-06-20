@@ -112,7 +112,7 @@ ifelse(sum(colnames(read.FCS(sample_table$file_name[1])) == "beadDist")==1,
 
 # Gating
 
-Gate with `openCyto` according to supplementary material (Fig. S1) from @aghaeepour2017immune.
+Gate with [openCyto](https://bioconductor.org/packages/release/bioc/html/openCyto.html) according to supplementary material (Fig. S1) from @aghaeepour2017immune.
 
 ```{r opencyto, fig.wide=TRUE}
 # load data
@@ -147,17 +147,17 @@ setNode(gs, "CD14-CD16+", "ncMC") %>% invisible
 setNode(gs, "CD14+CD16+", "intMC") %>% invisible
 plot(gs)
 # hide nodes
-dodes_to_hide = c(
+nodes_to_hide = c(
   "granulocyte", "CD19+", "CD3+", "CD3+CD19+",
   "CD8a+", "CD4+", "CD16+", "CD14+", "CD14-CD16-",
   "CD4+CD8a+", "CD4+Tnaive/CD25+", "CD4+Tmem/CD25+", 
   "CD4+Tnaive/FoxP3+", "CD4+Tmem/FoxP3+"
   )
-for(this_node in dodes_to_hide) setNode(gs, this_node, FALSE)
+for(this_node in nodes_to_hide) setNode(gs, this_node, FALSE)
 plot(gs)
 ```
 
-Visualize gates with `ggcyto`.
+Visualize gates with [ggcyto](https://bioconductor.org/packages/release/bioc/html/ggcyto.html).
 
 ```{r ggcyto}
 set.seed(0xdada)
