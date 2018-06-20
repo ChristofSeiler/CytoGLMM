@@ -16,7 +16,7 @@ summary.cytoglm = function(fit) {
     summarize(pvalues_unadj = 2*min(mean(coeff < 0), mean(coeff > 0)))
   df_pvalues %<>% mutate(pvalues_unadj = if_else(
     condition = pvalues_unadj == 0,
-    true = 1/fit$num_boot,
+    true = 2*1/fit$num_boot,
     false = pvalues_unadj))
   df_pvalues %<>% mutate(pvalues_adj = p.adjust(pvalues_unadj,
                                                 method = "BH"))
