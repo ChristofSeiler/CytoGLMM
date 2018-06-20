@@ -82,11 +82,7 @@ cytoglm = function(df_samples_subset,
            coeff = fit_glm$coefficients[protein_names],
            run = seed)
   }
-  if(.Platform$OS.type == "windows") {
-    bpparam = SnowParam(workers = num_cores, type = "SOCK")
-  } else {
-    bpparam = MulticoreParam(workers = num_cores)
-  }
+  bpparam = MulticoreParam(workers = num_cores)
   tb_coef = bplapply(1:num_boot, bs, BPPARAM = bpparam) %>% bind_rows()
 
   # return cytoglm object
