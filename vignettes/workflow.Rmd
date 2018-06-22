@@ -25,7 +25,8 @@ Install [R](https://www.r-project.org/) and [RStudio](https://www.rstudio.com/).
 pkgs_needed = c("devtools","tidyverse","magrittr",
                 "FlowRepositoryR","flowCore","openCyto","ggcyto",
                 "scales","ggthemes","parallel","RColorBrewer",
-                "ggcorrplot")
+                "ggcorrplot","SummarizedExperiment","lme4","lmerTest",
+                "broom")
 letsinstall = setdiff(pkgs_needed, installed.packages())
 if (length(letsinstall) > 0) {
   source("http://bioconductor.org/biocLite.R")
@@ -50,6 +51,10 @@ library("ggthemes")
 library("parallel")
 library("RColorBrewer")
 library("ggcorrplot")
+library("SummarizedExperiment")
+library("lme4")
+library("lmerTest")
+library("broom")
 ```
 
 Set plotting style and assign computational resources.
@@ -224,6 +229,19 @@ List cell counts per donor and trimester.
 table(df_samples$donor,df_samples$term)
 ```
 
+Plot abundance of each celltype per sample.
+
+```{r cell_abundance}
+df_abundance = df_samples %>% 
+  group_by(file_name, donor, term, celltype) %>% 
+  tally()
+ggplot(df_abundance, aes(term, n, color = term)) + 
+  geom_violin() + 
+  geom_jitter(width = 0.2, alpha = 0.5) + 
+  facet_wrap(~celltype, nrow = 2) +
+  theme(axis.text.x = element_blank())
+```
+
 Focus on functional proteins.
 
 ```{r select_proteins}
@@ -242,7 +260,7 @@ sample_info_names
 
 # Data Exploration 
 
-## All Cell Types
+## MDS
 
 MDS on median marker expression of all cell types.
 
@@ -253,28 +271,7 @@ CytoGLMM::plot_mds(df_samples,
                    color = "celltype")
 ```
 
-Heatmap of median marker expression of all cell types.
-
-```{r plot_heatmap_celltype}
-CytoGLMM::plot_heatmap(df_samples,
-                       protein_names = protein_names,
-                       sample_info_names = sample_info_names,
-                       arrange_by_1 = "term",
-                       arrange_by_2 = "celltype")
-```
-
-PCA plot of all cell types.
-
-```{r plot_prcomp_celltype, fig.wide=TRUE}
-CytoGLMM::plot_prcomp(df_samples,
-                      protein_names = protein_names,
-                      color_var = "celltype",
-                      repel = TRUE)
-```
-
-## NK Cells
-
-We will now focus only on NK cells.
+Subset to NK cells to illustrate visualization for one cell type.
 
 ```{r subset_nk_cells}
 df_samples_subset = df_samples %>% dplyr::filter(celltype == "NK")
@@ -289,6 +286,18 @@ CytoGLMM::plot_mds(df_samples_subset,
                    color = "term")
 ```
 
+## Heatmap
+
+Heatmap of median marker expression of all cell types.
+
+```{r plot_heatmap_celltype}
+CytoGLMM::plot_heatmap(df_samples,
+                       protein_names = protein_names,
+                       sample_info_names = sample_info_names,
+                       arrange_by_1 = "term",
+                       arrange_by_2 = "celltype")
+```
+
 Heatmap of median marker expression of NK cells.
 
 ```{r plot_heatmap_nk}
@@ -296,6 +305,17 @@ CytoGLMM::plot_heatmap(df_samples_subset,
                        protein_names = protein_names,
                        sample_info_names = sample_info_names,
                        arrange_by_1 = "term")
+```
+
+## PCA
+
+PCA plot of all cell types.
+
+```{r plot_prcomp_celltype, fig.wide=TRUE}
+CytoGLMM::plot_prcomp(df_samples,
+                      protein_names = protein_names,
+                      color_var = "celltype",
+                      repel = TRUE)
 ```
 
 PCA plot of NK cells.
@@ -307,6 +327,8 @@ CytoGLMM::plot_prcomp(df_samples_subset,
                       repel = TRUE)
 ```
 
+## Density Plots
+
 Density plots of one marker for all donors.
 
 ```{r density_plot, fig.wide=TRUE}
@@ -314,6 +336,8 @@ ggplot(df_samples_subset, aes_string(x = "pCREB", color = "term")) +
   geom_density() + 
   facet_wrap(~donor)
 ```
+
+## Two-Dimensional Histograms
 
 Two-dimensional histograms for plotting two markers for all donors.
 
@@ -346,6 +370,8 @@ df_samples_subset %>% group_by(term,donor) %>% tally %>% arrange(n)
 df_samples_subset %>% group_by(term,donor) %>% tally %>% arrange(desc(n))
 ```
 
+## Marker Correlations
+
 Plot marker correlations.
 
 ```{r marker_correlations}
@@ -355,7 +381,84 @@ ggcorrplot(mcor, hc.order = TRUE, type = "lower",
            colors = c("#6D9EC1", "white", "#E46726"))
 ```
 
-# Regression Analysis
+# Regression Analysis on Summarized Data
+
+Classical differential analysis approach comparing median marker expressions (see [f1000 workflow](https://f1000research.com/articles/6-748/v2) by Nowicka et al.). 
+
+## Plot Median Marker Expression
+
+Plot all celltypes.
+
+```{r median_expression_plot}
+df_median = df_samples %>%
+      group_by(file_name, donor, term, celltype) %>%
+      summarise_at(protein_names, median)
+df_median_long = gather(df_median, protein_name, median_expr, 
+                        -file_name, -donor, -term, -celltype)
+ggplot(df_median_long, aes(protein_name, median_expr, color = term)) + 
+  geom_violin() + 
+  facet_wrap(~celltype) +
+  theme(axis.text.x  = element_text(angle = 90, vjust=0))
+```
+
+Zoom in on NK cells.
+
+```{r median_expression_plot_nk}
+df_median_long %<>% dplyr::filter(celltype == "NK")
+ggplot(df_median_long, aes(term, median_expr, color = term)) + 
+  geom_violin() + 
+  geom_jitter(width = 0.2, alpha = 0.5) + 
+  facet_wrap(~ protein_name, nrow = 2) +
+  theme(axis.text.x = element_blank()) +
+  ggtitle("NK")
+```
+
+Zoom in on marker pSTAT1.
+
+```{r median_expression_plot_pstat1}
+ggplot(df_median, aes(term, pSTAT1, color = term)) + 
+  geom_violin() + 
+  geom_jitter(width = 0.2, alpha = 0.5) + 
+  facet_wrap(~celltype, nrow = 2) +
+  theme(axis.text.x = element_blank())  
+```
+
+## Linear Mixed Model
+
+Mixed model with median expression as response variable, experimental condition as explanatory variable, and donor as random effect. Fit separate models for each protein and celltype combination.
+
+```{r median_expression_fit_separate}
+calc_pvalue = function(fit) {
+  summ = summary(fit)
+  coefficients(summ)["term3rd trimester", "Pr(>|t|)"]
+}
+df_median_long = gather(df_median, protein_name, median_expr, 
+                        -file_name, -donor, -term, -celltype)
+df_fits = df_median_long %>% 
+  group_by(protein_name, celltype) %>%
+  nest() %>% 
+  mutate(fit = map(data, ~ lmer(median_expr ~ term + (1|donor), .))) %>%
+  mutate(pvalue_unadj = map_dbl(fit, ~ calc_pvalue(.))) %>%
+  mutate(pvalue_adj = p.adjust(pvalue_unadj, method = "BH")) %>%
+  dplyr::select(protein_name, celltype, pvalue_adj)
+df_fits %>% 
+  dplyr::filter(pvalue_adj < 0.05) %>% 
+  dplyr::arrange(celltype) %>%
+  print(n = Inf)
+```
+
+## Generalized Linear Mixed Model
+
+Predict term from all median marker expressions for NK cells.
+
+```{r term_prediction}
+df_median_subset = df_median %>% dplyr::filter(celltype == "NK")
+prot_coll = paste(protein_names, collapse = " + ")
+formula_str = paste0("term ~ ", prot_coll, " + (1|donor)")
+fit_glmer = glmer(formula_str, family = binomial, data = df_median_subset)
+```
+
+# Regression Analysis on All The Data
 
 For the regression analysis, we will focus only on NK cells. We can repeat the same analysis for each cell type of interest.
 
@@ -405,6 +508,29 @@ The plotting function automatically uses the BIC criterion to select the number 
 
 ```{r bic_model_selection, fig.small=TRUE}
 plot_model_selection(mix_fit)
+```
+
+# SummarizedExperiment
+
+We create a ``SummarizedExperiment`` object containing marker, sample table, and untransformed protein counts. This way we can store all the information of this experiment in one file and load it again in subsequent analyses.
+
+```{r create_summarized_experiment}
+markers %<>% dplyr::filter(type != "none")
+d_combined = df_samples %>% 
+  select(markers$protein_name) %>%
+  dplyr::mutate_all(.funs = inv_func) %>%
+  dplyr::mutate_all(.funs = round) %>%
+  as.matrix
+row_data = df_samples %>% 
+  select(sample_info_names) %>% 
+  as.data.frame
+col_data = markers %>% as.data.frame
+se_aghaeepour2017immune = SummarizedExperiment(
+  assays = list(exprs = d_combined),
+  colData = col_data,
+  rowData = row_data
+)
+save(se_aghaeepour2017immune, file = "se_aghaeepour2017immune.Rdata")
 ```
 
 # Session Info {.unnumbered}

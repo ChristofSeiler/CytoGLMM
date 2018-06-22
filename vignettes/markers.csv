@@ -1,5 +1,5 @@
 isotope,protein_name,type
-Event_length,Event_length,phenotype
+Event_length,Event_length,none
 In113Di,CD235ab_CD61,phenotype
 In115Di,CD45,phenotype
 La139Di,CD66,phenotype
@@ -32,5 +32,5 @@ Yb172Di,CD15,phenotype
 Yb174Di,HLA-DR,phenotype
 Lu175Di,CD14,phenotype
 Yb176Di,CD56,phenotype
-Ir191Di,DNA1,phenotype
-Ir193Di,DNA2,phenotype
+Ir191Di,DNA1,none
+Ir193Di,DNA2,none
