@@ -22,11 +22,10 @@ This is a step-by-step guide for a complete analysis of mass cytometry data.
 Install [R](https://www.r-project.org/) and [RStudio](https://www.rstudio.com/). Open this `Rmd` file in RStudio. Then run the following code to install all required packages.
 
 ```{r install_packages, warning=FALSE, message=FALSE, eval=FALSE}
-pkgs_needed = c("devtools","tidyverse","magrittr",
-                "FlowRepositoryR","flowCore","openCyto","ggcyto",
-                "scales","ggthemes","parallel","RColorBrewer",
-                "ggcorrplot","SummarizedExperiment","lme4","lmerTest",
-                "broom")
+pkgs_needed = c("devtools","tidyverse","magrittr","FlowRepositoryR",
+                "flowCore","openCyto","ggcyto","scales","parallel",
+                "RColorBrewer","ggcorrplot","SummarizedExperiment",
+                "lme4","lmerTest")
 letsinstall = setdiff(pkgs_needed, installed.packages())
 if (length(letsinstall) > 0) {
   source("http://bioconductor.org/biocLite.R")
@@ -47,21 +46,18 @@ library("flowCore")
 library("openCyto")
 library("ggcyto")
 library("scales")
-library("ggthemes")
 library("parallel")
 library("RColorBrewer")
 library("ggcorrplot")
 library("SummarizedExperiment")
 library("lme4")
 library("lmerTest")
-library("broom")
 ```
 
 Set plotting style and assign computational resources.
 
 ```{r set_parameters}
-theme_set(theme_few())
-scale_colour_discrete = function(...) scale_colour_few()
+theme_set(theme_light())
 ncores = parallel::detectCores()
 ```
 
