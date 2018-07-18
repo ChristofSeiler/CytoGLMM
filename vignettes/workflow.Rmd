@@ -464,7 +464,7 @@ plot(glmm_fit)
 summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
 ```
 
-Combine pSTAT1, pSTAT3, and pSTAT5 into one marker.
+Add pSTAT1, pSTAT3, and pSTAT5 into one marker.
 
 ```{r glmm_fit_combine}
 df_samples_subset %<>% mutate(pSTAT_sum = pSTAT1+pSTAT3+pSTAT5)
@@ -475,14 +475,13 @@ protein_names_sum = c(
 glmm_fit = CytoGLMM::cytoglmm(df_samples_subset, 
                               protein_names = protein_names_sum,
                               condition = "term", group = "donor")
-glmm_fit
 plot(glmm_fit)
 summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
 ```
 
-Take differenes between pSTAT1, pSTAT3, and pSTAT5.
+Take differences between pSTAT1, pSTAT3, and pSTAT5.
 
-```{r glmm_fit_combine}
+```{r glmm_fit_differences}
 df_samples_subset %<>% mutate(pSTAT3_minus_pSTAT1 = pSTAT3-pSTAT1)
 df_samples_subset %<>% mutate(pSTAT5_minus_pSTAT1 = pSTAT5-pSTAT1)
 protein_names_diff = c(
@@ -492,7 +491,6 @@ protein_names_diff = c(
 glmm_fit = CytoGLMM::cytoglmm(df_samples_subset, 
                               protein_names = protein_names_diff,
                               condition = "term", group = "donor")
-glmm_fit
 plot(glmm_fit)
 summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
 ```
@@ -509,7 +507,6 @@ protein_names_interactions = c(protein_names,"pSTAT_I15","pSTAT_I35",
 glmm_fit = CytoGLMM::cytoglmm(df_samples_subset, 
                               protein_names = protein_names_interactions,
                               condition = "term", group = "donor")
-glmm_fit
 plot(glmm_fit)
 summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
 ```
