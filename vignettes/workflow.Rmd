@@ -464,6 +464,56 @@ plot(glmm_fit)
 summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
 ```
 
+Combine pSTAT1, pSTAT3, and pSTAT5 into one marker.
+
+```{r glmm_fit_combine}
+df_samples_subset %<>% mutate(pSTAT_sum = pSTAT1+pSTAT3+pSTAT5)
+protein_names_sum = c(
+  "pSTAT_sum", 
+  protein_names[!protein_names %in% c("pSTAT1","pSTAT3","pSTAT5")]
+)
+glmm_fit = CytoGLMM::cytoglmm(df_samples_subset, 
+                              protein_names = protein_names_sum,
+                              condition = "term", group = "donor")
+glmm_fit
+plot(glmm_fit)
+summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
+```
+
+Take differenes between pSTAT1, pSTAT3, and pSTAT5.
+
+```{r glmm_fit_combine}
+df_samples_subset %<>% mutate(pSTAT3_minus_pSTAT1 = pSTAT3-pSTAT1)
+df_samples_subset %<>% mutate(pSTAT5_minus_pSTAT1 = pSTAT5-pSTAT1)
+protein_names_diff = c(
+  "pSTAT3_minus_pSTAT1","pSTAT5_minus_pSTAT1",
+  protein_names[!protein_names %in% c("pSTAT3","pSTAT5")]
+)
+glmm_fit = CytoGLMM::cytoglmm(df_samples_subset, 
+                              protein_names = protein_names_diff,
+                              condition = "term", group = "donor")
+glmm_fit
+plot(glmm_fit)
+summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
+```
+
+Add interactions between pSTAT1, pSTAT3, and pSTAT5.
+
+```{r glmm_fit_interaction}
+df_samples_subset %<>% mutate(pSTAT_I15 = pSTAT1*pSTAT5)
+df_samples_subset %<>% mutate(pSTAT_I35 = pSTAT3*pSTAT5)
+df_samples_subset %<>% mutate(pSTAT_I13 = pSTAT1*pSTAT3)
+df_samples_subset %<>% mutate(pSTAT_I135 = pSTAT1*pSTAT3*pSTAT5)
+protein_names_interactions = c(protein_names,"pSTAT_I15","pSTAT_I35",
+                               "pSTAT_I13","pSTAT_I135")
+glmm_fit = CytoGLMM::cytoglmm(df_samples_subset, 
+                              protein_names = protein_names_interactions,
+                              condition = "term", group = "donor")
+glmm_fit
+plot(glmm_fit)
+summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
+```
+
 ## Generalized Linear Model with Bootstrap
 
 Instead of modeling the donor effect, we can use bootstrap resampling. In our experience, this type of regression gives also good results when samples are not matched between conditions on the same donor.
