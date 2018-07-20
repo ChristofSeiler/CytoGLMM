@@ -4,7 +4,7 @@
 \alias{plot.cytogroup}
 \title{Plot fixded coefficients of group-specific fixed effects model}
 \usage{
-plot.cytogroup(fit, order = FALSE)
+plot.cytogroup(fit, order = FALSE, separate = FALSE)
 }
 \description{
 Plot fixded coefficients of group-specific fixed effects model

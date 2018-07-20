@@ -7,7 +7,7 @@
 #' @import cowplot
 #' @export
 #'
-plot.cytoglm = function(fit,order = FALSE) {
+plot.cytoglm = function(fit, order = FALSE, separate = FALSE) {
 
   if(class(fit) != "cytoglm")
     stop("Input needs to be a cytoglm object computed by cytoglm function.")
@@ -25,6 +25,7 @@ plot.cytoglm = function(fit,order = FALSE) {
              title_str = "Bootstraps",
              title_str_right = "Summary",
              xlab_str = xlab_str,
-             order = order)
+             order = order,
+             separate = separate)
 
 }

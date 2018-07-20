@@ -5,7 +5,7 @@
 \title{Helper function to plot regression coeffcient}
 \usage{
 plot_coeff(tb, title_str, title_str_right, xlab_str, redline = 0,
-  order = FALSE)
+  order = FALSE, separate = FALSE)
 }
 \description{
 Helper function to plot regression coeffcient

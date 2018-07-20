@@ -6,7 +6,8 @@
 #' @import dplyr
 #' @import cowplot
 #'
-plot_coeff = function(tb,title_str,title_str_right,xlab_str,redline = 0,order = FALSE) {
+plot_coeff = function(tb,title_str, title_str_right, xlab_str, redline = 0,
+                      order = FALSE, separate = FALSE) {
 
   tb$run %<>% as.factor
 
@@ -45,5 +46,10 @@ plot_coeff = function(tb,title_str,title_str_right,xlab_str,redline = 0,order = 
     theme(axis.title.y = element_blank())
 
   # combine
-  plot_grid(pall,psummary)
+  if(separate) {
+    return(list(pall=pall,psummary=psummary))
+  } else {
+    plot_grid(pall,psummary)
+  }
+
 }

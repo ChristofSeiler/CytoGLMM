@@ -7,7 +7,7 @@
 #' @import cowplot
 #' @export
 #'
-plot.cytogroup = function(fit,order = FALSE) {
+plot.cytogroup = function(fit,order = FALSE, separate = FALSE) {
 
   if(class(fit) != "cytogroup")
     stop("Input needs to be a cytogroup object computed by cytogroup function.")
@@ -71,6 +71,10 @@ plot.cytogroup = function(fit,order = FALSE) {
     xlab(xlab_str) +
     theme(axis.title.y = element_blank())
 
-  plot_grid(pdonor,pcoef)
+  if(separate) {
+    return(list(pdonor=pdonor,pcoef=pcoef))
+  } else {
+    plot_grid(pdonor,pcoef)
+  }
 
 }

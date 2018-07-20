@@ -7,7 +7,7 @@
 #' @import cowplot
 #' @export
 #'
-plot.cytoglmm = function(fit,order = FALSE) {
+plot.cytoglmm = function(fit, order = FALSE, separate = FALSE) {
 
   if(class(fit) != "cytoglmm")
     stop("Input needs to be a cytoglmm object computed by cytoglmm function.")
@@ -62,6 +62,10 @@ plot.cytoglmm = function(fit,order = FALSE) {
     xlab(xlab_str) +
     theme(axis.title.y = element_blank())
 
-  plot_grid(prandom,pcoef)
+  if(separate) {
+    return(list(prandom=prandom,pcoef=pcoef))
+  } else {
+    plot_grid(prandom,pcoef)
+  }
 
 }

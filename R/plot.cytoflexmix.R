@@ -8,7 +8,7 @@
 #' @import flexmix
 #' @export
 #'
-plot.cytoflexmix = function(fit,k = NULL) {
+plot.cytoflexmix = function(fit, k = NULL, separate = FALSE) {
 
   if(class(fit) != "cytoflexmix")
     stop("Input needs to be a cytoflexmix object computed by cytoflexmix function.")
@@ -75,6 +75,10 @@ plot.cytoflexmix = function(fit,k = NULL) {
     theme(legend.position="none",
           axis.title.y = element_blank())
 
-  plot_grid(pceltocluster,peffects)
+  if(separate) {
+    return(list(pceltocluster=pceltocluster,peffects=peffects))
+  } else {
+    plot_grid(pceltocluster,peffects)
+  }
 
 }
