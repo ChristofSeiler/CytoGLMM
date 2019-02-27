@@ -8,13 +8,10 @@ Exploratory plots and regression analysis for mass cytometric experiments.
 
 The R package is available from github and can be installed by running the following command in R:
 
-```
+``` r
+# install devtools from CRAN
 install.packages("devtools")
+
+# install development version from GitHub
 devtools::install_github("ChristofSeiler/CytoGLMM")
 ```
-
-## Getting Started
-
-Read the vignette for a step-by-step example workflow:
-
-* [Workflow.html](http://christofseiler.github.io/CytoGLMM/Workflow.html)

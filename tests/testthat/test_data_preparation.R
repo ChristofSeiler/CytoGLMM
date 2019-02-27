@@ -1,6 +1,5 @@
-library(CytoGLMM)
-context("data prepration")
+context("cytoglm")
 
-test_that("print is hello world", {
-  expect_match(hello(), "Hello, world!")
+test_that("This is just a test", {
+  expect_match("Hello, world!", "Hello, world!")
 })

@@ -5,7 +5,8 @@
 \title{Plot row counts faceted by donors}
 \usage{
 plot_donors_raw(df_samples_subset, condition, protein_name, min = 0,
-  max = quantile(df_samples_subset \%>\% pull(protein_name), probs = 0.99))
+  max = quantile(df_samples_subset \%>\% pull(protein_name), probs =
+  0.99))
 }
 \description{
 Plot row counts faceted by donors

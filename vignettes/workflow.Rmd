@@ -4,7 +4,7 @@ author:
   name: Christof Seiler
   affiliation: Department of Statistics, Stanford University
 output:
-  BiocStyle::html_document2:
+  BiocStyle::html_document:
     toc_float: true
 bibliography: bibliography.bib
 ---
@@ -28,11 +28,10 @@ pkgs_needed = c("devtools","tidyverse","magrittr","FlowRepositoryR",
                 "lme4","lmerTest")
 letsinstall = setdiff(pkgs_needed, installed.packages())
 if (length(letsinstall) > 0) {
-  source("http://bioconductor.org/biocLite.R")
-  biocLite(letsinstall)
+  BiocManager::install(letsinstall)
 }
 # package is still private
-devtools::install_github("ChristofSeiler/CytoGLMM", auth_token = "7e51f0606cfec76eb1328812ac263f335c5f285f")
+devtools::install_github("ChristofSeiler/CytoGLMM")
 # Bioconductor version breaks when updating to ggplot2 v3.0
 devtools::install_github("RGLab/ggcyto", ref="trunk")
 ```
@@ -260,7 +259,7 @@ sample_info_names
 
 ## MDS
 
-MDS on median marker expression of all cell types.
+MDS on median marker expression of all cell types following @Nowicka2017cytof.
 
 ```{r plot_mds_celltype, fig.wide=TRUE}
 CytoGLMM::plot_mds(df_samples,
@@ -286,7 +285,7 @@ CytoGLMM::plot_mds(df_samples_subset,
 
 ## Heatmap
 
-Heatmap of median marker expression of all cell types.
+Heatmap of median marker expression of all cell types following @Nowicka2017cytof.
 
 ```{r plot_heatmap_celltype}
 CytoGLMM::plot_heatmap(df_samples,
@@ -381,7 +380,7 @@ ggcorrplot(mcor, hc.order = TRUE, type = "lower",
 
 # Regression Analysis on Summarized Data
 
-Classical differential analysis approach comparing median marker expressions (see [f1000 workflow](https://f1000research.com/articles/6-748/v2) by Nowicka et al.). 
+Classical differential analysis approach comparing median marker expressions [@Nowicka2017cytof].
 
 ## Plot Median Marker Expression
 
