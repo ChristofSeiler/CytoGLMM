@@ -1,0 +1,20 @@
+citHeader("To cite the CytoGLMM package in publications, use:")
+
+citEntry(
+  entry = "article",
+  author = personList(person(given = "Christof", family = "Seiler"),
+    person(given = "Lisa", family = "Kronstad", middle = "M"),
+    person(given = "Laura", family = "Simpson", middle = "J"),
+    person(given = "Mathieu", family = "Le Gars"),
+    person(given = "Elena", family = "Vendrame"),
+    person(given = "Catherine", family = "Blish", middle = "A"),
+    person(given = "Susan", family = "Holmes")),
+  title = "Multivariate Mixed Models with Uncertainty Quantification for Mass Cytometry Data",
+  journal = "bioRxiv",
+  year = 2019,
+  textVersion = paste(
+    "Christof Seiler, Lisa M. Kronstad, Laura J. Simpson, Mathieu Le Gars, Elena Vendrame, Catherine A. Blish, and Susan Holmes,",
+    "Multivariate Mixed Models with Uncertainty Quantification for Mass Cytometry Data,",
+    "bioRxiv, 2019"
+  )
+)
