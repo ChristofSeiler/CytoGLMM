@@ -9,12 +9,12 @@ citEntry(
     person(given = "Elena", family = "Vendrame"),
     person(given = "Catherine", family = "Blish", middle = "A"),
     person(given = "Susan", family = "Holmes")),
-  title = "Multivariate Mixed Models with Uncertainty Quantification for Mass Cytometry Data",
-  journal = "bioRxiv",
+  title = "Uncertainty Quantification in Multivariate Mixed Models for Mass Cytometry Data",
+  journal = "arXiv",
   year = 2019,
   textVersion = paste(
     "Christof Seiler, Lisa M. Kronstad, Laura J. Simpson, Mathieu Le Gars, Elena Vendrame, Catherine A. Blish, and Susan Holmes,",
-    "Multivariate Mixed Models with Uncertainty Quantification for Mass Cytometry Data,",
-    "bioRxiv, 2019"
+    "Uncertainty Quantification in Multivariate Mixed Models for Mass Cytometry Data,",
+    "arXiv, 2019"
   )
 )
