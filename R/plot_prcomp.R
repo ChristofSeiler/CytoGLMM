@@ -7,15 +7,15 @@
 #' @import factoextra
 #' @export
 #'
-plot_prcomp = function(dat,
+plot_prcomp = function(df_samples,
                        protein_names,
                        color_var = "treatment",
                        subsample_size = 10000,
                        seed = 0xdada,
                        repel = TRUE) {
   set.seed(seed)
-  n = min(table(dat[,color_var]),subsample_size)
-  by_variable = dat %>% group_by_(color_var) %>% sample_n(n) %>% ungroup
+  n = min(table(df_samples[,color_var]),subsample_size)
+  by_variable = df_samples %>% group_by_(color_var) %>% sample_n(n) %>% ungroup %>% as.data.frame
   res_pca = prcomp(by_variable[,protein_names],scale. = FALSE)
   explained_var = (100*res_pca$sdev^2/sum(res_pca$sdev^2)) %>% round(.,1)
   xlab_str = paste0("PC1 (",explained_var[1],"%)")

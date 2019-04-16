@@ -4,7 +4,7 @@
 \alias{plot_prcomp}
 \title{Plot PCA of subsampled data using ggplot.}
 \usage{
-plot_prcomp(dat, protein_names, color_var = "treatment",
+plot_prcomp(df_samples, protein_names, color_var = "treatment",
   subsample_size = 10000, seed = 56026, repel = TRUE)
 }
 \description{

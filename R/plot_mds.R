@@ -16,7 +16,8 @@ plot_mds = function(df_samples,
   # compute median marker expression
   expr_median = df_samples %>%
     group_by(.dots = sample_info_names) %>%
-    summarise_at(protein_names,median)
+    summarise_at(protein_names,median) %>%
+    as.data.frame
   dist_matrix = dist(expr_median[,-seq(sample_info_names)])
   mds_res = cmdscale(dist_matrix,eig = TRUE, k = 2) # k is the number of dim
   explained_var = (100*mds_res$eig[1:2]/sum(mds_res$eig)) %>% round(digits = 1)
