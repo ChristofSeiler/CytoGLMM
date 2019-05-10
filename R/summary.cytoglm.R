@@ -1,5 +1,8 @@
 #' Extact and calculate p-values of bootstrap GLM fit
 #'
+#' @aliases summary.cytoglm
+#' @method summary cytoglm
+#'
 #' @import tibble
 #' @import magrittr
 #' @import dplyr

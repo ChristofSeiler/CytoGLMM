@@ -1,5 +1,8 @@
 #' Plot fixded coefficients of random effects model
 #'
+#' @aliases plot.cytoglmm
+#' @method plot cytoglmm
+#'
 #' @import ggplot2
 #' @import tibble
 #' @import magrittr

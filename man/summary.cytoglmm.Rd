@@ -4,7 +4,7 @@
 \alias{summary.cytoglmm}
 \title{Extact and calculate p-values of GLMM fit}
 \usage{
-summary.cytoglmm(fit)
+\method{summary}{cytoglmm}(fit)
 }
 \description{
 Extact and calculate p-values of GLMM fit

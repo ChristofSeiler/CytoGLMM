@@ -1,5 +1,8 @@
 #' Plot all components of mixture regression
 #'
+#' @aliases plot.cytoflexmix
+#' @method plot cytoflexmix
+#'
 #' @import ggplot2
 #' @import tibble
 #' @import magrittr

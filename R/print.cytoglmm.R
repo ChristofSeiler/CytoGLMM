@@ -1,5 +1,8 @@
 #' Extact and print GLMM fit
 #'
+#' @aliases print.cytoglmm
+#' @method print cytoglmm
+#'
 #' @export
 #'
 print.cytoglmm = function(fit) {

@@ -94,7 +94,7 @@
 <a class="sourceLine" id="cb1-4" title="4">                <span class="st">"lme4"</span>,<span class="st">"lmerTest"</span>)</a>
 <a class="sourceLine" id="cb1-5" title="5">letsinstall =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sets">setdiff</a></span>(pkgs_needed, <span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/installed.packages">installed.packages</a></span>())</a>
 <a class="sourceLine" id="cb1-6" title="6"><span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(letsinstall) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) {</a>
-<a class="sourceLine" id="cb1-7" title="7">  BiocManager<span class="op">::</span><span class="kw">install</span>(letsinstall)</a>
+<a class="sourceLine" id="cb1-7" title="7">  BiocManager<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/BiocManager/topics/install">install</a></span>(letsinstall)</a>
 <a class="sourceLine" id="cb1-8" title="8">}</a>
 <a class="sourceLine" id="cb1-9" title="9"><span class="co"># package is still private</span></a>
 <a class="sourceLine" id="cb1-10" title="10">devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">"ChristofSeiler/CytoGLMM"</span>)</a>
@@ -128,7 +128,8 @@
 <p>Reanalysis of mass cytometry data from <span class="citation">Aghaeepour et al. (2017)</span>. We use the package <code>FlowRepositoryR</code> to download <code>fcs</code> files from <a href="http://flowrepository.org/id/FR-FCM-ZY3Q">FlowRepository</a>. We download mass cytometry data measured on whole blood samples collected from 16 women during pregnancy stimulated with IFNa at first and third trimester.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">repo =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/FlowRepositoryR/topics/flowRep.get">flowRep.get</a></span>(<span class="st">"FR-FCM-ZY3Q"</span>)</a>
 <a class="sourceLine" id="cb4-2" title="2">data =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/FlowRepositoryR/topics/download-methods">download</a></span>(repo, <span class="dt">only.files =</span> <span class="st">".*_2_IFNa.*fcs"</span>)</a>
-<a class="sourceLine" id="cb4-3" title="3">data =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/FlowRepositoryR/topics/download-methods">download</a></span>(repo, <span class="dt">only.files =</span> <span class="st">".*_BL_IFNa.*fcs"</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb4-3" title="3">data =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/FlowRepositoryR/topics/download-methods">download</a></span>(repo, <span class="dt">only.files =</span> <span class="st">".*_1_IFNa.*fcs"</span>)</a>
+<a class="sourceLine" id="cb4-4" title="4">data =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/FlowRepositoryR/topics/download-methods">download</a></span>(repo, <span class="dt">only.files =</span> <span class="st">".*_BL_IFNa.*fcs"</span>)</a></code></pre></div>
 </div>
 <div id="sample-table" class="section level2">
 <h2 class="hasAnchor">
@@ -137,29 +138,30 @@
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">fcs_files =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list.files">list.files</a></span>(<span class="dt">path =</span> <span class="st">"FR-FCM-ZY3Q/"</span>, <span class="dt">pattern =</span> <span class="st">"fcs"</span>)</a>
 <a class="sourceLine" id="cb5-2" title="2">map_time =<span class="st"> </span><span class="cf">function</span>(x) {</a>
 <a class="sourceLine" id="cb5-3" title="3">  <span class="cf">if</span> (<span class="kw">str_detect</span>(x, <span class="st">"_2_"</span>)) <span class="st">"3rd trimester"</span></a>
-<a class="sourceLine" id="cb5-4" title="4">  <span class="cf">else</span> <span class="cf">if</span> (<span class="kw">str_detect</span>(x, <span class="st">"_BL_"</span>)) <span class="st">"1st trimester"</span></a>
-<a class="sourceLine" id="cb5-5" title="5">  <span class="cf">else</span> <span class="ot">NA</span></a>
-<a class="sourceLine" id="cb5-6" title="6">}</a>
-<a class="sourceLine" id="cb5-7" title="7">sample_table =<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb5-8" title="8">  <span class="dt">donor =</span> <span class="kw">str_extract</span>(fcs_files, <span class="st">"PTLG[0-9]{3}"</span>),</a>
-<a class="sourceLine" id="cb5-9" title="9">  <span class="dt">term =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(fcs_files, map_time) <span class="op">%&gt;%</span><span class="st"> </span>as.factor,</a>
-<a class="sourceLine" id="cb5-10" title="10">  <span class="dt">file_name =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"FR-FCM-ZY3Q/"</span>,fcs_files)</a>
-<a class="sourceLine" id="cb5-11" title="11">)</a>
-<a class="sourceLine" id="cb5-12" title="12">sample_table</a></code></pre></div>
-<pre><code>## # A tibble: 32 x 3
+<a class="sourceLine" id="cb5-4" title="4">  <span class="cf">else</span> <span class="cf">if</span> (<span class="kw">str_detect</span>(x, <span class="st">"_1_"</span>)) <span class="st">"2st trimester"</span></a>
+<a class="sourceLine" id="cb5-5" title="5">  <span class="cf">else</span> <span class="cf">if</span> (<span class="kw">str_detect</span>(x, <span class="st">"_BL_"</span>)) <span class="st">"1st trimester"</span></a>
+<a class="sourceLine" id="cb5-6" title="6">  <span class="cf">else</span> <span class="ot">NA</span></a>
+<a class="sourceLine" id="cb5-7" title="7">}</a>
+<a class="sourceLine" id="cb5-8" title="8">sample_table =<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb5-9" title="9">  <span class="dt">donor =</span> <span class="kw">str_extract</span>(fcs_files, <span class="st">"PTLG[0-9]{3}"</span>),</a>
+<a class="sourceLine" id="cb5-10" title="10">  <span class="dt">term =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(fcs_files, map_time) <span class="op">%&gt;%</span><span class="st"> </span>as.factor,</a>
+<a class="sourceLine" id="cb5-11" title="11">  <span class="dt">file_name =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"FR-FCM-ZY3Q/"</span>,fcs_files)</a>
+<a class="sourceLine" id="cb5-12" title="12">)</a>
+<a class="sourceLine" id="cb5-13" title="13">sample_table</a></code></pre></div>
+<pre><code>## # A tibble: 48 x 3
 ##    donor   term          file_name                                
 ##    &lt;chr&gt;   &lt;fct&gt;         &lt;chr&gt;                                    
-##  1 PTLG001 3rd trimester FR-FCM-ZY3Q/Gates_PTLG001_2_IFNa_100.fcs 
-##  2 PTLG001 1st trimester FR-FCM-ZY3Q/Gates_PTLG001_BL_IFNa_100.fcs
-##  3 PTLG002 3rd trimester FR-FCM-ZY3Q/Gates_PTLG002_2_IFNa_100.fcs 
-##  4 PTLG002 1st trimester FR-FCM-ZY3Q/Gates_PTLG002_BL_IFNa_100.fcs
-##  5 PTLG003 3rd trimester FR-FCM-ZY3Q/Gates_PTLG003_2_IFNa_100.fcs 
-##  6 PTLG003 1st trimester FR-FCM-ZY3Q/Gates_PTLG003_BL_IFNa_100.fcs
-##  7 PTLG004 3rd trimester FR-FCM-ZY3Q/Gates_PTLG004_2_IFNa_100.fcs 
-##  8 PTLG004 1st trimester FR-FCM-ZY3Q/Gates_PTLG004_BL_IFNa_100.fcs
-##  9 PTLG005 3rd trimester FR-FCM-ZY3Q/Gates_PTLG005_2_IFNa_100.fcs 
-## 10 PTLG005 1st trimester FR-FCM-ZY3Q/Gates_PTLG005_BL_IFNa_100.fcs
-## # ... with 22 more rows</code></pre>
+##  1 PTLG001 2st trimester FR-FCM-ZY3Q/Gates_PTLG001_1_IFNa_100.fcs 
+##  2 PTLG001 3rd trimester FR-FCM-ZY3Q/Gates_PTLG001_2_IFNa_100.fcs 
+##  3 PTLG001 1st trimester FR-FCM-ZY3Q/Gates_PTLG001_BL_IFNa_100.fcs
+##  4 PTLG002 2st trimester FR-FCM-ZY3Q/Gates_PTLG002_1_IFNa_100.fcs 
+##  5 PTLG002 3rd trimester FR-FCM-ZY3Q/Gates_PTLG002_2_IFNa_100.fcs 
+##  6 PTLG002 1st trimester FR-FCM-ZY3Q/Gates_PTLG002_BL_IFNa_100.fcs
+##  7 PTLG003 2st trimester FR-FCM-ZY3Q/Gates_PTLG003_1_IFNa_100.fcs 
+##  8 PTLG003 3rd trimester FR-FCM-ZY3Q/Gates_PTLG003_2_IFNa_100.fcs 
+##  9 PTLG003 1st trimester FR-FCM-ZY3Q/Gates_PTLG003_BL_IFNa_100.fcs
+## 10 PTLG004 2st trimester FR-FCM-ZY3Q/Gates_PTLG004_1_IFNa_100.fcs 
+## # … with 38 more rows</code></pre>
 </div>
 <div id="marker-table" class="section level2">
 <h2 class="hasAnchor">
@@ -182,7 +184,7 @@
 ##  8 Nd144Di      CD11b        phenotype
 ##  9 Nd145Di      CD4          phenotype
 ## 10 Nd146Di      CD8a         phenotype
-## # ... with 25 more rows</code></pre>
+## # … with 25 more rows</code></pre>
 <p>Check if bead normalized. This only works if the bead normalizer added an additional column <code>beadDist</code> to the <code>fcs</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sum">sum</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/flowCore/topics/read.FCS">read.FCS</a></span>(sample_table<span class="op">$</span>file_name[<span class="dv">1</span>])) <span class="op">==</span><span class="st"> "beadDist"</span>)<span class="op">==</span><span class="dv">1</span>,</a>
 <a class="sourceLine" id="cb9-2" title="2">       <span class="dt">yes =</span> <span class="st">"bead normalized"</span>,</a>
@@ -306,66 +308,66 @@
 <a class="sourceLine" id="cb27-17" title="17">newnames =<span class="st"> </span>markers<span class="op">$</span>protein_name</a>
 <a class="sourceLine" id="cb27-18" title="18">df_samples <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">rename_at</span>(<span class="kw">vars</span>(oldnames), <span class="op">~</span><span class="st"> </span>newnames)</a>
 <a class="sourceLine" id="cb27-19" title="19"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/str">str</a></span>(df_samples)</a></code></pre></div>
-<pre><code>## Classes 'tbl_df', 'tbl' and 'data.frame':    2503107 obs. of  39 variables:
-##  $ Event_length: num  46 21 37 17 35 27 17 34 16 28 ...
-##  $ CD235ab_CD61: num  0 0 0 0 0.0995 ...
-##  $ CD45        : num  4.62 4.65 4.74 4.33 4.45 ...
-##  $ CD66        : num  0.802 0.9 1.348 1.511 0.626 ...
-##  $ CD7         : num  5.12 4.28 4.61 5.19 4.73 ...
-##  $ CD19        : num  0 1.57 0 0 1.31 ...
-##  $ CD45RA      : num  4.16 4.3 3.48 3.38 4.26 ...
-##  $ CD11b       : num  1.83 2.73 2.56 2.01 1.26 ...
-##  $ CD4         : num  0.113 0.282 0.179 0 0.113 ...
-##  $ CD8a        : num  0.0434 2.8996 2.8245 0 0 ...
-##  $ CD11c       : num  1.2711 2.1562 2.0458 1.0197 0.0837 ...
-##  $ CD123       : num  0 0.386 0.509 0 0 ...
-##  $ pCREB       : num  0.744 1.728 1.149 0.759 1.177 ...
-##  $ pSTAT5      : num  1.304 1.585 0.482 1.67 0.419 ...
-##  $ pP38        : num  1.045 0.806 0.255 1.126 0.979 ...
-##  $ TCRgd       : num  0 0 0.19 0.214 0.122 ...
-##  $ pSTAT1      : num  2.64 3.49 1.16 2.96 2.57 ...
-##  $ pSTAT3      : num  1.82 2.58 1.12 2.22 1.52 ...
-##  $ prpS6       : num  1.71 1.71 1.384 0.866 1.577 ...
-##  $ CD33        : num  0.2433 0.2183 0.0612 0.0121 0.7417 ...
-##  $ pMAPKAPK    : num  2.1 2.68 1.22 2.2 2.49 ...
-##  $ Tbet2       : num  2.34 2.97 1.07 2.84 2.02 ...
-##  $ FoxP3       : num  0.385 1.071 0.945 0.188 1.186 ...
-##  $ IkB         : num  1.01 0.584 0.281 0.203 0.628 ...
-##  $ CD16        : num  0 0.3499 0.7307 0.0228 0.3036 ...
-##  $ pNFkB       : num  1.716 1.136 0.467 0.789 1.852 ...
-##  $ pERK1_2     : num  0.337 0 0 0.187 0 ...
-##  $ CD25        : num  0.10953 0.96467 0.53152 0.00137 0 ...
-##  $ CD3         : num  0 0.122 0 0 0 ...
-##  $ CD15        : num  0.306 0.857 0 0.331 0.282 ...
-##  $ HLA_DR      : num  0.692 0.294 1.971 0.85 0.217 ...
-##  $ CD14        : num  0.3581 0 0 0.0592 0.0987 ...
-##  $ CD56        : num  4.96 4.23 4.54 4.25 4.09 ...
-##  $ DNA1        : num  4.11 3.93 3.82 4.05 4.09 ...
-##  $ DNA2        : num  4.74 4.84 4.44 4.76 4.82 ...
-##  $ file_name   : chr  "FR-FCM-ZY3Q/Gates_PTLG001_2_IFNa_100.fcs" "FR-FCM-ZY3Q/Gates_PTLG001_2_IFNa_100.fcs" "FR-FCM-ZY3Q/Gates_PTLG001_2_IFNa_100.fcs" "FR-FCM-ZY3Q/Gates_PTLG001_2_IFNa_100.fcs" ...
+<pre><code>## Classes 'tbl_df', 'tbl' and 'data.frame':    3669510 obs. of  39 variables:
+##  $ Event_length: num  33 26 21 51 55 32 66 27 35 55 ...
+##  $ CD235ab_CD61: num  0 0.0736 0.3772 0 0 ...
+##  $ CD45        : num  4.08 4.13 5.03 4.47 4.68 ...
+##  $ CD66        : num  0.538 1.082 1.312 0.261 1.083 ...
+##  $ CD7         : num  5.2 4.08 4.63 5.39 6.05 ...
+##  $ CD19        : num  0.134 0.169 1.176 1.116 0.199 ...
+##  $ CD45RA      : num  4.237 3.443 3.842 4.319 0.241 ...
+##  $ CD11b       : num  2.7 2.07 1.92 2.49 1.9 ...
+##  $ CD4         : num  0.2652 0 0 0.0955 0.1431 ...
+##  $ CD8a        : num  0.2344 0.0158 0.7656 0 0.2404 ...
+##  $ CD11c       : num  2.184 2.21 1.91 0.213 2.85 ...
+##  $ CD123       : num  0.0249 0 0.0688 0.3725 0.0723 ...
+##  $ pCREB       : num  1.526 1.36 1.668 0.947 0.812 ...
+##  $ pSTAT5      : num  2.19 1.16 1.54 1.68 2.02 ...
+##  $ pP38        : num  0.286 0.348 0.797 0.862 0.724 ...
+##  $ TCRgd       : num  0.3318 0.2139 0 0.0761 0 ...
+##  $ pSTAT1      : num  3.46 2.7 3.77 3.14 2.92 ...
+##  $ pSTAT3      : num  2.27 2.22 1.75 2.07 2.13 ...
+##  $ prpS6       : num  1.234 0.439 0.296 1.481 0 ...
+##  $ CD33        : num  1.2231 0.0593 0.1261 0.6798 0.6141 ...
+##  $ pMAPKAPK    : num  1.78 2.01 2.51 2.51 1.95 ...
+##  $ Tbet2       : num  2.24 2.74 3.76 3.08 2.59 ...
+##  $ FoxP3       : num  0.947 0.471 0.489 1.066 0.901 ...
+##  $ IkB         : num  1.024 0.906 1.075 1.161 1.343 ...
+##  $ CD16        : num  0.1013 0.1794 0 0.144 0.0644 ...
+##  $ pNFkB       : num  1.121 1.712 0.945 2.037 1.435 ...
+##  $ pERK1_2     : num  0.1168 0 0.2711 0 0.0282 ...
+##  $ CD25        : num  0 0 0.183 0.243 0 ...
+##  $ CD3         : num  0.364 0 0 0 0 ...
+##  $ CD15        : num  0.115 0.946 0.367 0.248 0.497 ...
+##  $ HLA_DR      : num  2.127 1.535 0.201 0.531 1.101 ...
+##  $ CD14        : num  0.143 0 0 0 0 ...
+##  $ CD56        : num  4.82 2.8 3.68 3.89 5.25 ...
+##  $ DNA1        : num  3.33 3.83 4.36 3.76 3.87 ...
+##  $ DNA2        : num  4.2 4.25 4.9 4.44 4.55 ...
+##  $ file_name   : chr  "FR-FCM-ZY3Q/Gates_PTLG001_1_IFNa_100.fcs" "FR-FCM-ZY3Q/Gates_PTLG001_1_IFNa_100.fcs" "FR-FCM-ZY3Q/Gates_PTLG001_1_IFNa_100.fcs" "FR-FCM-ZY3Q/Gates_PTLG001_1_IFNa_100.fcs" ...
 ##  $ celltype    : chr  "NK" "NK" "NK" "NK" ...
 ##  $ donor       : chr  "PTLG001" "PTLG001" "PTLG001" "PTLG001" ...
-##  $ term        : Factor w/ 2 levels "1st trimester",..: 2 2 2 2 2 2 2 2 2 2 ...</code></pre>
+##  $ term        : Factor w/ 3 levels "1st trimester",..: 2 2 2 2 2 2 2 2 2 2 ...</code></pre>
 <p>List cell counts per donor and trimester.</p>
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/table">table</a></span>(df_samples<span class="op">$</span>donor,df_samples<span class="op">$</span>term)</a></code></pre></div>
 <pre><code>##          
-##           1st trimester 3rd trimester
-##   PTLG001         82937         80265
-##   PTLG002         66573         74721
-##   PTLG003        108142         75041
-##   PTLG004         48169         57682
-##   PTLG005         81455         87003
-##   PTLG007        115016        135821
-##   PTLG008         83824         73391
-##   PTLG009        103724         96440
-##   PTLG010         58504         76391
-##   PTLG012         72357         68484
-##   PTLG018         66348         92544
-##   PTLG019         78024         71328
-##   PTLG020         44037         49138
-##   PTLG022         89129         70198
-##   PTLG024        117099         79094
-##   PTLG029         54313         45915</code></pre>
+##           1st trimester 2st trimester 3rd trimester
+##   PTLG001         82937         61408         80265
+##   PTLG002         66573         92982         74721
+##   PTLG003        108142         80475         75041
+##   PTLG004         48169         66194         57682
+##   PTLG005         81455         79486         87003
+##   PTLG007        115016         98249        135821
+##   PTLG008         83824         88454         73391
+##   PTLG009        103724         83306         96440
+##   PTLG010         58504         68719         76391
+##   PTLG012         72357         62635         68484
+##   PTLG018         66348         86527         92544
+##   PTLG019         78024         74177         71328
+##   PTLG020         44037         37367         49138
+##   PTLG022         89129         52931         70198
+##   PTLG024        117099         77125         79094
+##   PTLG029         54313         56368         45915</code></pre>
 <p>Plot abundance of each celltype per sample.</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1">df_abundance =<span class="st"> </span>df_samples <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb31-2" title="2"><span class="st">  </span><span class="kw">group_by</span>(file_name, donor, term, celltype) <span class="op">%&gt;%</span><span class="st"> </span></a>
@@ -442,78 +444,88 @@
 <a class="sourceLine" id="cb42-4" title="4">                      <span class="dt">repel =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <p><img src="CytoGLMM_files/figure-html/plot_prcomp_nk-1.png" width="700"></p>
 </div>
+<div id="lda" class="section level2">
+<h2 class="hasAnchor">
+<a href="#lda" class="anchor"></a>LDA</h2>
+<p>LDA plot of NK cells.</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1">CytoGLMM<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/CytoGLMM/topics/plot_lda">plot_lda</a></span>(df_samples_subset, </a>
+<a class="sourceLine" id="cb43-2" title="2">                   protein_names, </a>
+<a class="sourceLine" id="cb43-3" title="3">                   <span class="dt">group =</span> <span class="st">"term"</span>, </a>
+<a class="sourceLine" id="cb43-4" title="4">                   <span class="dt">cor_scaling_factor =</span> <span class="fl">2.5</span>)</a></code></pre></div>
+<p><img src="CytoGLMM_files/figure-html/plot_lda_nk-1.png" width="700"></p>
+</div>
 <div id="density-plots" class="section level2">
 <h2 class="hasAnchor">
 <a href="#density-plots" class="anchor"></a>Density Plots</h2>
 <p>Density plots of one marker for all donors.</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1"><span class="kw">ggplot</span>(df_samples_subset, <span class="kw">aes_string</span>(<span class="dt">x =</span> <span class="st">"pCREB"</span>, <span class="dt">color =</span> <span class="st">"term"</span>)) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb43-2" title="2"><span class="st">  </span><span class="kw">geom_density</span>() <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb43-3" title="3"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>donor)</a></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" title="1"><span class="kw">ggplot</span>(df_samples_subset, <span class="kw">aes_string</span>(<span class="dt">x =</span> <span class="st">"pCREB"</span>, <span class="dt">color =</span> <span class="st">"term"</span>)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb44-2" title="2"><span class="st">  </span><span class="kw">geom_density</span>() <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb44-3" title="3"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>donor)</a></code></pre></div>
 <p><img src="CytoGLMM_files/figure-html/density_plot-1.png" width="700"></p>
 </div>
 <div id="two-dimensional-histograms" class="section level2">
 <h2 class="hasAnchor">
 <a href="#two-dimensional-histograms" class="anchor"></a>Two-Dimensional Histograms</h2>
 <p>Two-dimensional histograms for plotting two markers for all donors.</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" title="1">colorscale =<span class="st"> </span><span class="kw">scale_fill_gradientn</span>(</a>
-<a class="sourceLine" id="cb44-2" title="2">  <span class="dt">colors =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rev">rev</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/RColorBrewer/topics/ColorBrewer">brewer.pal</a></span>(<span class="dv">9</span>, <span class="st">"YlGnBu"</span>)), </a>
-<a class="sourceLine" id="cb44-3" title="3">  <span class="dt">values =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">exp</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="op">-</span><span class="dv">5</span>, <span class="dv">0</span>, <span class="dt">length.out =</span> <span class="dv">100</span>)))</a>
-<a class="sourceLine" id="cb44-4" title="4">  )</a>
-<a class="sourceLine" id="cb44-5" title="5"><span class="kw">ggplot</span>(df_samples_subset, <span class="kw">aes_string</span>(<span class="dt">x =</span> <span class="st">"pSTAT1"</span>, <span class="dt">y =</span> <span class="st">"pSTAT3"</span>)) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb44-6" title="6"><span class="st">  </span><span class="kw">geom_hex</span>(<span class="dt">bins =</span> <span class="dv">64</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb44-7" title="7"><span class="st">  </span>colorscale <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb44-8" title="8"><span class="st">  </span><span class="kw">coord_fixed</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb44-9" title="9"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>donor)</a></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" title="1">colorscale =<span class="st"> </span><span class="kw">scale_fill_gradientn</span>(</a>
+<a class="sourceLine" id="cb45-2" title="2">  <span class="dt">colors =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rev">rev</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/RColorBrewer/topics/ColorBrewer">brewer.pal</a></span>(<span class="dv">9</span>, <span class="st">"YlGnBu"</span>)), </a>
+<a class="sourceLine" id="cb45-3" title="3">  <span class="dt">values =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">exp</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="op">-</span><span class="dv">5</span>, <span class="dv">0</span>, <span class="dt">length.out =</span> <span class="dv">100</span>)))</a>
+<a class="sourceLine" id="cb45-4" title="4">  )</a>
+<a class="sourceLine" id="cb45-5" title="5"><span class="kw">ggplot</span>(df_samples_subset, <span class="kw">aes_string</span>(<span class="dt">x =</span> <span class="st">"pSTAT1"</span>, <span class="dt">y =</span> <span class="st">"pSTAT3"</span>)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb45-6" title="6"><span class="st">  </span><span class="kw">geom_hex</span>(<span class="dt">bins =</span> <span class="dv">64</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb45-7" title="7"><span class="st">  </span>colorscale <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb45-8" title="8"><span class="st">  </span><span class="kw">coord_fixed</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb45-9" title="9"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>donor)</a></code></pre></div>
 <p><img src="CytoGLMM_files/figure-html/hist2_donors-1.png" width="700"></p>
 <p>Two-dimensional histograms for group comparisons.</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" title="1"><span class="kw">ggplot</span>(df_samples_subset, <span class="kw">aes_string</span>(<span class="dt">x =</span> <span class="st">"pSTAT1"</span>, <span class="dt">y =</span> <span class="st">"pSTAT3"</span>)) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb45-2" title="2"><span class="st">  </span><span class="kw">geom_hex</span>(<span class="dt">bins =</span> <span class="dv">64</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb45-3" title="3"><span class="st">  </span>colorscale <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb45-4" title="4"><span class="st">  </span><span class="kw">coord_fixed</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb45-5" title="5"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>term)</a></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" title="1"><span class="kw">ggplot</span>(df_samples_subset, <span class="kw">aes_string</span>(<span class="dt">x =</span> <span class="st">"pSTAT1"</span>, <span class="dt">y =</span> <span class="st">"pSTAT3"</span>)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb46-2" title="2"><span class="st">  </span><span class="kw">geom_hex</span>(<span class="dt">bins =</span> <span class="dv">64</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb46-3" title="3"><span class="st">  </span>colorscale <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb46-4" title="4"><span class="st">  </span><span class="kw">coord_fixed</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb46-5" title="5"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>term)</a></code></pre></div>
 <p><img src="CytoGLMM_files/figure-html/hist2_groups-1.png" width="700"></p>
 <p>NK cell count. List the smallest and largest.</p>
-<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" title="1">df_samples_subset <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(term,donor) <span class="op">%&gt;%</span><span class="st"> </span>tally <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">arrange</span>(n)</a></code></pre></div>
-<pre><code>## # A tibble: 32 x 3
-## # Groups:   term [2]
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1">df_samples_subset <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(term,donor) <span class="op">%&gt;%</span><span class="st"> </span>tally <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">arrange</span>(n)</a></code></pre></div>
+<pre><code>## # A tibble: 48 x 3
+## # Groups:   term [3]
 ##    term          donor       n
 ##    &lt;fct&gt;         &lt;chr&gt;   &lt;int&gt;
-##  1 3rd trimester PTLG024  2380
-##  2 3rd trimester PTLG001  3125
-##  3 3rd trimester PTLG020  3230
-##  4 1st trimester PTLG020  3412
-##  5 1st trimester PTLG001  3474
-##  6 3rd trimester PTLG009  3764
-##  7 1st trimester PTLG018  4083
-##  8 1st trimester PTLG024  4100
-##  9 1st trimester PTLG010  4273
-## 10 3rd trimester PTLG019  4542
-## # ... with 22 more rows</code></pre>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" title="1">df_samples_subset <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(term,donor) <span class="op">%&gt;%</span><span class="st"> </span>tally <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">arrange</span>(<span class="kw">desc</span>(n))</a></code></pre></div>
-<pre><code>## # A tibble: 32 x 3
-## # Groups:   term [2]
+##  1 2st trimester PTLG020  1759
+##  2 3rd trimester PTLG024  2380
+##  3 2st trimester PTLG024  2738
+##  4 2st trimester PTLG001  2910
+##  5 3rd trimester PTLG001  3125
+##  6 3rd trimester PTLG020  3230
+##  7 1st trimester PTLG020  3412
+##  8 1st trimester PTLG001  3474
+##  9 3rd trimester PTLG009  3764
+## 10 2st trimester PTLG009  4004
+## # … with 38 more rows</code></pre>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" title="1">df_samples_subset <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(term,donor) <span class="op">%&gt;%</span><span class="st"> </span>tally <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">arrange</span>(<span class="kw">desc</span>(n))</a></code></pre></div>
+<pre><code>## # A tibble: 48 x 3
+## # Groups:   term [3]
 ##    term          donor       n
 ##    &lt;fct&gt;         &lt;chr&gt;   &lt;int&gt;
-##  1 1st trimester PTLG008 13395
-##  2 1st trimester PTLG022  8222
-##  3 1st trimester PTLG003  8087
-##  4 3rd trimester PTLG008  7953
-##  5 3rd trimester PTLG018  7620
-##  6 1st trimester PTLG029  7211
-##  7 1st trimester PTLG019  6671
-##  8 1st trimester PTLG012  6624
-##  9 3rd trimester PTLG004  6501
-## 10 3rd trimester PTLG002  6120
-## # ... with 22 more rows</code></pre>
+##  1 2st trimester PTLG008 13957
+##  2 1st trimester PTLG008 13395
+##  3 2st trimester PTLG029  9104
+##  4 2st trimester PTLG002  9037
+##  5 1st trimester PTLG022  8222
+##  6 1st trimester PTLG003  8087
+##  7 3rd trimester PTLG008  7953
+##  8 2st trimester PTLG018  7781
+##  9 3rd trimester PTLG018  7620
+## 10 2st trimester PTLG004  7579
+## # … with 38 more rows</code></pre>
 </div>
 <div id="marker-correlations" class="section level2">
 <h2 class="hasAnchor">
 <a href="#marker-correlations" class="anchor"></a>Marker Correlations</h2>
 <p>Plot marker correlations.</p>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" title="1">mcor =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/cor">cor</a></span>(df_samples_subset <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(protein_names))</a>
-<a class="sourceLine" id="cb50-2" title="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/ggcorrplot/topics/ggcorrplot">ggcorrplot</a></span>(mcor, <span class="dt">hc.order =</span> <span class="ot">TRUE</span>, <span class="dt">type =</span> <span class="st">"lower"</span>, </a>
-<a class="sourceLine" id="cb50-3" title="3">           <span class="dt">outline.col =</span> <span class="st">"lightgray"</span>,</a>
-<a class="sourceLine" id="cb50-4" title="4">           <span class="dt">colors =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"#6D9EC1"</span>, <span class="st">"white"</span>, <span class="st">"#E46726"</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" title="1">mcor =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/cor">cor</a></span>(df_samples_subset <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(protein_names))</a>
+<a class="sourceLine" id="cb51-2" title="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/ggcorrplot/topics/ggcorrplot">ggcorrplot</a></span>(mcor, <span class="dt">hc.order =</span> <span class="ot">TRUE</span>, <span class="dt">type =</span> <span class="st">"lower"</span>, </a>
+<a class="sourceLine" id="cb51-3" title="3">           <span class="dt">outline.col =</span> <span class="st">"lightgray"</span>,</a>
+<a class="sourceLine" id="cb51-4" title="4">           <span class="dt">colors =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"#6D9EC1"</span>, <span class="st">"white"</span>, <span class="st">"#E46726"</span>))</a></code></pre></div>
 <p><img src="CytoGLMM_files/figure-html/marker_correlations-1.png" width="700"></p>
 </div>
 </div>
@@ -525,94 +537,111 @@
 <h2 class="hasAnchor">
 <a href="#plot-median-marker-expression" class="anchor"></a>Plot Median Marker Expression</h2>
 <p>Plot all celltypes.</p>
-<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" title="1">df_median =<span class="st"> </span>df_samples <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb51-2" title="2"><span class="st">      </span><span class="kw">group_by</span>(file_name, donor, term, celltype) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb51-3" title="3"><span class="st">      </span><span class="kw">summarise_at</span>(protein_names, median)</a>
-<a class="sourceLine" id="cb51-4" title="4">df_median_long =<span class="st"> </span><span class="kw">gather</span>(df_median, protein_name, median_expr, </a>
-<a class="sourceLine" id="cb51-5" title="5">                        <span class="op">-</span>file_name, <span class="op">-</span>donor, <span class="op">-</span>term, <span class="op">-</span>celltype)</a>
-<a class="sourceLine" id="cb51-6" title="6"><span class="kw">ggplot</span>(df_median_long, <span class="kw">aes</span>(protein_name, median_expr, <span class="dt">color =</span> term)) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb51-7" title="7"><span class="st">  </span><span class="kw">geom_violin</span>() <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb51-8" title="8"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>celltype) <span class="op">+</span></a>
-<a class="sourceLine" id="cb51-9" title="9"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x  =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">90</span>, <span class="dt">vjust=</span><span class="dv">0</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" title="1">df_median =<span class="st"> </span>df_samples <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb52-2" title="2"><span class="st">      </span><span class="kw">group_by</span>(file_name, donor, term, celltype) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb52-3" title="3"><span class="st">      </span><span class="kw">summarise_at</span>(protein_names, median)</a>
+<a class="sourceLine" id="cb52-4" title="4">df_median_long =<span class="st"> </span><span class="kw">gather</span>(df_median, protein_name, median_expr, </a>
+<a class="sourceLine" id="cb52-5" title="5">                        <span class="op">-</span>file_name, <span class="op">-</span>donor, <span class="op">-</span>term, <span class="op">-</span>celltype)</a>
+<a class="sourceLine" id="cb52-6" title="6"><span class="kw">ggplot</span>(df_median_long, <span class="kw">aes</span>(protein_name, median_expr, <span class="dt">color =</span> term)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb52-7" title="7"><span class="st">  </span><span class="kw">geom_violin</span>() <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb52-8" title="8"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>celltype) <span class="op">+</span></a>
+<a class="sourceLine" id="cb52-9" title="9"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x  =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">90</span>, <span class="dt">vjust=</span><span class="dv">0</span>))</a></code></pre></div>
 <p><img src="CytoGLMM_files/figure-html/median_expression_plot-1.png" width="700"></p>
 <p>Zoom in on NK cells.</p>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" title="1">df_median_long <span class="op">%&lt;&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(celltype <span class="op">==</span><span class="st"> "NK"</span>)</a>
-<a class="sourceLine" id="cb52-2" title="2"><span class="kw">ggplot</span>(df_median_long, <span class="kw">aes</span>(term, median_expr, <span class="dt">color =</span> term)) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb52-3" title="3"><span class="st">  </span><span class="kw">geom_violin</span>() <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb52-4" title="4"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="dt">width =</span> <span class="fl">0.2</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb52-5" title="5"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>protein_name, <span class="dt">nrow =</span> <span class="dv">2</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb52-6" title="6"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_blank</span>()) <span class="op">+</span></a>
-<a class="sourceLine" id="cb52-7" title="7"><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">"NK"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb53-1" title="1">df_median_long <span class="op">%&lt;&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(celltype <span class="op">==</span><span class="st"> "NK"</span>)</a>
+<a class="sourceLine" id="cb53-2" title="2"><span class="kw">ggplot</span>(df_median_long, <span class="kw">aes</span>(term, median_expr, <span class="dt">color =</span> term)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb53-3" title="3"><span class="st">  </span><span class="kw">geom_violin</span>() <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb53-4" title="4"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="dt">width =</span> <span class="fl">0.2</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb53-5" title="5"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>protein_name, <span class="dt">nrow =</span> <span class="dv">2</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb53-6" title="6"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_blank</span>()) <span class="op">+</span></a>
+<a class="sourceLine" id="cb53-7" title="7"><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">"NK"</span>)</a></code></pre></div>
 <p><img src="CytoGLMM_files/figure-html/median_expression_plot_nk-1.png" width="700"></p>
 <p>Zoom in on marker pSTAT1.</p>
-<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb53-1" title="1"><span class="kw">ggplot</span>(df_median, <span class="kw">aes</span>(term, pSTAT1, <span class="dt">color =</span> term)) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb53-2" title="2"><span class="st">  </span><span class="kw">geom_violin</span>() <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb53-3" title="3"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="dt">width =</span> <span class="fl">0.2</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb53-4" title="4"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>celltype, <span class="dt">nrow =</span> <span class="dv">2</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb53-5" title="5"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_blank</span>())</a></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" title="1"><span class="kw">ggplot</span>(df_median, <span class="kw">aes</span>(term, pSTAT1, <span class="dt">color =</span> term)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb54-2" title="2"><span class="st">  </span><span class="kw">geom_violin</span>() <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb54-3" title="3"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="dt">width =</span> <span class="fl">0.2</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb54-4" title="4"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>celltype, <span class="dt">nrow =</span> <span class="dv">2</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb54-5" title="5"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_blank</span>())</a></code></pre></div>
 <p><img src="CytoGLMM_files/figure-html/median_expression_plot_pstat1-1.png" width="700"></p>
 </div>
 <div id="linear-mixed-model" class="section level2">
 <h2 class="hasAnchor">
 <a href="#linear-mixed-model" class="anchor"></a>Linear Mixed Model</h2>
 <p>Mixed model with median expression as response variable, experimental condition as explanatory variable, and donor as random effect. Fit separate models for each protein and celltype combination.</p>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" title="1">calc_pvalue =<span class="st"> </span><span class="cf">function</span>(fit) {</a>
-<a class="sourceLine" id="cb54-2" title="2">  summ =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(fit)</a>
-<a class="sourceLine" id="cb54-3" title="3">  <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/coef">coefficients</a></span>(summ)[<span class="st">"term3rd trimester"</span>, <span class="st">"Pr(&gt;|t|)"</span>]</a>
-<a class="sourceLine" id="cb54-4" title="4">}</a>
-<a class="sourceLine" id="cb54-5" title="5">df_median_long =<span class="st"> </span><span class="kw">gather</span>(df_median, protein_name, median_expr, </a>
-<a class="sourceLine" id="cb54-6" title="6">                        <span class="op">-</span>file_name, <span class="op">-</span>donor, <span class="op">-</span>term, <span class="op">-</span>celltype)</a>
-<a class="sourceLine" id="cb54-7" title="7">df_fits =<span class="st"> </span>df_median_long <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb54-8" title="8"><span class="st">  </span><span class="kw">group_by</span>(protein_name, celltype) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb54-9" title="9"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb54-10" title="10"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">fit =</span> <span class="kw">map</span>(data, <span class="op">~</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/lme4/topics/lmer">lmer</a></span>(median_expr <span class="op">~</span><span class="st"> </span>term <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>donor), .))) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb54-11" title="11"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">pvalue_unadj =</span> <span class="kw">map_dbl</span>(fit, <span class="op">~</span><span class="st"> </span><span class="kw">calc_pvalue</span>(.))) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb54-12" title="12"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">pvalue_adj =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/p.adjust">p.adjust</a></span>(pvalue_unadj, <span class="dt">method =</span> <span class="st">"BH"</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb54-13" title="13"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(protein_name, celltype, pvalue_adj)</a>
-<a class="sourceLine" id="cb54-14" title="14">df_fits <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb54-15" title="15"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(pvalue_adj <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.05</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb54-16" title="16"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span>(celltype) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb54-17" title="17"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(<span class="dt">n =</span> <span class="ot">Inf</span>)</a></code></pre></div>
-<pre><code>## # A tibble: 21 x 3
-##    protein_name celltype   pvalue_adj
-##    &lt;chr&gt;        &lt;chr&gt;           &lt;dbl&gt;
-##  1 pSTAT1       B            0.0449  
-##  2 pSTAT1       CD4+Tmem     0.00719 
-##  3 IkB          CD4+Tmem     0.0392  
-##  4 pNFkB        CD4+Tmem     0.00719 
-##  5 pERK1_2      CD4+Tmem     0.0464  
-##  6 pCREB        CD4+Tnaive   0.0179  
-##  7 pSTAT5       CD4+Tnaive   0.0254  
-##  8 pSTAT1       CD4+Tnaive   0.0122  
-##  9 IkB          CD4+Tnaive   0.00719 
-## 10 pNFkB        CD4+Tnaive   0.00851 
-## 11 pSTAT1       CD8+Tmem     0.00858 
-## 12 pSTAT5       CD8+Tnaive   0.0254  
-## 13 pSTAT1       CD8+Tnaive   0.00719 
-## 14 IkB          CD8+Tnaive   0.00719 
-## 15 pNFkB        CD8+Tnaive   0.00719 
-## 16 pSTAT1       cMC          0.0179  
-## 17 pSTAT1       gdT          0.00851 
-## 18 pSTAT1       NK           0.000364
-## 19 pNFkB        NK           0.0179  
-## 20 pERK1_2      NK           0.0453  
-## 21 pSTAT1       Tregsmem     0.0179</code></pre>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" title="1">calc_pvalue =<span class="st"> </span><span class="cf">function</span>(fit) {</a>
+<a class="sourceLine" id="cb55-2" title="2">  summ =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(fit)</a>
+<a class="sourceLine" id="cb55-3" title="3">  <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/coef">coefficients</a></span>(summ)[<span class="st">"term3rd trimester"</span>, <span class="st">"Pr(&gt;|t|)"</span>]</a>
+<a class="sourceLine" id="cb55-4" title="4">}</a>
+<a class="sourceLine" id="cb55-5" title="5">df_median_long =<span class="st"> </span><span class="kw">gather</span>(df_median, protein_name, median_expr, </a>
+<a class="sourceLine" id="cb55-6" title="6">                        <span class="op">-</span>file_name, <span class="op">-</span>donor, <span class="op">-</span>term, <span class="op">-</span>celltype)</a>
+<a class="sourceLine" id="cb55-7" title="7">df_fits =<span class="st"> </span>df_median_long <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb55-8" title="8"><span class="st">  </span><span class="kw">group_by</span>(protein_name, celltype) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb55-9" title="9"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb55-10" title="10"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">fit =</span> <span class="kw">map</span>(data, <span class="op">~</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/lme4/topics/lmer">lmer</a></span>(median_expr <span class="op">~</span><span class="st"> </span>term <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>donor), .))) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb55-11" title="11"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">pvalue_unadj =</span> <span class="kw">map_dbl</span>(fit, <span class="op">~</span><span class="st"> </span><span class="kw">calc_pvalue</span>(.))) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb55-12" title="12"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">pvalue_adj =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/p.adjust">p.adjust</a></span>(pvalue_unadj, <span class="dt">method =</span> <span class="st">"BH"</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb55-13" title="13"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(protein_name, celltype, pvalue_adj)</a>
+<a class="sourceLine" id="cb55-14" title="14">df_fits <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb55-15" title="15"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(pvalue_adj <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.05</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb55-16" title="16"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span>(celltype) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb55-17" title="17"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(<span class="dt">n =</span> <span class="ot">Inf</span>)</a></code></pre></div>
+<pre><code>## # A tibble: 22 x 3
+##    protein_name celltype    pvalue_adj
+##    &lt;chr&gt;        &lt;chr&gt;            &lt;dbl&gt;
+##  1 pSTAT1       B          0.0167     
+##  2 pSTAT1       CD4+Tmem   0.000510   
+##  3 pNFkB        CD4+Tmem   0.00101    
+##  4 pERK1_2      CD4+Tmem   0.0408     
+##  5 pCREB        CD4+Tnaive 0.0125     
+##  6 pSTAT5       CD4+Tnaive 0.00983    
+##  7 pSTAT1       CD4+Tnaive 0.00162    
+##  8 IkB          CD4+Tnaive 0.00177    
+##  9 pNFkB        CD4+Tnaive 0.00101    
+## 10 pSTAT1       CD8+Tmem   0.00162    
+## 11 pNFkB        CD8+Tmem   0.0378     
+## 12 pSTAT5       CD8+Tnaive 0.0167     
+## 13 pSTAT1       CD8+Tnaive 0.000272   
+## 14 prpS6        CD8+Tnaive 0.0281     
+## 15 IkB          CD8+Tnaive 0.0371     
+## 16 pNFkB        CD8+Tnaive 0.00212    
+## 17 pSTAT1       cMC        0.00533    
+## 18 pSTAT1       NK         0.000000820
+## 19 pNFkB        NK         0.0117     
+## 20 pERK1_2      NK         0.0198     
+## 21 pSTAT1       Tregsmem   0.00331    
+## 22 pSTAT1       Tregsnaive 0.0327</code></pre>
 </div>
 </div>
 <div id="regression-analysis-on-all-the-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#regression-analysis-on-all-the-data" class="anchor"></a>Regression Analysis on All The Data</h1>
-<p>For the regression analysis, we will focus only on NK cells. We can repeat the same analysis for each cell type of interest.</p>
+<p>For the regression analysis, we will focus only on NK cells, and compare the first and third trimester. We can repeat the same analysis for each cell type of interest, and trimester combination.</p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb57-1" title="1">df_samples_subset <span class="op">%&lt;&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(term <span class="op">!=</span><span class="st"> "2st trimester"</span>)</a>
+<a class="sourceLine" id="cb57-2" title="2">df_samples_subset<span class="op">$</span>term <span class="op">%&lt;&gt;%</span><span class="st"> </span>droplevels</a>
+<a class="sourceLine" id="cb57-3" title="3">df_samples_subset<span class="op">$</span>term <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/factor">factor</a></span>(<span class="dt">levels =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"1st trimester"</span>,</a>
+<a class="sourceLine" id="cb57-4" title="4">                                              <span class="st">"3rd trimester"</span>))</a></code></pre></div>
 <div id="generalized-linear-mixed-model" class="section level2">
 <h2 class="hasAnchor">
 <a href="#generalized-linear-mixed-model" class="anchor"></a>Generalized Linear Mixed Model</h2>
 <p>Fit a Generalized Linear Mixed Model (GLMM) with donor random effects. This function is a wrapper around the package <code>mbest</code> <span class="citation">(Perry 2017)</span>.</p>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" title="1">df_samples_subset<span class="op">$</span>term <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/factor">factor</a></span>(<span class="dt">levels =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"1st trimester"</span>,</a>
-<a class="sourceLine" id="cb56-2" title="2">                                              <span class="st">"3rd trimester"</span>))</a>
-<a class="sourceLine" id="cb56-3" title="3">glmm_fit =<span class="st"> </span>CytoGLMM<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/CytoGLMM/topics/cytoglmm">cytoglmm</a></span>(df_samples_subset, </a>
-<a class="sourceLine" id="cb56-4" title="4">                              <span class="dt">protein_names =</span> protein_names,</a>
-<a class="sourceLine" id="cb56-5" title="5">                              <span class="dt">condition =</span> <span class="st">"term"</span>, <span class="dt">group =</span> <span class="st">"donor"</span>)</a>
-<a class="sourceLine" id="cb56-6" title="6">glmm_fit</a></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb58-1" title="1">glmm_fit =<span class="st"> </span>CytoGLMM<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/CytoGLMM/topics/cytoglmm">cytoglmm</a></span>(df_samples_subset, </a>
+<a class="sourceLine" id="cb58-2" title="2">                              <span class="dt">protein_names =</span> protein_names,</a>
+<a class="sourceLine" id="cb58-3" title="3">                              <span class="dt">condition =</span> <span class="st">"term"</span>, <span class="dt">group =</span> <span class="st">"donor"</span>)</a></code></pre></div>
+<pre><code>## 2019-05-10 23:42:09 INFO:mbest.mhglm:Creating design matrix
+## 2019-05-10 23:42:09 INFO:mbest.mhglm:Grouping factor and random effect design matrix
+## 2019-05-10 23:42:09 INFO:mbest.mhglm:Setting weights
+## 2019-05-10 23:42:09 INFO:mbest.mhglm:Setting offset
+## 2019-05-10 23:42:09 INFO:mbest.mhglm:Fitting model
+## 2019-05-10 23:42:09 INFO:mbest.mhglm.fit:Fitting models in parallel
+## 2019-05-10 23:42:11 INFO:mbest.mhglm.fit:Computing mean and covariance estimates
+## 2019-05-10 23:42:11 INFO:mbest.mhglm.fit:Estimating moments
+## 2019-05-10 23:42:11 INFO:mbest.mhglm.fit:Computing mean estimate
+## 2019-05-10 23:42:11 INFO:mbest.mhglm.fit:Computing covariance estimate
+## 2019-05-10 23:42:11 INFO:mbest.mhglm.fit:Refining mean and covariance estimates
+## 2019-05-10 23:42:11 INFO:mbest.mhglm.fit:Estimating moments
+## 2019-05-10 23:42:11 INFO:mbest.mhglm.fit:Computing mean estimate
+## 2019-05-10 23:42:11 INFO:mbest.mhglm.fit:Computing covariance estimate</code></pre>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb60-1" title="1">glmm_fit</a></code></pre></div>
 <pre><code>## number of cells per group and condition:         
 ##           1st trimester 3rd trimester
 ##   PTLG001          3474          3125
@@ -637,9 +666,9 @@
 ## 
 ## condition compared: term 
 ## grouping variable: donor</code></pre>
-<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb58-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(glmm_fit)</a></code></pre></div>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb62-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(glmm_fit)</a></code></pre></div>
 <p><img src="CytoGLMM_files/figure-html/glmm_fit-1.png" width="700"></p>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb59-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(glmm_fit) <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(pvalues_adj <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.05</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb63-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(glmm_fit) <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(pvalues_adj <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.05</span>)</a></code></pre></div>
 <pre><code>## # A tibble: 3 x 3
 ##   protein_name pvalues_unadj pvalues_adj
 ##   &lt;chr&gt;                &lt;dbl&gt;       &lt;dbl&gt;
@@ -647,34 +676,62 @@
 ## 2 pSTAT1            6.58e-19    3.29e-18
 ## 3 pSTAT5            7.47e- 9    2.49e- 8</code></pre>
 <p>Add pSTAT1, pSTAT3, and pSTAT5 into one marker.</p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb61-1" title="1">df_samples_subset <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">pSTAT_sum =</span> pSTAT1<span class="op">+</span>pSTAT3<span class="op">+</span>pSTAT5)</a>
-<a class="sourceLine" id="cb61-2" title="2">protein_names_sum =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(</a>
-<a class="sourceLine" id="cb61-3" title="3">  <span class="st">"pSTAT_sum"</span>, </a>
-<a class="sourceLine" id="cb61-4" title="4">  protein_names[<span class="op">!</span>protein_names <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"pSTAT1"</span>,<span class="st">"pSTAT3"</span>,<span class="st">"pSTAT5"</span>)]</a>
-<a class="sourceLine" id="cb61-5" title="5">)</a>
-<a class="sourceLine" id="cb61-6" title="6">glmm_fit =<span class="st"> </span>CytoGLMM<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/CytoGLMM/topics/cytoglmm">cytoglmm</a></span>(df_samples_subset, </a>
-<a class="sourceLine" id="cb61-7" title="7">                              <span class="dt">protein_names =</span> protein_names_sum,</a>
-<a class="sourceLine" id="cb61-8" title="8">                              <span class="dt">condition =</span> <span class="st">"term"</span>, <span class="dt">group =</span> <span class="st">"donor"</span>)</a>
-<a class="sourceLine" id="cb61-9" title="9"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(glmm_fit)</a></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" title="1">df_samples_subset <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">pSTAT_sum =</span> pSTAT1<span class="op">+</span>pSTAT3<span class="op">+</span>pSTAT5)</a>
+<a class="sourceLine" id="cb65-2" title="2">protein_names_sum =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(</a>
+<a class="sourceLine" id="cb65-3" title="3">  <span class="st">"pSTAT_sum"</span>, </a>
+<a class="sourceLine" id="cb65-4" title="4">  protein_names[<span class="op">!</span>protein_names <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"pSTAT1"</span>,<span class="st">"pSTAT3"</span>,<span class="st">"pSTAT5"</span>)]</a>
+<a class="sourceLine" id="cb65-5" title="5">)</a>
+<a class="sourceLine" id="cb65-6" title="6">glmm_fit =<span class="st"> </span>CytoGLMM<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/CytoGLMM/topics/cytoglmm">cytoglmm</a></span>(df_samples_subset, </a>
+<a class="sourceLine" id="cb65-7" title="7">                              <span class="dt">protein_names =</span> protein_names_sum,</a>
+<a class="sourceLine" id="cb65-8" title="8">                              <span class="dt">condition =</span> <span class="st">"term"</span>, <span class="dt">group =</span> <span class="st">"donor"</span>)</a></code></pre></div>
+<pre><code>## 2019-05-10 23:42:12 INFO:mbest.mhglm:Creating design matrix
+## 2019-05-10 23:42:12 INFO:mbest.mhglm:Grouping factor and random effect design matrix
+## 2019-05-10 23:42:12 INFO:mbest.mhglm:Setting weights
+## 2019-05-10 23:42:12 INFO:mbest.mhglm:Setting offset
+## 2019-05-10 23:42:12 INFO:mbest.mhglm:Fitting model
+## 2019-05-10 23:42:12 INFO:mbest.mhglm.fit:Fitting models in parallel
+## 2019-05-10 23:42:13 INFO:mbest.mhglm.fit:Computing mean and covariance estimates
+## 2019-05-10 23:42:13 INFO:mbest.mhglm.fit:Estimating moments
+## 2019-05-10 23:42:13 INFO:mbest.mhglm.fit:Computing mean estimate
+## 2019-05-10 23:42:13 INFO:mbest.mhglm.fit:Computing covariance estimate
+## 2019-05-10 23:42:13 INFO:mbest.mhglm.fit:Refining mean and covariance estimates
+## 2019-05-10 23:42:13 INFO:mbest.mhglm.fit:Estimating moments
+## 2019-05-10 23:42:13 INFO:mbest.mhglm.fit:Computing mean estimate
+## 2019-05-10 23:42:13 INFO:mbest.mhglm.fit:Computing covariance estimate</code></pre>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb67-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(glmm_fit)</a></code></pre></div>
 <p><img src="CytoGLMM_files/figure-html/glmm_fit_combine-1.png" width="700"></p>
-<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb62-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(glmm_fit) <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(pvalues_adj <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.05</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb68-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(glmm_fit) <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(pvalues_adj <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.05</span>)</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 3
 ##   protein_name pvalues_unadj pvalues_adj
 ##   &lt;chr&gt;                &lt;dbl&gt;       &lt;dbl&gt;
 ## 1 pSTAT_sum      0.000000189  0.00000151</code></pre>
 <p>Take differences between pSTAT1, pSTAT3, and pSTAT5.</p>
-<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb64-1" title="1">df_samples_subset <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">pSTAT3_minus_pSTAT1 =</span> pSTAT3<span class="op">-</span>pSTAT1)</a>
-<a class="sourceLine" id="cb64-2" title="2">df_samples_subset <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">pSTAT5_minus_pSTAT1 =</span> pSTAT5<span class="op">-</span>pSTAT1)</a>
-<a class="sourceLine" id="cb64-3" title="3">protein_names_diff =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(</a>
-<a class="sourceLine" id="cb64-4" title="4">  <span class="st">"pSTAT3_minus_pSTAT1"</span>,<span class="st">"pSTAT5_minus_pSTAT1"</span>,</a>
-<a class="sourceLine" id="cb64-5" title="5">  protein_names[<span class="op">!</span>protein_names <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"pSTAT3"</span>,<span class="st">"pSTAT5"</span>)]</a>
-<a class="sourceLine" id="cb64-6" title="6">)</a>
-<a class="sourceLine" id="cb64-7" title="7">glmm_fit =<span class="st"> </span>CytoGLMM<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/CytoGLMM/topics/cytoglmm">cytoglmm</a></span>(df_samples_subset, </a>
-<a class="sourceLine" id="cb64-8" title="8">                              <span class="dt">protein_names =</span> protein_names_diff,</a>
-<a class="sourceLine" id="cb64-9" title="9">                              <span class="dt">condition =</span> <span class="st">"term"</span>, <span class="dt">group =</span> <span class="st">"donor"</span>)</a>
-<a class="sourceLine" id="cb64-10" title="10"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(glmm_fit)</a></code></pre></div>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb70-1" title="1">df_samples_subset <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">pSTAT3_minus_pSTAT1 =</span> pSTAT3<span class="op">-</span>pSTAT1)</a>
+<a class="sourceLine" id="cb70-2" title="2">df_samples_subset <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">pSTAT5_minus_pSTAT1 =</span> pSTAT5<span class="op">-</span>pSTAT1)</a>
+<a class="sourceLine" id="cb70-3" title="3">protein_names_diff =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(</a>
+<a class="sourceLine" id="cb70-4" title="4">  <span class="st">"pSTAT3_minus_pSTAT1"</span>,<span class="st">"pSTAT5_minus_pSTAT1"</span>,</a>
+<a class="sourceLine" id="cb70-5" title="5">  protein_names[<span class="op">!</span>protein_names <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"pSTAT3"</span>,<span class="st">"pSTAT5"</span>)]</a>
+<a class="sourceLine" id="cb70-6" title="6">)</a>
+<a class="sourceLine" id="cb70-7" title="7">glmm_fit =<span class="st"> </span>CytoGLMM<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/CytoGLMM/topics/cytoglmm">cytoglmm</a></span>(df_samples_subset, </a>
+<a class="sourceLine" id="cb70-8" title="8">                              <span class="dt">protein_names =</span> protein_names_diff,</a>
+<a class="sourceLine" id="cb70-9" title="9">                              <span class="dt">condition =</span> <span class="st">"term"</span>, <span class="dt">group =</span> <span class="st">"donor"</span>)</a></code></pre></div>
+<pre><code>## 2019-05-10 23:42:15 INFO:mbest.mhglm:Creating design matrix
+## 2019-05-10 23:42:15 INFO:mbest.mhglm:Grouping factor and random effect design matrix
+## 2019-05-10 23:42:15 INFO:mbest.mhglm:Setting weights
+## 2019-05-10 23:42:15 INFO:mbest.mhglm:Setting offset
+## 2019-05-10 23:42:15 INFO:mbest.mhglm:Fitting model
+## 2019-05-10 23:42:15 INFO:mbest.mhglm.fit:Fitting models in parallel
+## 2019-05-10 23:42:16 INFO:mbest.mhglm.fit:Computing mean and covariance estimates
+## 2019-05-10 23:42:16 INFO:mbest.mhglm.fit:Estimating moments
+## 2019-05-10 23:42:16 INFO:mbest.mhglm.fit:Computing mean estimate
+## 2019-05-10 23:42:16 INFO:mbest.mhglm.fit:Computing covariance estimate
+## 2019-05-10 23:42:16 INFO:mbest.mhglm.fit:Refining mean and covariance estimates
+## 2019-05-10 23:42:16 INFO:mbest.mhglm.fit:Estimating moments
+## 2019-05-10 23:42:16 INFO:mbest.mhglm.fit:Computing mean estimate
+## 2019-05-10 23:42:16 INFO:mbest.mhglm.fit:Computing covariance estimate</code></pre>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb72-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(glmm_fit)</a></code></pre></div>
 <p><img src="CytoGLMM_files/figure-html/glmm_fit_differences-1.png" width="700"></p>
-<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(glmm_fit) <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(pvalues_adj <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.05</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb73-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(glmm_fit) <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(pvalues_adj <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.05</span>)</a></code></pre></div>
 <pre><code>## # A tibble: 3 x 3
 ##   protein_name        pvalues_unadj pvalues_adj
 ##   &lt;chr&gt;                       &lt;dbl&gt;       &lt;dbl&gt;
@@ -682,18 +739,32 @@
 ## 2 pSTAT5_minus_pSTAT1      7.47e- 9    3.74e- 8
 ## 3 pSTAT1                   2.19e- 4    7.31e- 4</code></pre>
 <p>Add interactions between pSTAT1, pSTAT3, and pSTAT5.</p>
-<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb67-1" title="1">df_samples_subset <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">pSTAT_I15 =</span> pSTAT1<span class="op">*</span>pSTAT5)</a>
-<a class="sourceLine" id="cb67-2" title="2">df_samples_subset <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">pSTAT_I35 =</span> pSTAT3<span class="op">*</span>pSTAT5)</a>
-<a class="sourceLine" id="cb67-3" title="3">df_samples_subset <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">pSTAT_I13 =</span> pSTAT1<span class="op">*</span>pSTAT3)</a>
-<a class="sourceLine" id="cb67-4" title="4">df_samples_subset <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">pSTAT_I135 =</span> pSTAT1<span class="op">*</span>pSTAT3<span class="op">*</span>pSTAT5)</a>
-<a class="sourceLine" id="cb67-5" title="5">protein_names_interactions =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(protein_names,<span class="st">"pSTAT_I15"</span>,<span class="st">"pSTAT_I35"</span>,</a>
-<a class="sourceLine" id="cb67-6" title="6">                               <span class="st">"pSTAT_I13"</span>,<span class="st">"pSTAT_I135"</span>)</a>
-<a class="sourceLine" id="cb67-7" title="7">glmm_fit =<span class="st"> </span>CytoGLMM<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/CytoGLMM/topics/cytoglmm">cytoglmm</a></span>(df_samples_subset, </a>
-<a class="sourceLine" id="cb67-8" title="8">                              <span class="dt">protein_names =</span> protein_names_interactions,</a>
-<a class="sourceLine" id="cb67-9" title="9">                              <span class="dt">condition =</span> <span class="st">"term"</span>, <span class="dt">group =</span> <span class="st">"donor"</span>)</a>
-<a class="sourceLine" id="cb67-10" title="10"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(glmm_fit)</a></code></pre></div>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb75-1" title="1">df_samples_subset <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">pSTAT_I15 =</span> pSTAT1<span class="op">*</span>pSTAT5)</a>
+<a class="sourceLine" id="cb75-2" title="2">df_samples_subset <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">pSTAT_I35 =</span> pSTAT3<span class="op">*</span>pSTAT5)</a>
+<a class="sourceLine" id="cb75-3" title="3">df_samples_subset <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">pSTAT_I13 =</span> pSTAT1<span class="op">*</span>pSTAT3)</a>
+<a class="sourceLine" id="cb75-4" title="4">df_samples_subset <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">pSTAT_I135 =</span> pSTAT1<span class="op">*</span>pSTAT3<span class="op">*</span>pSTAT5)</a>
+<a class="sourceLine" id="cb75-5" title="5">protein_names_interactions =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(protein_names,<span class="st">"pSTAT_I15"</span>,<span class="st">"pSTAT_I35"</span>,</a>
+<a class="sourceLine" id="cb75-6" title="6">                               <span class="st">"pSTAT_I13"</span>,<span class="st">"pSTAT_I135"</span>)</a>
+<a class="sourceLine" id="cb75-7" title="7">glmm_fit =<span class="st"> </span>CytoGLMM<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/CytoGLMM/topics/cytoglmm">cytoglmm</a></span>(df_samples_subset, </a>
+<a class="sourceLine" id="cb75-8" title="8">                              <span class="dt">protein_names =</span> protein_names_interactions,</a>
+<a class="sourceLine" id="cb75-9" title="9">                              <span class="dt">condition =</span> <span class="st">"term"</span>, <span class="dt">group =</span> <span class="st">"donor"</span>)</a></code></pre></div>
+<pre><code>## 2019-05-10 23:42:17 INFO:mbest.mhglm:Creating design matrix
+## 2019-05-10 23:42:17 INFO:mbest.mhglm:Grouping factor and random effect design matrix
+## 2019-05-10 23:42:17 INFO:mbest.mhglm:Setting weights
+## 2019-05-10 23:42:17 INFO:mbest.mhglm:Setting offset
+## 2019-05-10 23:42:17 INFO:mbest.mhglm:Fitting model
+## 2019-05-10 23:42:17 INFO:mbest.mhglm.fit:Fitting models in parallel
+## 2019-05-10 23:42:19 INFO:mbest.mhglm.fit:Computing mean and covariance estimates
+## 2019-05-10 23:42:19 INFO:mbest.mhglm.fit:Estimating moments
+## 2019-05-10 23:42:19 INFO:mbest.mhglm.fit:Computing mean estimate
+## 2019-05-10 23:42:19 INFO:mbest.mhglm.fit:Computing covariance estimate
+## 2019-05-10 23:42:19 INFO:mbest.mhglm.fit:Refining mean and covariance estimates
+## 2019-05-10 23:42:19 INFO:mbest.mhglm.fit:Estimating moments
+## 2019-05-10 23:42:19 INFO:mbest.mhglm.fit:Computing mean estimate
+## 2019-05-10 23:42:19 INFO:mbest.mhglm.fit:Computing covariance estimate</code></pre>
+<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb77-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(glmm_fit)</a></code></pre></div>
 <p><img src="CytoGLMM_files/figure-html/glmm_fit_interaction-1.png" width="700"></p>
-<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb68-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(glmm_fit) <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(pvalues_adj <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.05</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb78-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(glmm_fit) <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(pvalues_adj <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.05</span>)</a></code></pre></div>
 <pre><code>## # A tibble: 6 x 3
 ##   protein_name pvalues_unadj pvalues_adj
 ##   &lt;chr&gt;                &lt;dbl&gt;       &lt;dbl&gt;
@@ -708,11 +779,11 @@
 <h2 class="hasAnchor">
 <a href="#generalized-linear-model-with-bootstrap" class="anchor"></a>Generalized Linear Model with Bootstrap</h2>
 <p>Instead of modeling the donor effect, we can use bootstrap resampling. In our experience, this type of regression gives also good results when samples are not matched between conditions on the same donor.</p>
-<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb70-1" title="1">glm_fit =<span class="st"> </span>CytoGLMM<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/CytoGLMM/topics/cytoglm">cytoglm</a></span>(df_samples_subset, </a>
-<a class="sourceLine" id="cb70-2" title="2">                            <span class="dt">num_boot =</span> <span class="dv">1000</span>,</a>
-<a class="sourceLine" id="cb70-3" title="3">                            <span class="dt">protein_names =</span> protein_names,</a>
-<a class="sourceLine" id="cb70-4" title="4">                            <span class="dt">condition =</span> <span class="st">"term"</span>, <span class="dt">group =</span> <span class="st">"donor"</span>)</a>
-<a class="sourceLine" id="cb70-5" title="5">glm_fit</a></code></pre></div>
+<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb80-1" title="1">glm_fit =<span class="st"> </span>CytoGLMM<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/CytoGLMM/topics/cytoglm">cytoglm</a></span>(df_samples_subset, </a>
+<a class="sourceLine" id="cb80-2" title="2">                            <span class="dt">num_boot =</span> <span class="dv">1000</span>,</a>
+<a class="sourceLine" id="cb80-3" title="3">                            <span class="dt">protein_names =</span> protein_names,</a>
+<a class="sourceLine" id="cb80-4" title="4">                            <span class="dt">condition =</span> <span class="st">"term"</span>, <span class="dt">group =</span> <span class="st">"donor"</span>)</a>
+<a class="sourceLine" id="cb80-5" title="5">glm_fit</a></code></pre></div>
 <pre><code>## 
 ## #######################
 ## ## paired analysis ####
@@ -744,9 +815,9 @@
 ## 
 ## condition compared: term 
 ## grouping variable: donor</code></pre>
-<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb72-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(glm_fit)</a></code></pre></div>
+<div class="sourceCode" id="cb82"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb82-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(glm_fit)</a></code></pre></div>
 <p><img src="CytoGLMM_files/figure-html/glm_fit-1.png" width="700"></p>
-<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb73-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(glm_fit) <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(pvalues_adj <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.05</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb83-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(glm_fit) <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(pvalues_adj <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.05</span>)</a></code></pre></div>
 <pre><code>## # A tibble: 3 x 3
 ##   protein_name pvalues_unadj pvalues_adj
 ##   &lt;chr&gt;                &lt;dbl&gt;       &lt;dbl&gt;
@@ -758,15 +829,15 @@
 <h2 class="hasAnchor">
 <a href="#mixture-of-regressions" class="anchor"></a>Mixture of Regressions</h2>
 <p>Fit a mixture of regression model to identity clusters of donors or outliers. This function is a wrapper around the package <code>flexmix</code> <span class="citation">(Grün and Leisch 2007)</span>.</p>
-<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb75-1" title="1">num_donors =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nlevels">nlevels</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/factor">as.factor</a></span>(df_samples_subset<span class="op">$</span>donor))</a>
-<a class="sourceLine" id="cb75-2" title="2">mix_fit =<span class="st"> </span>CytoGLMM<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/CytoGLMM/topics/cytoflexmix">cytoflexmix</a></span>(df_samples_subset, </a>
-<a class="sourceLine" id="cb75-3" title="3">                                <span class="dt">protein_names =</span> protein_names,</a>
-<a class="sourceLine" id="cb75-4" title="4">                                <span class="dt">condition =</span> <span class="st">"term"</span>, <span class="dt">group =</span> <span class="st">"donor"</span>, </a>
-<a class="sourceLine" id="cb75-5" title="5">                                <span class="dt">ks =</span> <span class="dv">1</span><span class="op">:</span>num_donors)</a>
-<a class="sourceLine" id="cb75-6" title="6"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(mix_fit)</a></code></pre></div>
+<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb85-1" title="1">num_donors =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nlevels">nlevels</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/factor">as.factor</a></span>(df_samples_subset<span class="op">$</span>donor))</a>
+<a class="sourceLine" id="cb85-2" title="2">mix_fit =<span class="st"> </span>CytoGLMM<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/CytoGLMM/topics/cytoflexmix">cytoflexmix</a></span>(df_samples_subset, </a>
+<a class="sourceLine" id="cb85-3" title="3">                                <span class="dt">protein_names =</span> protein_names,</a>
+<a class="sourceLine" id="cb85-4" title="4">                                <span class="dt">condition =</span> <span class="st">"term"</span>, <span class="dt">group =</span> <span class="st">"donor"</span>, </a>
+<a class="sourceLine" id="cb85-5" title="5">                                <span class="dt">ks =</span> <span class="dv">1</span><span class="op">:</span>num_donors)</a>
+<a class="sourceLine" id="cb85-6" title="6"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(mix_fit)</a></code></pre></div>
 <p><img src="CytoGLMM_files/figure-html/mix_fit-1.png" width="700"></p>
 <p>The plotting function automatically uses the BIC criterion to select the number of clusters. In this case, it picks 10 clusters.</p>
-<div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb76-1" title="1"><span class="kw"><a href="../reference/plot_model_selection.html">plot_model_selection</a></span>(mix_fit)</a></code></pre></div>
+<div class="sourceCode" id="cb86"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb86-1" title="1"><span class="kw"><a href="../reference/plot_model_selection.html">plot_model_selection</a></span>(mix_fit)</a></code></pre></div>
 <p><img src="CytoGLMM_files/figure-html/bic_model_selection-1.png" width="700"></p>
 </div>
 </div>
@@ -774,27 +845,27 @@
 <h1 class="hasAnchor">
 <a href="#summarizedexperiment" class="anchor"></a>SummarizedExperiment</h1>
 <p>We create a <code>SummarizedExperiment</code> object containing marker, sample table, and untransformed protein counts. This way we can store all the information of this experiment in one file and load it again in subsequent analyses.</p>
-<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb77-1" title="1">markers <span class="op">%&lt;&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(type <span class="op">!=</span><span class="st"> "none"</span>)</a>
-<a class="sourceLine" id="cb77-2" title="2">d_combined =<span class="st"> </span>df_samples <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb77-3" title="3"><span class="st">  </span><span class="kw">select</span>(markers<span class="op">$</span>protein_name) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb77-4" title="4"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">mutate_all</a></span>(<span class="dt">.funs =</span> inv_func) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb77-5" title="5"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">mutate_all</a></span>(<span class="dt">.funs =</span> round) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb77-6" title="6"><span class="st">  </span>as.matrix</a>
-<a class="sourceLine" id="cb77-7" title="7">row_data =<span class="st"> </span>df_samples <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb77-8" title="8"><span class="st">  </span><span class="kw">select</span>(sample_info_names) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb77-9" title="9"><span class="st">  </span>as.data.frame</a>
-<a class="sourceLine" id="cb77-10" title="10">col_data =<span class="st"> </span>markers <span class="op">%&gt;%</span><span class="st"> </span>as.data.frame</a>
-<a class="sourceLine" id="cb77-11" title="11">se_aghaeepour2017immune =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/RangedSummarizedExperiment-class">SummarizedExperiment</a></span>(</a>
-<a class="sourceLine" id="cb77-12" title="12">  <span class="dt">assays =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">exprs =</span> d_combined),</a>
-<a class="sourceLine" id="cb77-13" title="13">  <span class="dt">colData =</span> col_data,</a>
-<a class="sourceLine" id="cb77-14" title="14">  <span class="dt">rowData =</span> row_data</a>
-<a class="sourceLine" id="cb77-15" title="15">)</a>
-<a class="sourceLine" id="cb77-16" title="16"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/save">save</a></span>(se_aghaeepour2017immune, <span class="dt">file =</span> <span class="st">"se_aghaeepour2017immune.Rdata"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb87"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb87-1" title="1">markers <span class="op">%&lt;&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(type <span class="op">!=</span><span class="st"> "none"</span>)</a>
+<a class="sourceLine" id="cb87-2" title="2">d_combined =<span class="st"> </span>df_samples <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb87-3" title="3"><span class="st">  </span><span class="kw">select</span>(markers<span class="op">$</span>protein_name) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb87-4" title="4"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate_all.html">mutate_all</a></span>(<span class="dt">.funs =</span> inv_func) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb87-5" title="5"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate_all.html">mutate_all</a></span>(<span class="dt">.funs =</span> round) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb87-6" title="6"><span class="st">  </span>as.matrix</a>
+<a class="sourceLine" id="cb87-7" title="7">row_data =<span class="st"> </span>df_samples <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb87-8" title="8"><span class="st">  </span><span class="kw">select</span>(sample_info_names) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb87-9" title="9"><span class="st">  </span>as.data.frame</a>
+<a class="sourceLine" id="cb87-10" title="10">col_data =<span class="st"> </span>markers <span class="op">%&gt;%</span><span class="st"> </span>as.data.frame</a>
+<a class="sourceLine" id="cb87-11" title="11">se_aghaeepour2017immune =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/SummarizedExperiment/topics/RangedSummarizedExperiment-class">SummarizedExperiment</a></span>(</a>
+<a class="sourceLine" id="cb87-12" title="12">  <span class="dt">assays =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">exprs =</span> d_combined),</a>
+<a class="sourceLine" id="cb87-13" title="13">  <span class="dt">colData =</span> col_data,</a>
+<a class="sourceLine" id="cb87-14" title="14">  <span class="dt">rowData =</span> row_data</a>
+<a class="sourceLine" id="cb87-15" title="15">)</a>
+<a class="sourceLine" id="cb87-16" title="16"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/save">save</a></span>(se_aghaeepour2017immune, <span class="dt">file =</span> <span class="st">"se_aghaeepour2017immune.Rdata"</span>)</a></code></pre></div>
 </div>
 <div id="session-info" class="section level1 unnumbered">
 <h1 class="hasAnchor">
 <a href="#session-info" class="anchor"></a>Session Info</h1>
-<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb78-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/sessionInfo">sessionInfo</a></span>()</a></code></pre></div>
+<div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb88-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/sessionInfo">sessionInfo</a></span>()</a></code></pre></div>
 <pre><code>## R version 3.5.1 (2018-07-02)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
 ## Running under: macOS  10.14.4
@@ -811,75 +882,70 @@
 ##  [8] datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] bindrcpp_0.2.2              hexbin_1.27.2              
-##  [3] Rgraphviz_2.24.0            graph_1.58.2               
-##  [5] lmerTest_3.1-0              lme4_1.1-18-1              
-##  [7] Matrix_1.2-14               SummarizedExperiment_1.10.1
-##  [9] DelayedArray_0.6.6          BiocParallel_1.14.2        
-## [11] matrixStats_0.54.0          Biobase_2.40.0             
-## [13] GenomicRanges_1.32.7        GenomeInfoDb_1.16.0        
-## [15] IRanges_2.14.12             S4Vectors_0.18.3           
-## [17] BiocGenerics_0.26.0         ggcorrplot_0.1.2           
-## [19] RColorBrewer_1.1-2          scales_1.0.0               
-## [21] ggcyto_1.11.4               openCyto_1.18.0            
-## [23] flowWorkspace_3.28.2        ncdfFlow_2.26.0            
-## [25] BH_1.66.0-1                 RcppArmadillo_0.9.200.7.0  
-## [27] flowCore_1.46.2             FlowRepositoryR_1.12.0     
-## [29] magrittr_1.5                forcats_0.3.0              
-## [31] stringr_1.3.1               dplyr_0.7.7                
-## [33] purrr_0.2.5                 readr_1.1.1                
-## [35] tidyr_0.8.2                 tibble_1.4.2               
-## [37] ggplot2_3.1.0               tidyverse_1.2.1            
-## [39] CytoGLMM_0.1.0              Rcpp_0.12.19               
-## [41] BiocStyle_2.8.2            
+##  [1] hexbin_1.27.2               Rgraphviz_2.26.0           
+##  [3] graph_1.60.0                lmerTest_3.1-0             
+##  [5] lme4_1.1-21                 Matrix_1.2-17              
+##  [7] SummarizedExperiment_1.12.0 DelayedArray_0.8.0         
+##  [9] BiocParallel_1.16.6         matrixStats_0.54.0         
+## [11] Biobase_2.42.0              GenomicRanges_1.34.0       
+## [13] GenomeInfoDb_1.18.2         IRanges_2.16.0             
+## [15] S4Vectors_0.20.1            BiocGenerics_0.28.0        
+## [17] ggcorrplot_0.1.2            RColorBrewer_1.1-2         
+## [19] scales_1.0.0                ggcyto_1.11.4              
+## [21] openCyto_1.20.2             flowWorkspace_3.30.2       
+## [23] ncdfFlow_2.28.1             BH_1.69.0-1                
+## [25] RcppArmadillo_0.9.400.2.0   flowCore_1.48.1            
+## [27] FlowRepositoryR_1.14.1      magrittr_1.5               
+## [29] forcats_0.4.0               stringr_1.4.0              
+## [31] dplyr_0.8.0.1               purrr_0.3.2                
+## [33] readr_1.3.1                 tidyr_0.8.3                
+## [35] tibble_2.1.1                ggplot2_3.1.1              
+## [37] tidyverse_1.2.1             CytoGLMM_0.1.0             
+## [39] Rcpp_1.0.1                  BiocStyle_2.10.0           
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] utf8_1.1.4             R.utils_2.8.0          ks_1.11.4             
-##   [4] tidyselect_0.2.5       munsell_0.5.0          codetools_0.2-15      
-##   [7] withr_2.1.2            colorspace_1.3-2       flowViz_1.44.0        
-##  [10] knitr_1.20             rstudioapi_0.8         geometry_0.3-6        
-##  [13] flowClust_3.18.0       robustbase_0.93-3      dimRed_0.1.0          
-##  [16] labeling_0.3           GenomeInfoDbData_1.1.0 mnormt_1.5-5          
-##  [19] MCMCpack_1.4-4         pheatmap_1.0.10        rprojroot_1.3-2       
-##  [22] coda_0.19-2            ipred_0.9-8            xfun_0.4              
-##  [25] R6_2.3.0               doParallel_1.0.14      clue_0.3-57           
-##  [28] flexmix_2.3-14         DRR_0.0.3              bitops_1.0-6          
-##  [31] assertthat_0.2.0       nnet_7.3-12            gtable_0.2.0          
-##  [34] ddalpha_1.3.4          mcmc_0.9-5             sandwich_2.5-0        
-##  [37] timeDate_3043.102      rlang_0.3.0.1          MatrixModels_0.4-1    
-##  [40] CVST_0.2-2             mbest_0.6              RcppRoll_0.3.0        
-##  [43] splines_3.5.1          lazyeval_0.2.1         ModelMetrics_1.2.2    
-##  [46] broom_0.5.0            yaml_2.2.0             reshape2_1.4.3        
-##  [49] abind_1.4-5            modelr_0.1.2           backports_1.1.2       
-##  [52] IDPmisc_1.1.19         RBGL_1.56.0            caret_6.0-80          
-##  [55] tools_3.5.1            lava_1.6.3             bookdown_0.7          
-##  [58] logging_0.7-103        plyr_1.8.4             zlibbioc_1.26.0       
-##  [61] RCurl_1.95-4.11        ggpubr_0.1.8           rpart_4.1-13          
-##  [64] cowplot_0.9.3          zoo_1.8-4              sfsmisc_1.1-2         
-##  [67] haven_1.1.2            ggrepel_0.8.0          cluster_2.0.7-1       
-##  [70] fs_1.2.6               factoextra_1.0.5       fda_2.4.8             
-##  [73] data.table_1.11.8      SparseM_1.77           mvtnorm_1.0-8         
-##  [76] hms_0.4.2              evaluate_0.12          XML_3.98-1.17         
-##  [79] mclust_5.4.1           readxl_1.1.0           gridExtra_2.3         
-##  [82] compiler_3.5.1         flowStats_3.38.0       KernSmooth_2.23-15    
-##  [85] crayon_1.3.4           minqa_1.2.4            R.oo_1.22.0           
-##  [88] htmltools_0.3.6        corpcor_1.6.9          pcaPP_1.9-73          
-##  [91] rrcov_1.4-7            speedglm_0.3-2         lubridate_1.7.4       
-##  [94] magic_1.5-9            MASS_7.3-51            cli_1.0.1             
-##  [97] R.methodsS3_1.7.1      bindr_0.1.1            gower_0.1.2           
-## [100] pkgconfig_2.0.2        bigmemory.sri_0.1.3    pkgdown_1.3.0         
-## [103] numDeriv_2016.8-1      recipes_0.1.3          xml2_1.2.0            
-## [106] roxygen2_6.1.1         foreach_1.4.4          XVector_0.20.0        
-## [109] prodlim_2018.04.18     rvest_0.3.2            digest_0.6.18         
-## [112] pls_2.7-0              strucchange_1.5-1      rmarkdown_1.10        
-## [115] cellranger_1.1.0       kernlab_0.9-27         gtools_3.8.1          
-## [118] commonmark_1.7         quantreg_5.36          modeltools_0.2-22     
-## [121] nloptr_1.2.1           nlme_3.1-137           jsonlite_1.5          
-## [124] fansi_0.4.0            bigmemory_4.5.33       desc_1.2.0            
-## [127] pillar_1.3.0           lattice_0.20-35        httr_1.3.1            
-## [130] DEoptimR_1.0-8         survival_2.43-1        glue_1.3.0            
-## [133] iterators_1.0.10       class_7.3-14           stringi_1.2.4         
-## [136] latticeExtra_0.6-28    memoise_1.1.0</code></pre>
+##   [1] readxl_1.3.1           backports_1.1.4        plyr_1.8.4            
+##   [4] lazyeval_0.2.2         splines_3.5.1          fda_2.4.8             
+##   [7] digest_0.6.18          foreach_1.4.4          htmltools_0.3.6       
+##  [10] fansi_0.4.0            memoise_1.1.0          cluster_2.0.9         
+##  [13] doParallel_1.0.14      ks_1.11.4              recipes_0.1.5         
+##  [16] modelr_0.1.4           gower_0.2.0            R.utils_2.8.0         
+##  [19] sandwich_2.5-1         pkgdown_1.3.0          strucchange_1.5-1     
+##  [22] colorspace_1.4-1       rvest_0.3.3            rrcov_1.4-7           
+##  [25] ggrepel_0.8.1          haven_2.1.0            xfun_0.6              
+##  [28] crayon_1.3.4           RCurl_1.95-4.12        jsonlite_1.6          
+##  [31] bigmemory.sri_0.1.3    roxygen2_6.1.1         survival_2.44-1.1     
+##  [34] zoo_1.8-5              iterators_1.0.10       glue_1.3.1            
+##  [37] flowClust_3.20.1       gtable_0.3.0           XVector_0.22.0        
+##  [40] ipred_0.9-9            zlibbioc_1.28.0        IDPmisc_1.1.19        
+##  [43] DEoptimR_1.0-8         abind_1.4-5            pheatmap_1.0.12       
+##  [46] mvtnorm_1.0-10         clue_0.3-57            mclust_5.4.3          
+##  [49] lava_1.6.5             prodlim_2018.04.18     httr_1.4.0            
+##  [52] mbest_0.6              speedglm_0.3-2         modeltools_0.2-22     
+##  [55] factoextra_1.0.5       R.methodsS3_1.7.1      pkgconfig_2.0.2       
+##  [58] XML_3.98-1.19          flexmix_2.3-15         nnet_7.3-12           
+##  [61] flowViz_1.46.1         utf8_1.1.4             caret_6.0-84          
+##  [64] labeling_0.3           flowStats_3.40.1       tidyselect_0.2.5      
+##  [67] rlang_0.3.4            reshape2_1.4.3         munsell_0.5.0         
+##  [70] cellranger_1.1.0       tools_3.5.1            cli_1.1.0             
+##  [73] generics_0.0.2         broom_0.5.2            evaluate_0.13         
+##  [76] yaml_2.2.0             ModelMetrics_1.2.2     knitr_1.22            
+##  [79] fs_1.3.1               robustbase_0.93-4      RBGL_1.58.2           
+##  [82] nlme_3.1-139           R.oo_1.22.0            xml2_1.2.0            
+##  [85] compiler_3.5.1         rstudioapi_0.10        pcaPP_1.9-73          
+##  [88] stringi_1.4.3          desc_1.2.0             lattice_0.20-38       
+##  [91] commonmark_1.7         nloptr_1.2.1           pillar_1.3.1          
+##  [94] BiocManager_1.30.4     data.table_1.12.2      cowplot_0.9.4         
+##  [97] bitops_1.0-6           corpcor_1.6.9          bigmemory_4.5.33      
+## [100] R6_2.4.0               latticeExtra_0.6-28    bookdown_0.9          
+## [103] KernSmooth_2.23-15     gridExtra_2.3          codetools_0.2-16      
+## [106] gtools_3.8.1           boot_1.3-22            MASS_7.3-51.4         
+## [109] assertthat_0.2.1       rprojroot_1.3-2        withr_2.1.2           
+## [112] mnormt_1.5-5           GenomeInfoDbData_1.2.0 hms_0.4.2             
+## [115] rpart_4.1-15           timeDate_3043.102      class_7.3-15          
+## [118] minqa_1.2.4            rmarkdown_1.12         logging_0.9-107       
+## [121] ggpubr_0.2             numDeriv_2016.8-1      lubridate_1.7.4       
+## [124] ellipse_0.4.1</code></pre>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="hasAnchor">
@@ -921,6 +987,7 @@
 <li><a href="#mds">MDS</a></li>
       <li><a href="#heatmap">Heatmap</a></li>
       <li><a href="#pca">PCA</a></li>
+      <li><a href="#lda">LDA</a></li>
       <li><a href="#density-plots">Density Plots</a></li>
       <li><a href="#two-dimensional-histograms">Two-Dimensional Histograms</a></li>
       <li><a href="#marker-correlations">Marker Correlations</a></li>

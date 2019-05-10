@@ -4,7 +4,7 @@
 \alias{summary.cytoglm}
 \title{Extact and calculate p-values of bootstrap GLM fit}
 \usage{
-summary.cytoglm(fit)
+\method{summary}{cytoglm}(fit)
 }
 \description{
 Extact and calculate p-values of bootstrap GLM fit

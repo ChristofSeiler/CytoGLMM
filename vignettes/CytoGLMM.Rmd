@@ -71,6 +71,7 @@ Reanalysis of mass cytometry data from @aghaeepour2017immune. We use the package
 ```{r download_data, eval=FALSE}
 repo = flowRep.get("FR-FCM-ZY3Q")
 data = download(repo, only.files = ".*_2_IFNa.*fcs")
+data = download(repo, only.files = ".*_1_IFNa.*fcs")
 data = download(repo, only.files = ".*_BL_IFNa.*fcs")
 ```
 
@@ -82,6 +83,7 @@ The previous commands downloaded `fcs` files to the `FR-FCM-ZY3Q` folder. Now, w
 fcs_files = list.files(path = "FR-FCM-ZY3Q/", pattern = "fcs")
 map_time = function(x) {
   if (str_detect(x, "_2_")) "3rd trimester"
+  else if (str_detect(x, "_1_")) "2st trimester"
   else if (str_detect(x, "_BL_")) "1st trimester"
   else NA
 }
@@ -324,6 +326,17 @@ CytoGLMM::plot_prcomp(df_samples_subset,
                       repel = TRUE)
 ```
 
+## LDA
+
+LDA plot of NK cells.
+
+```{r plot_lda_nk, fig.wide = TRUE}
+CytoGLMM::plot_lda(df_samples_subset, 
+                   protein_names, 
+                   group = "term", 
+                   cor_scaling_factor = 2.5)
+```
+
 ## Density Plots
 
 Density plots of one marker for all donors.
@@ -446,15 +459,20 @@ df_fits %>%
 
 # Regression Analysis on All The Data
 
-For the regression analysis, we will focus only on NK cells. We can repeat the same analysis for each cell type of interest.
+For the regression analysis, we will focus only on NK cells, and compare the first and third trimester. We can repeat the same analysis for each cell type of interest, and trimester combination.
+
+```{r subset_3rd_vs_1st}
+df_samples_subset %<>% dplyr::filter(term != "2st trimester")
+df_samples_subset$term %<>% droplevels
+df_samples_subset$term %<>% factor(levels = c("1st trimester",
+                                              "3rd trimester"))
+```
 
 ## Generalized Linear Mixed Model
 
 Fit a Generalized Linear Mixed Model (GLMM) with donor random effects. This function is a wrapper around the package `mbest` [@perry2017fast].
 
 ```{r glmm_fit}
-df_samples_subset$term %<>% factor(levels = c("1st trimester",
-                                              "3rd trimester"))
 glmm_fit = CytoGLMM::cytoglmm(df_samples_subset, 
                               protein_names = protein_names,
                               condition = "term", group = "donor")

@@ -1,5 +1,8 @@
 #' Plot bootstraped coefficients
 #'
+#' @aliases plot.cytoglm
+#' @method plot cytoglm
+#'
 #' @import ggplot2
 #' @import tibble
 #' @import magrittr

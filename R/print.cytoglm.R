@@ -1,5 +1,8 @@
 #' Extact and print bootstrap GLM fit
 #'
+#' @aliases print.cytoglm
+#' @method print cytoglm
+#'
 #' @export
 #'
 print.cytoglm = function(fit) {

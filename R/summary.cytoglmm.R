@@ -1,5 +1,8 @@
 #' Extact and calculate p-values of GLMM fit
 #'
+#' @aliases summary.cytoglmm
+#' @method summary cytoglmm
+#'
 #' @import tibble
 #' @import magrittr
 #' @import dplyr

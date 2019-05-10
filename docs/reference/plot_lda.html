@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot fixded coefficients of group-specific fixed effects model — plot.cytogroup • CytoGLMM</title>
+<title>LDA on marker expression. — plot_lda • CytoGLMM</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Plot fixded coefficients of group-specific fixed effects model — plot.cytogroup" />
+<meta property="og:title" content="LDA on marker expression. — plot_lda" />
 
-<meta property="og:description" content="Plot fixded coefficients of group-specific fixed effects model" />
+<meta property="og:description" content="LDA on marker expression." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -102,19 +102,18 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot fixded coefficients of group-specific fixed effects model</h1>
-    <small class="dont-index">Source: <a href='https://github.com/ChristofSeiler/CytoGLMM/blob/master/R/plot.cytogroup.R'><code>R/plot.cytogroup.R</code></a></small>
-    <div class="hidden name"><code>plot.cytogroup.Rd</code></div>
+    <h1>LDA on marker expression.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/ChristofSeiler/CytoGLMM/blob/master/R/plot_lda.R'><code>R/plot_lda.R</code></a></small>
+    <div class="hidden name"><code>plot_lda.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Plot fixded coefficients of group-specific fixed effects model</p>
+    <p>LDA on marker expression.</p>
     
     </div>
 
-    <pre class="usage"><span class='co'># S3 method for cytogroup</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/graphics/topics/plot'>plot</a></span>(<span class='no'>fit</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>separate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>plot_lda</span>(<span class='no'>df_samples</span>, <span class='no'>protein_names</span>, <span class='no'>group</span>, <span class='kw'>cor_scaling_factor</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
         
 
   </div>

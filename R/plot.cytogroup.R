@@ -1,5 +1,8 @@
 #' Plot fixded coefficients of group-specific fixed effects model
 #'
+#' @aliases plot.cytogroup
+#' @method plot cytogroup
+#'
 #' @import ggplot2
 #' @import tibble
 #' @import magrittr
