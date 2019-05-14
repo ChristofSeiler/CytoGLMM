@@ -31,7 +31,9 @@ Imports:
     speedglm,
     stringr,
     strucchange,
-    tibble
+    tibble,
+    ggrepel,
+    MASS
 Depends:
     Rcpp
 Suggests:

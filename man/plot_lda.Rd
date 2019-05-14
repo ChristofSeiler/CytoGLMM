@@ -4,7 +4,9 @@
 \alias{plot_lda}
 \title{LDA on marker expression.}
 \usage{
-plot_lda(df_samples, protein_names, group, cor_scaling_factor = 1)
+plot_lda(df_samples, protein_names, group, cor_scaling_factor = 1,
+  arrow_color = "black", arrow_size = 0.5, marker_color = "black",
+  marker_size = 5)
 }
 \description{
 LDA on marker expression.

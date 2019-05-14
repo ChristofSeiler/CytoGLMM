@@ -5,12 +5,17 @@
 #' @import magrittr
 #' @import tibble
 #' @import MASS
+#' @import ggrepel
 #' @export
 #'
 plot_lda = function(df_samples,
                     protein_names,
                     group,
-                    cor_scaling_factor = 1) {
+                    cor_scaling_factor = 1,
+                    arrow_color = "black",
+                    arrow_size = 0.5,
+                    marker_color = "black",
+                    marker_size = 5) {
 
   formula_str = paste(group, "~", paste(protein_names, collapse = " + "))
   expr_lda = lda(as.formula(formula_str), data = df_samples)
@@ -35,14 +40,20 @@ plot_lda = function(df_samples,
   # add arrows coordinates
   expr_cor %<>% add_column(x0 = rep(0,nrow(expr_cor)))
   expr_cor %<>% add_column(y0 = rep(0,nrow(expr_cor)))
-  # add to LDA plot
-  gglda +
+  # add correlation arrows
+  gglda = gglda +
     annotate("segment",
              x = expr_cor$x0, xend = expr_cor$LD1,
              y = expr_cor$y0, yend = expr_cor$LD2,
-             colour = "black", alpha = 0.5) +
-    annotate("text",
-             x = expr_cor$LD1, y = expr_cor$LD2,
-             label = expr_cor$protein_names)
+             colour = arrow_color,
+             #size = arrow_size,
+             alpha = 1.0,
+             arrow = arrow(type = "open", length = unit(0.03, "npc")))
+  ## marker names labels
+  gglda + geom_text_repel(data = expr_cor,
+                          aes(x = LD1, y = LD2,
+                              label = protein_names),
+                          size = marker_size,
+                          color = marker_color)
 
 }

@@ -334,7 +334,10 @@ LDA plot of NK cells.
 CytoGLMM::plot_lda(df_samples_subset, 
                    protein_names, 
                    group = "term", 
-                   cor_scaling_factor = 2.5)
+                   cor_scaling_factor = 2.5,
+                   arrow_color = "black", 
+                   marker_color = "black", 
+                   marker_size = 4)
 ```
 
 ## Density Plots
