@@ -13,7 +13,6 @@ plot_lda = function(df_samples,
                     group,
                     cor_scaling_factor = 1,
                     arrow_color = "black",
-                    arrow_size = 0.5,
                     marker_color = "black",
                     marker_size = 5) {
 
@@ -46,7 +45,6 @@ plot_lda = function(df_samples,
              x = expr_cor$x0, xend = expr_cor$LD1,
              y = expr_cor$y0, yend = expr_cor$LD2,
              colour = arrow_color,
-             #size = arrow_size,
              alpha = 1.0,
              arrow = arrow(type = "open", length = unit(0.03, "npc")))
   ## marker names labels
