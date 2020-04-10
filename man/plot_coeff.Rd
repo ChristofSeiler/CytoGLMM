@@ -4,8 +4,15 @@
 \alias{plot_coeff}
 \title{Helper function to plot regression coeffcient}
 \usage{
-plot_coeff(tb, title_str, title_str_right, xlab_str, redline = 0,
-  order = FALSE, separate = FALSE)
+plot_coeff(
+  tb,
+  title_str,
+  title_str_right,
+  xlab_str,
+  redline = 0,
+  order = FALSE,
+  separate = FALSE
+)
 }
 \description{
 Helper function to plot regression coeffcient

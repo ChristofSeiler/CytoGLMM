@@ -4,9 +4,17 @@
 \alias{cytoflexmix}
 \title{Logistic mixture regression}
 \usage{
-cytoflexmix(df_samples_subset, protein_names, condition, group = "donor",
-  cell_n_min = Inf, cell_n_subsample = 0, ks = 1:10, seed = 56026,
-  num_cores = 4)
+cytoflexmix(
+  df_samples_subset,
+  protein_names,
+  condition,
+  group = "donor",
+  cell_n_min = Inf,
+  cell_n_subsample = 0,
+  ks = 1:10,
+  seed = 56026,
+  num_cores = 4
+)
 }
 \description{
 Logistic mixture regression

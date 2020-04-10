@@ -4,8 +4,13 @@
 \alias{plot_markers}
 \title{Plot all markers for one donor.}
 \usage{
-plot_markers(df_samples, donor_id, protein_names,
-  condition = "condition", density = TRUE)
+plot_markers(
+  df_samples,
+  donor_id,
+  protein_names,
+  condition = "condition",
+  density = TRUE
+)
 }
 \description{
 Plot all markers for one donor.

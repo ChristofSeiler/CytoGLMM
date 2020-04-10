@@ -4,9 +4,17 @@
 \alias{cytoglmm}
 \title{Estimate random effects model}
 \usage{
-cytoglmm(df_samples_subset, protein_names, condition, group = "donor",
-  covariate_names = NULL, cell_n_min = Inf, cell_n_subsample = 0,
-  seed = 56026, num_cores = 4)
+cytoglmm(
+  df_samples_subset,
+  protein_names,
+  condition,
+  group = "donor",
+  covariate_names = NULL,
+  cell_n_min = Inf,
+  cell_n_subsample = 0,
+  seed = 56026,
+  num_cores = 4
+)
 }
 \description{
 Estimate random effects model

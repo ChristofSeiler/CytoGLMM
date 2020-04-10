@@ -49,7 +49,7 @@ plot_coeff = function(tb,title_str, title_str_right, xlab_str, redline = 0,
   if(separate) {
     return(list(pall=pall,psummary=psummary))
   } else {
-    plot_grid(pall,psummary)
+    psummary
   }
 
 }

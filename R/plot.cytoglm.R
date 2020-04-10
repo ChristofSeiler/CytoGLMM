@@ -26,7 +26,7 @@ plot.cytoglm = function(fit, order = FALSE, separate = FALSE) {
 
   plot_coeff(tb = fit$tb_coef,
              title_str = "Bootstraps",
-             title_str_right = "Summary",
+             title_str_right = "cytoglm",
              xlab_str = xlab_str,
              order = order,
              separate = separate)

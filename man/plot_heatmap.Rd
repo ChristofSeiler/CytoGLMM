@@ -4,8 +4,15 @@
 \alias{plot_heatmap}
 \title{Heatmap of median marker expression.}
 \usage{
-plot_heatmap(df_samples, sample_info_names, protein_names, arrange_by_1,
-  arrange_by_2 = "", cluster_cols = FALSE, fun = median)
+plot_heatmap(
+  df_samples,
+  sample_info_names,
+  protein_names,
+  arrange_by_1,
+  arrange_by_2 = "",
+  cluster_cols = FALSE,
+  fun = median
+)
 }
 \description{
 Heatmap of median marker expression.

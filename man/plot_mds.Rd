@@ -4,8 +4,13 @@
 \alias{plot_mds}
 \title{MDS on median marker expression.}
 \usage{
-plot_mds(df_samples, protein_names, sample_info_names, color,
-  sample_label = "")
+plot_mds(
+  df_samples,
+  protein_names,
+  sample_info_names,
+  color,
+  sample_label = ""
+)
 }
 \description{
 MDS on median marker expression.

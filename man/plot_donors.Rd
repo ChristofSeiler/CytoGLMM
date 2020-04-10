@@ -4,8 +4,13 @@
 \alias{plot_donors}
 \title{Plot one density plot faceted by donors.}
 \usage{
-plot_donors(df_samples, protein_name, condition = "condition",
-  group = "donor", density = TRUE)
+plot_donors(
+  df_samples,
+  protein_name,
+  condition = "condition",
+  group = "donor",
+  density = TRUE
+)
 }
 \description{
 Plot one density plot faceted by donors.

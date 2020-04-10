@@ -4,8 +4,14 @@
 \alias{glmm_moment}
 \title{Generalized linear mixed model with maximum likelihood.}
 \usage{
-glmm_moment(df_samples, protein_names, response, group = "donor",
-  covariate_names = NULL, cores = detectCores())
+glmm_moment(
+  df_samples,
+  protein_names,
+  response,
+  group = "donor",
+  covariate_names = NULL,
+  cores = detectCores()
+)
 }
 \description{
 Generalized linear mixed model with maximum likelihood.

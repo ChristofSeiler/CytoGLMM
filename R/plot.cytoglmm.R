@@ -61,14 +61,14 @@ plot.cytoglmm = function(fit, order = FALSE, separate = FALSE) {
     geom_vline(xintercept = 0,color = "red") +
     geom_point(size = 2) +
     geom_errorbarh(aes(xmin = low, xmax = high)) +
-    ggtitle("Fixed Effects") +
+    ggtitle("cytoglmm") +
     xlab(xlab_str) +
     theme(axis.title.y = element_blank())
 
   if(separate) {
     return(list(prandom=prandom,pcoef=pcoef))
   } else {
-    plot_grid(prandom,pcoef)
+    pcoef
   }
 
 }
