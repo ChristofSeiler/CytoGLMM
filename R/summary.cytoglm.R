@@ -8,7 +8,7 @@
 #' @import dplyr
 #' @export
 #'
-summary.cytoglm = function(fit) {
+summary.cytoglm = function(fit, method = "BH") {
 
   if(class(fit) != "cytoglm")
     stop("Input needs to be a cytoglm object computed by cytoglm function.")
@@ -22,7 +22,7 @@ summary.cytoglm = function(fit) {
     true = 2*1/fit$num_boot,
     false = pvalues_unadj))
   df_pvalues %<>% mutate(pvalues_adj = p.adjust(pvalues_unadj,
-                                                method = "BH"))
+                                                method = method))
   df_pvalues = df_pvalues[order(df_pvalues$pvalues_unadj),]
   df_pvalues
 
