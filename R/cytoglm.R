@@ -56,13 +56,14 @@ cytoglm = function(df_samples_subset,
     set.seed(seed)
     # bootstrap sample
     df_boot = df_samples_subset
+    df_boot %<>% group_by(.data[[ group ]], .data[[ condition ]])
+    df_boot %<>% slice_sample(prop = 1, replace = TRUE)
     if(unpaired) {
       df_boot %<>% group_by(.data[[ group ]], .data[[ condition ]])
     } else {
       df_boot %<>% group_by(.data[[ group ]])
     }
     df_boot %<>%
-      slice_sample(prop = 1, replace = TRUE) %>%
       group_split() %>%
       sample(replace = TRUE) %>%
       bind_rows()
