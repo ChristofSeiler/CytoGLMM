@@ -58,9 +58,7 @@ cytoglm = function(df_samples_subset,
     df_boot = df_samples_subset
     df_boot %<>% group_by(.data[[ group ]], .data[[ condition ]])
     df_boot %<>% slice_sample(prop = 1, replace = TRUE)
-    if(unpaired) {
-      df_boot %<>% group_by(.data[[ group ]], .data[[ condition ]])
-    } else {
+    if(!unpaired) {
       df_boot %<>% group_by(.data[[ group ]])
     }
     df_boot %<>%
