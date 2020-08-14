@@ -55,24 +55,17 @@ cytoglm = function(df_samples_subset,
   bs = function(seed) {
     set.seed(seed)
     # bootstrap sample
-    donor_boot = NULL
+    df_boot = df_samples_subset
     if(unpaired) {
-      donor_boot = df_samples_subset %>%
-        group_by_(group,condition) %>%
-        tally() %>%
-        group_by_(condition) %>%
-        sample_frac(replace = TRUE) %>%
-        ungroup
+      df_boot %<>% group_by(.data[[ group ]], .data[[ condition ]])
     } else {
-      donor_boot = df_samples_subset %>%
-        group_by_(group) %>%
-        tally() %>%
-        sample_frac(replace = TRUE)
+      df_boot %<>% group_by(.data[[ group ]])
     }
-    df_boot = inner_join(donor_boot,
-                         df_samples_subset,
-                         by = group,
-                         suffix = c("",".y")) %>% droplevels
+    df_boot %<>%
+      slice_sample(prop = 1, replace = TRUE) %>%
+      group_split() %>%
+      sample(replace = TRUE) %>%
+      bind_rows()
 
     # logistic regression
     fit_glm = glm(formula = formula_str,
