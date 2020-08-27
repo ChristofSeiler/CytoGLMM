@@ -10,7 +10,7 @@ glmm_moment(
   response,
   group = "donor",
   covariate_names = NULL,
-  cores = detectCores()
+  num_cores = detectCores()
 )
 }
 \description{

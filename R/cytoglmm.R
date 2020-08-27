@@ -47,7 +47,8 @@ cytoglmm = function(df_samples_subset,
                         protein_names = protein_names,
                         response = condition,
                         group = group,
-                        covariate_names = covariate_names)
+                        covariate_names = covariate_names,
+                        num_cores = num_cores)
 
   # return cytoglmm object
   fit = NULL
