@@ -131,24 +131,24 @@ gs = transform(gs, translist)
 # apply gating template
 gt_aghaeepour = gatingTemplate("gating_template.csv")
 plot(gt_aghaeepour)
-gating(gt_aghaeepour, gs, mc.cores = ncores, parallel_type = "multicore")
+gt_gating(gt_aghaeepour, gs, mc.cores = ncores, parallel_type = "multicore")
 # rename some subsets
-setNode(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4+CD8a-/CD45RA+", 
-        "CD4+Tnaive") %>% invisible
-setNode(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4+CD8a-/CD45RA-", 
-        "CD4+Tmem") %>% invisible
-setNode(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4-CD8a+/CD45RA+", 
-        "CD8+Tnaive") %>% invisible
-setNode(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4-CD8a+/CD45RA-", 
-        "CD8+Tmem") %>% invisible
-setNode(gs, "CD3-CD19+", "B") %>% invisible
-setNode(gs, "CD3+CD19-", "T") %>% invisible
-setNode(gs, "CD4+CD8a-", "CD4+T") %>% invisible
-setNode(gs, "CD4-CD8a+", "CD8+T") %>% invisible
-setNode(gs, "CD7+", "NK") %>% invisible
-setNode(gs, "CD14+CD16-", "cMC") %>% invisible
-setNode(gs, "CD14-CD16+", "ncMC") %>% invisible
-setNode(gs, "CD14+CD16+", "intMC") %>% invisible
+gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4+CD8a-/CD45RA+", 
+                "CD4+Tnaive") %>% invisible
+gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4+CD8a-/CD45RA-", 
+                "CD4+Tmem") %>% invisible
+gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4-CD8a+/CD45RA+", 
+                "CD8+Tnaive") %>% invisible
+gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4-CD8a+/CD45RA-", 
+                "CD8+Tmem") %>% invisible
+gs_pop_set_name(gs, "CD3-CD19+", "B") %>% invisible
+gs_pop_set_name(gs, "CD3+CD19-", "T") %>% invisible
+gs_pop_set_name(gs, "CD4+CD8a-", "CD4+T") %>% invisible
+gs_pop_set_name(gs, "CD4-CD8a+", "CD8+T") %>% invisible
+gs_pop_set_name(gs, "CD7+", "NK") %>% invisible
+gs_pop_set_name(gs, "CD14+CD16-", "cMC") %>% invisible
+gs_pop_set_name(gs, "CD14-CD16+", "ncMC") %>% invisible
+gs_pop_set_name(gs, "CD14+CD16+", "intMC") %>% invisible
 plot(gs)
 # hide nodes
 nodes_to_hide = c(
@@ -204,12 +204,12 @@ Combine cell types of interest into one data frame. Change marker name from isot
 nodes_exclude = c("root","singlet","leukocyte","mononuclear",
                   "CD3-CD19-","CD7-","CD4-CD8a-",
                   "CD4+T","CD8+T","T")
-nodes_all = getNodes(gs, path = "auto") 
+nodes_all = gs_get_pop_paths(gs, path = "auto") 
 nodes_select = nodes_all[!nodes_all %in% nodes_exclude]
 df_samples = lapply(nodes_select, function(celltype) {
-  fset = getData(gs, celltype)
+  fset = gs_pop_get_data(gs, celltype)
   lapply(seq(fset), function(sample_id) {
-    marker_ids = which(fset@colnames %in% markers$isotope)
+    marker_ids = which(fset@origColnames %in% markers$isotope)
     exprs = as_tibble(exprs(fset[[sample_id]]))[,marker_ids]
     file_name = pData(fset[sample_id])$file_name
     exprs %>% add_column(file_name, celltype)
@@ -218,7 +218,7 @@ df_samples = lapply(nodes_select, function(celltype) {
 df_samples %<>% inner_join(sample_table,by = "file_name")
 oldnames = markers$isotope
 newnames = markers$protein_name
-df_samples %<>% rename_at(vars(oldnames), ~ newnames)
+df_samples %<>% rename_at(vars(all_of(oldnames)), ~ newnames)
 str(df_samples)
 ```
 
