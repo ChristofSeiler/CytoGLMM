@@ -1,0 +1,596 @@
+---
+title: "CytoGLMM Workflow for Pregnancy Dataset"
+author:
+  name: Christof Seiler
+  affiliation: Department of Statistics, Stanford University & Department of Data Science and Knowledge Engineering, Maastricht University
+output:
+  BiocStyle::html_document:
+    toc_float: true
+bibliography: bibliography.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.retina = 2, dpi = 96, fig.width = 7.2916667, fig.asp = 0.6178571)
+```
+
+# Goal
+
+This is a step-by-step guide for a complete analysis of mass cytometry data.
+
+# Prerequisites
+
+Install [R](https://www.r-project.org/) and [RStudio](https://www.rstudio.com/). Open this `Rmd` file in RStudio. Then run the following code to install all required packages.
+
+```{r install_packages, warning=FALSE, message=FALSE, eval=FALSE}
+pkgs_needed = c("devtools","tidyverse","magrittr","FlowRepositoryR",
+                "flowCore","openCyto","scales","parallel",
+                "RColorBrewer","ggcorrplot","SummarizedExperiment",
+                "lme4","lmerTest")
+letsinstall = setdiff(pkgs_needed, installed.packages())
+if (length(letsinstall) > 0) {
+  BiocManager::install(letsinstall)
+}
+# package is still private
+devtools::install_github("ChristofSeiler/CytoGLMM")
+# Bioconductor version breaks when updating to ggplot2 v3.0
+devtools::install_github("RGLab/ggcyto", ref="trunk")
+```
+
+Load packages.
+
+```{r load_packages}
+library("CytoGLMM")
+library("tidyverse")
+library("magrittr")
+library("FlowRepositoryR")
+library("flowCore")
+library("openCyto")
+library("ggcyto")
+library("scales")
+library("parallel")
+library("RColorBrewer")
+library("ggcorrplot")
+library("SummarizedExperiment")
+library("lme4")
+library("lmerTest")
+```
+
+Set plotting style and assign computational resources.
+
+```{r set_parameters}
+theme_set(theme_light())
+ncores = parallel::detectCores()
+```
+
+# Download and Prepare Data
+
+## FCS Files
+
+Reanalysis of mass cytometry data from @aghaeepour2017immune. We use the package `FlowRepositoryR` to download `fcs` files from [FlowRepository](http://flowrepository.org/id/FR-FCM-ZY3Q). We download mass cytometry data measured on whole blood samples collected from 16 women during pregnancy stimulated with IFNa at first and third trimester.
+
+```{r download_data, eval=FALSE}
+repo = flowRep.get("FR-FCM-ZY3Q")
+data = download(repo, only.files = ".*_2_IFNa.*fcs")
+data = download(repo, only.files = ".*_1_IFNa.*fcs")
+data = download(repo, only.files = ".*_BL_IFNa.*fcs")
+```
+
+## Sample Table
+
+The previous commands downloaded `fcs` files to the `FR-FCM-ZY3Q` folder. Now, we prepare the sample table by parsing the `fcs` filenames. For some studies, it might be easier to prepare a `sample_table.csv` textfile and load it using the `readr` package.
+
+```{r read_csv}
+fcs_files = list.files(path = "FR-FCM-ZY3Q/", pattern = "fcs")
+map_time = function(x) {
+  if (str_detect(x, "_2_")) "3rd trimester"
+  else if (str_detect(x, "_1_")) "2st trimester"
+  else if (str_detect(x, "_BL_")) "1st trimester"
+  else NA
+}
+sample_table = tibble(
+  donor = str_extract(fcs_files, "PTLG[0-9]{3}"),
+  term = sapply(fcs_files, map_time) %>% as.factor,
+  file_name = paste0("FR-FCM-ZY3Q/",fcs_files)
+)
+sample_table
+```
+
+## Marker Table
+
+Load marker isotopes and protein names. Make sure that marker names don't have `-` or start with a number. This is important to be compatible with the formula syntax of `R`.
+
+```{r load_markers}
+markers = read_csv("markers.csv")
+markers$protein_name %<>% str_replace_all("-","_")
+markers$protein_name %<>% make.names
+markers
+```
+
+Check if bead normalized. This only works if the bead normalizer added an additional column `beadDist` to the `fcs`.
+
+```{r bead}
+ifelse(sum(colnames(read.FCS(sample_table$file_name[1])) == "beadDist")==1,
+       yes = "bead normalized",
+       no = "not bead normalized")
+```
+
+# Gating
+
+Gate with [openCyto](https://bioconductor.org/packages/release/bioc/html/openCyto.html) according to supplementary material (Fig. S1) from @aghaeepour2017immune.
+
+```{r opencyto, fig.wide=TRUE}
+# load data
+ncfs = read.ncdfFlowSet(sample_table$file_name, mc.cores = ncores)
+gs = GatingSet(ncfs)
+pData(gs) = cbind(pData(gs),sample_table)
+trans_func = function(x) asinh(x/5)
+inv_func = function(x) 5*sinh(x)
+trans_obj = trans_new("asinh_cytof", trans_func, inv_func)
+translist = transformerList(markers$isotope[-1], trans_obj)
+gs = transform(gs, translist)
+# apply gating template
+gt_aghaeepour = gatingTemplate("gating_template.csv")
+plot(gt_aghaeepour)
+gt_gating(gt_aghaeepour, gs, mc.cores = ncores, parallel_type = "multicore")
+# rename some subsets
+gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4+CD8a-/CD45RA+",
+                "CD4+Tnaive") %>% invisible
+gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4+CD8a-/CD45RA-",
+                "CD4+Tmem") %>% invisible
+gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4-CD8a+/CD45RA+",
+                "CD8+Tnaive") %>% invisible
+gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4-CD8a+/CD45RA-",
+                "CD8+Tmem") %>% invisible
+gs_pop_set_name(gs, "CD3-CD19+", "B") %>% invisible
+gs_pop_set_name(gs, "CD3+CD19-", "T") %>% invisible
+gs_pop_set_name(gs, "CD4+CD8a-", "CD4+T") %>% invisible
+gs_pop_set_name(gs, "CD4-CD8a+", "CD8+T") %>% invisible
+gs_pop_set_name(gs, "CD7+", "NK") %>% invisible
+gs_pop_set_name(gs, "CD14+CD16-", "cMC") %>% invisible
+gs_pop_set_name(gs, "CD14-CD16+", "ncMC") %>% invisible
+gs_pop_set_name(gs, "CD14+CD16+", "intMC") %>% invisible
+plot(gs)
+# hide nodes
+nodes_to_hide = c(
+  "granulocyte", "CD19+", "CD3+", "CD3+CD19+",
+  "CD8a+", "CD4+", "CD16+", "CD14+", "CD14-CD16-",
+  "CD4+CD8a+", "CD4+Tnaive/CD25+", "CD4+Tmem/CD25+",
+  "CD4+Tnaive/FoxP3+", "CD4+Tmem/FoxP3+"
+  )
+for(this_node in nodes_to_hide) setNode(gs, this_node, FALSE)
+plot(gs)
+```
+
+Visualize gates with [ggcyto](https://bioconductor.org/packages/release/bioc/html/ggcyto.html).
+
+```{r ggcyto}
+set.seed(0xdada)
+ids = sample(length(gs), size = 6)
+ggcyto(gs[ids], aes(x = CD66, y = CD45), subset = "leukocyte") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate(c("mononuclear","granulocyte"))
+ggcyto(gs[ids], aes(x = CD3, y = CD19), subset = "mononuclear") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate(c("B","T","CD3-CD19-"))
+ggcyto(gs[ids], aes(x = CD14, y = CD7), subset = "CD3-CD19-") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate("NK")
+ggcyto(gs[ids], aes(x = CD14, y = CD16), subset = "CD7-") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate(c("cMC","ncMC","intMC"))
+ggcyto(gs[ids], aes(x = CD4, y = CD8a), subset = "T") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate(c("CD4+T","CD8+T","CD4-CD8a-"))
+ggcyto(gs[ids], aes(x = TCRgd, y = CD3), subset = "CD4-CD8a-") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate("gdT")
+ggcyto(gs[ids], aes(x = CD4, y = CD45RA), subset = "CD4+T") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate(c("CD4+Tnaive","CD4+Tmem"))
+ggcyto(gs[ids], aes(x = FoxP3, y = CD25), subset = "CD4+Tnaive") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate("Tregsnaive")
+ggcyto(gs[ids], aes(x = FoxP3, y = CD25), subset = "CD4+Tmem") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate("Tregsmem")
+ggcyto(gs[ids], aes(x = CD8a, y = CD45RA), subset = "CD8+T") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate(c("CD8+Tnaive","CD8+Tmem"))
+```
+
+Combine cell types of interest into one data frame. Change marker name from isotope name to protein name and remove markers that are unmapped.
+
+```{r convert}
+nodes_exclude = c("root","singlet","leukocyte","mononuclear",
+                  "CD3-CD19-","CD7-","CD4-CD8a-",
+                  "CD4+T","CD8+T","T")
+nodes_all = gs_get_pop_paths(gs, path = "auto")
+nodes_select = nodes_all[!nodes_all %in% nodes_exclude]
+df_samples = lapply(nodes_select, function(celltype) {
+  fset = gs_pop_get_data(gs, celltype)
+  lapply(seq(fset), function(sample_id) {
+    marker_ids = which(fset@origColnames %in% markers$isotope)
+    exprs = as_tibble(exprs(fset[[sample_id]]))[,marker_ids]
+    file_name = pData(fset[sample_id])$file_name
+    exprs %>% add_column(file_name, celltype)
+  }) %>% bind_rows
+}) %>% bind_rows
+df_samples %<>% inner_join(sample_table,by = "file_name")
+oldnames = markers$isotope
+newnames = markers$protein_name
+df_samples %<>% rename_at(vars(all_of(oldnames)), ~ newnames)
+str(df_samples)
+```
+
+List cell counts per donor and trimester.
+
+```{r list_cells_per_donor}
+table(df_samples$donor,df_samples$term)
+```
+
+Plot abundance of each celltype per sample.
+
+```{r cell_abundance}
+df_abundance = df_samples %>%
+  group_by(file_name, donor, term, celltype) %>%
+  tally()
+ggplot(df_abundance, aes(term, n, color = term)) +
+  geom_violin() +
+  geom_jitter(width = 0.2, alpha = 0.5) +
+  facet_wrap(~celltype, nrow = 2) +
+  theme(axis.text.x = element_blank())
+```
+
+Focus on functional proteins.
+
+```{r select_proteins}
+protein_names = markers %>%
+  dplyr::filter(type == "function") %>%
+  .$protein_name
+protein_names
+```
+
+Declare the columns in `df_samples` that are not protein markers. In our example, we have donor ID, time point when the sample was collected, `FCS` filename, and the cell type that we have defined through gating.
+
+```{r}
+sample_info_names = c(names(sample_table),"celltype")
+sample_info_names
+```
+
+# Data Exploration
+
+## MDS
+
+MDS on median marker expression of all cell types following @Nowicka2017cytof.
+
+```{r plot_mds_celltype, fig.wide=TRUE}
+CytoGLMM::plot_mds(df_samples,
+                   protein_names = protein_names,
+                   sample_info_names = sample_info_names,
+                   color = "celltype")
+```
+
+Subset to NK cells to illustrate visualization for one cell type.
+
+```{r subset_nk_cells}
+df_samples_subset = df_samples %>% dplyr::filter(celltype == "NK")
+```
+
+MDS on median marker expression of NK cells.
+
+```{r plot_mds_nk, fig.wide=TRUE}
+CytoGLMM::plot_mds(df_samples_subset,
+                   protein_names = protein_names,
+                   sample_info_names = sample_info_names,
+                   color = "term")
+```
+
+## Heatmap
+
+Heatmap of median marker expression of all cell types following @Nowicka2017cytof.
+
+```{r plot_heatmap_celltype}
+CytoGLMM::plot_heatmap(df_samples,
+                       protein_names = protein_names,
+                       sample_info_names = sample_info_names,
+                       arrange_by_1 = "term",
+                       arrange_by_2 = "celltype")
+```
+
+Heatmap of median marker expression of NK cells.
+
+```{r plot_heatmap_nk}
+CytoGLMM::plot_heatmap(df_samples_subset,
+                       protein_names = protein_names,
+                       sample_info_names = sample_info_names,
+                       arrange_by_1 = "term")
+```
+
+## PCA
+
+PCA plot of all cell types.
+
+```{r plot_prcomp_celltype, fig.wide=TRUE}
+CytoGLMM::plot_prcomp(df_samples,
+                      protein_names = protein_names,
+                      color_var = "celltype",
+                      repel = TRUE)
+```
+
+PCA plot of NK cells.
+
+```{r plot_prcomp_nk, fig.wide = TRUE}
+CytoGLMM::plot_prcomp(df_samples_subset,
+                      protein_names = protein_names,
+                      color_var = "term",
+                      repel = TRUE)
+```
+
+## LDA
+
+LDA plot of NK cells.
+
+```{r plot_lda_nk, fig.wide = TRUE}
+CytoGLMM::plot_lda(df_samples_subset,
+                   protein_names,
+                   group = "term",
+                   cor_scaling_factor = 2.5,
+                   arrow_color = "black",
+                   marker_color = "black",
+                   marker_size = 4)
+```
+
+## Density Plots
+
+Density plots of one marker for all donors.
+
+```{r density_plot, fig.wide=TRUE}
+ggplot(df_samples_subset, aes_string(x = "pCREB", color = "term")) +
+  geom_density() +
+  facet_wrap(~donor)
+```
+
+## Two-Dimensional Histograms
+
+Two-dimensional histograms for plotting two markers for all donors.
+
+```{r hist2_donors}
+colorscale = scale_fill_gradientn(
+  colors = rev(brewer.pal(9, "YlGnBu")),
+  values = c(0, exp(seq(-5, 0, length.out = 100)))
+  )
+ggplot(df_samples_subset, aes_string(x = "pSTAT1", y = "pSTAT3")) +
+  geom_hex(bins = 64) +
+  colorscale +
+  coord_fixed() +
+  facet_wrap(~donor)
+```
+
+Two-dimensional histograms for group comparisons.
+
+```{r hist2_groups}
+ggplot(df_samples_subset, aes_string(x = "pSTAT1", y = "pSTAT3")) +
+  geom_hex(bins = 64) +
+  colorscale +
+  coord_fixed() +
+  facet_wrap(~term)
+```
+
+NK cell count. List the smallest and largest.
+
+```{r cell_count}
+df_samples_subset %>% group_by(term,donor) %>% tally %>% arrange(n)
+df_samples_subset %>% group_by(term,donor) %>% tally %>% arrange(desc(n))
+```
+
+## Marker Correlations
+
+Plot marker correlations.
+
+```{r marker_correlations}
+mcor = cor(df_samples_subset %>% dplyr::select(protein_names))
+ggcorrplot(mcor, hc.order = TRUE, type = "lower",
+           outline.col = "lightgray",
+           colors = c("#6D9EC1", "white", "#E46726"))
+```
+
+# Regression Analysis on Summarized Data
+
+Classical differential analysis approach comparing median marker expressions [@Nowicka2017cytof].
+
+## Plot Median Marker Expression
+
+Plot all celltypes.
+
+```{r median_expression_plot}
+df_median = df_samples %>%
+      group_by(file_name, donor, term, celltype) %>%
+      summarise_at(protein_names, median)
+df_median_long = gather(df_median, protein_name, median_expr,
+                        -file_name, -donor, -term, -celltype)
+ggplot(df_median_long, aes(protein_name, median_expr, color = term)) +
+  geom_violin() +
+  facet_wrap(~celltype) +
+  theme(axis.text.x  = element_text(angle = 90, vjust=0))
+```
+
+Zoom in on NK cells.
+
+```{r median_expression_plot_nk}
+df_median_long %<>% dplyr::filter(celltype == "NK")
+ggplot(df_median_long, aes(term, median_expr, color = term)) +
+  geom_violin() +
+  geom_jitter(width = 0.2, alpha = 0.5) +
+  facet_wrap(~ protein_name, nrow = 2) +
+  theme(axis.text.x = element_blank()) +
+  ggtitle("NK")
+```
+
+Zoom in on marker pSTAT1.
+
+```{r median_expression_plot_pstat1}
+ggplot(df_median, aes(term, pSTAT1, color = term)) +
+  geom_violin() +
+  geom_jitter(width = 0.2, alpha = 0.5) +
+  facet_wrap(~celltype, nrow = 2) +
+  theme(axis.text.x = element_blank())
+```
+
+## Linear Mixed Model
+
+Mixed model with median expression as response variable, experimental condition as explanatory variable, and donor as random effect. Fit separate models for each protein and celltype combination.
+
+```{r median_expression_fit_separate}
+calc_pvalue = function(fit) {
+  summ = summary(fit)
+  coefficients(summ)["term3rd trimester", "Pr(>|t|)"]
+}
+df_median_long = gather(df_median, protein_name, median_expr,
+                        -file_name, -donor, -term, -celltype)
+df_fits = df_median_long %>%
+  group_by(protein_name, celltype) %>%
+  nest() %>%
+  mutate(fit = map(data, ~ lmer(median_expr ~ term + (1|donor), .))) %>%
+  mutate(pvalue_unadj = map_dbl(fit, ~ calc_pvalue(.))) %>%
+  mutate(pvalue_adj = p.adjust(pvalue_unadj, method = "BH")) %>%
+  dplyr::select(protein_name, celltype, pvalue_adj)
+df_fits %>%
+  dplyr::filter(pvalue_adj < 0.05) %>%
+  dplyr::arrange(celltype) %>%
+  print(n = Inf)
+```
+
+# Regression Analysis on All The Data
+
+For the regression analysis, we will focus only on NK cells, and compare the first and third trimester. We can repeat the same analysis for each cell type of interest, and trimester combination.
+
+```{r subset_3rd_vs_1st}
+df_samples_subset %<>% dplyr::filter(term != "2st trimester")
+df_samples_subset$term %<>% droplevels
+df_samples_subset$term %<>% factor(levels = c("1st trimester",
+                                              "3rd trimester"))
+```
+
+## Generalized Linear Mixed Model
+
+Fit a Generalized Linear Mixed Model (GLMM) with donor random effects. This function is a wrapper around the package `mbest` [@perry2017fast].
+
+```{r glmm_fit}
+glmm_fit = CytoGLMM::cytoglmm(df_samples_subset,
+                              protein_names = protein_names,
+                              condition = "term", group = "donor")
+glmm_fit
+plot(glmm_fit)
+summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
+```
+
+Add pSTAT1, pSTAT3, and pSTAT5 into one marker.
+
+```{r glmm_fit_combine}
+df_samples_subset %<>% mutate(pSTAT_sum = pSTAT1+pSTAT3+pSTAT5)
+protein_names_sum = c(
+  "pSTAT_sum",
+  protein_names[!protein_names %in% c("pSTAT1","pSTAT3","pSTAT5")]
+)
+glmm_fit = CytoGLMM::cytoglmm(df_samples_subset,
+                              protein_names = protein_names_sum,
+                              condition = "term", group = "donor")
+plot(glmm_fit)
+summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
+```
+
+Take differences between pSTAT1, pSTAT3, and pSTAT5.
+
+```{r glmm_fit_differences}
+df_samples_subset %<>% mutate(pSTAT3_minus_pSTAT1 = pSTAT3-pSTAT1)
+df_samples_subset %<>% mutate(pSTAT5_minus_pSTAT1 = pSTAT5-pSTAT1)
+protein_names_diff = c(
+  "pSTAT3_minus_pSTAT1","pSTAT5_minus_pSTAT1",
+  protein_names[!protein_names %in% c("pSTAT3","pSTAT5")]
+)
+glmm_fit = CytoGLMM::cytoglmm(df_samples_subset,
+                              protein_names = protein_names_diff,
+                              condition = "term", group = "donor")
+plot(glmm_fit)
+summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
+```
+
+Add interactions between pSTAT1, pSTAT3, and pSTAT5.
+
+```{r glmm_fit_interaction}
+df_samples_subset %<>% mutate(pSTAT_I15 = pSTAT1*pSTAT5)
+df_samples_subset %<>% mutate(pSTAT_I35 = pSTAT3*pSTAT5)
+df_samples_subset %<>% mutate(pSTAT_I13 = pSTAT1*pSTAT3)
+df_samples_subset %<>% mutate(pSTAT_I135 = pSTAT1*pSTAT3*pSTAT5)
+protein_names_interactions = c(protein_names,"pSTAT_I15","pSTAT_I35",
+                               "pSTAT_I13","pSTAT_I135")
+glmm_fit = CytoGLMM::cytoglmm(df_samples_subset,
+                              protein_names = protein_names_interactions,
+                              condition = "term", group = "donor")
+plot(glmm_fit)
+summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
+```
+
+## Generalized Linear Model with Bootstrap
+
+Instead of modeling the donor effect, we can use bootstrap resampling. In our experience, this type of regression gives also good results when samples are not matched between conditions on the same donor.
+
+```{r glm_fit}
+glm_fit = CytoGLMM::cytoglm(df_samples_subset,
+                            num_boot = 1000,
+                            protein_names = protein_names,
+                            condition = "term", group = "donor")
+glm_fit
+plot(glm_fit)
+summary(glm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
+```
+
+## Mixture of Regressions
+
+Fit a mixture of regression model to identity clusters of donors or outliers. This function is a wrapper around the package `flexmix` [@grun2007fitting].
+
+```{r mix_fit}
+num_donors = nlevels(as.factor(df_samples_subset$donor))
+mix_fit = CytoGLMM::cytoflexmix(df_samples_subset,
+                                protein_names = protein_names,
+                                condition = "term", group = "donor",
+                                ks = 1:num_donors)
+plot(mix_fit)
+```
+
+The plotting function automatically uses the BIC criterion to select the number of clusters. In this case, it picks 10 clusters.
+
+```{r bic_model_selection, fig.small=TRUE}
+plot_model_selection(mix_fit)
+```
+
+# SummarizedExperiment
+
+We create a ``SummarizedExperiment`` object containing marker, sample table, and untransformed protein counts. This way we can store all the information of this experiment in one file and load it again in subsequent analyses.
+
+```{r create_summarized_experiment}
+markers %<>% dplyr::filter(type != "none")
+d_combined = df_samples %>%
+  dplyr::select(markers$protein_name) %>%
+  dplyr::mutate_all(.funs = inv_func) %>%
+  dplyr::mutate_all(.funs = round) %>%
+  as.matrix
+row_data = df_samples %>%
+  dplyr::select(sample_info_names) %>%
+  as.data.frame
+col_data = markers %>% as.data.frame
+se_aghaeepour2017immune = SummarizedExperiment(
+  assays = list(exprs = d_combined),
+  colData = col_data,
+  rowData = row_data
+)
+save(se_aghaeepour2017immune, file = "se_aghaeepour2017immune.Rdata")
+```
+
+# Session Info {.unnumbered}
+
+```{r session_info}
+sessionInfo()
+```
+
+# References {.unnumbered}

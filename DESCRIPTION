@@ -33,7 +33,8 @@ Imports:
     strucchange,
     tibble,
     ggrepel,
-    MASS
+    MASS,
+    logging
 Depends:
     Rcpp
 Suggests:

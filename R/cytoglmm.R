@@ -16,6 +16,10 @@ cytoglmm = function(df_samples_subset,
 
   set.seed(seed)
 
+  # suppress printout of warning messages in R package mbest
+  logging::setLevel("ERROR", container = "mbest.mhglm")
+  logging::setLevel("ERROR", container = "mbest.mhglm.fit")
+
   # some error checks
   cyto_check(cell_n_subsample = cell_n_subsample,
              cell_n_min = cell_n_min,
