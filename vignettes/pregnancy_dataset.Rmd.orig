@@ -541,7 +541,8 @@ Instead of modeling the donor effect, we can use bootstrap resampling. In our ex
 glm_fit = CytoGLMM::cytoglm(df_samples_subset,
                             num_boot = 1000,
                             protein_names = protein_names,
-                            condition = "term", group = "donor")
+                            condition = "term", group = "donor",
+                            num_cores = ncores)
 glm_fit
 plot(glm_fit)
 summary(glm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
@@ -556,7 +557,8 @@ num_donors = nlevels(as.factor(df_samples_subset$donor))
 mix_fit = CytoGLMM::cytoflexmix(df_samples_subset,
                                 protein_names = protein_names,
                                 condition = "term", group = "donor",
-                                ks = 1:num_donors)
+                                ks = 1:num_donors,
+                                num_cores = ncores)
 plot(mix_fit)
 ```
 
