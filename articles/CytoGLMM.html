@@ -225,23 +225,23 @@
 <pre><code>## # A tibble: 10 x 3
 ##    protein_name pvalues_unadj pvalues_adj
 ##    &lt;chr&gt;                &lt;dbl&gt;       &lt;dbl&gt;
-##  1 m03                  0.002       0.02 
-##  2 m02                  0.004       0.02 
-##  3 m01                  0.03        0.1  
-##  4 m06                  0.382       0.856
-##  5 m04                  0.428       0.856
-##  6 m08                  0.624       0.895
-##  7 m05                  0.694       0.895
-##  8 m09                  0.716       0.895
-##  9 m10                  0.806       0.896
-## 10 m07                  0.946       0.946</code></pre>
+##  1 m03                  0.002      0.02  
+##  2 m02                  0.006      0.03  
+##  3 m01                  0.022      0.0733
+##  4 m06                  0.394      0.885 
+##  5 m04                  0.466      0.885 
+##  6 m08                  0.544      0.885 
+##  7 m09                  0.644      0.885 
+##  8 m05                  0.708      0.885 
+##  9 m10                  0.852      0.932 
+## 10 m07                  0.932      0.932</code></pre>
 <p>Extract only proteins below an FDR of 0.05 from the <span class="math inline">\(p\)</span>-value table.</p>
 <div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">glm_fit</span>) <span class="kw">%&gt;%</span> <span class="kw pkg">dplyr</span><span class="kw ns">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(<span class="no">pvalues_adj</span> <span class="kw">&lt;</span> <span class="fl">0.05</span>)</pre></body></html></div>
 <pre><code>## # A tibble: 2 x 3
 ##   protein_name pvalues_unadj pvalues_adj
 ##   &lt;chr&gt;                &lt;dbl&gt;       &lt;dbl&gt;
 ## 1 m03                  0.002        0.02
-## 2 m02                  0.004        0.02</code></pre>
+## 2 m02                  0.006        0.03</code></pre>
 </div>
 <div id="session-info" class="section level1 unnumbered">
 <h1 class="hasAnchor">
