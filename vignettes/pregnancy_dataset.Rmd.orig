@@ -5,7 +5,7 @@ author:
   affiliation: Department of Statistics, Stanford University & Department of Data Science and Knowledge Engineering, Maastricht University
 date: February 18, 2021
 vignette: >
-  %\VignetteIndexEntry{CytoGLMM Workflow}
+  %\VignetteIndexEntry{CytoGLMM Workflow for Pregnancy Dataset}
   %\VignetteEngine{knitr::rmarkdown}
 output:
   BiocStyle::html_document
