@@ -10,8 +10,7 @@ cytogroup(
   condition,
   group = "donor",
   cell_n_min = Inf,
-  cell_n_subsample = 0,
-  seed = 56026
+  cell_n_subsample = 0
 )
 }
 \description{

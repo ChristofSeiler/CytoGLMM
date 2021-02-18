@@ -20,7 +20,7 @@ plot_mds = function(df_samples,
     as.data.frame
   dist_matrix = dist(expr_median[,-seq(sample_info_names)])
   mds_res = cmdscale(dist_matrix,eig = TRUE, k = 2) # k is the number of dim
-  explained_var = (100*mds_res$eig[1:2]/sum(mds_res$eig)) %>% round(digits = 1)
+  explained_var = (100*mds_res$eig[seq_len(2)]/sum(mds_res$eig)) %>% round(digits = 1)
   expr_median %<>% bind_cols(tibble(MDS1 = mds_res$points[,1],
                                     MDS2 = mds_res$points[,2]))
 

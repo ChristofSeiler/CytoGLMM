@@ -2,7 +2,6 @@
 #'
 #' @import magrittr
 #' @import stringr
-#' @import parallel
 #' @import flexmix
 #' @import cowplot
 #' @import caret
@@ -14,10 +13,7 @@ cytogroup = function(df_samples_subset,
                      condition,
                      group = "donor",
                      cell_n_min = Inf,
-                     cell_n_subsample = 0,
-                     seed = 0xdada) {
-
-  set.seed(seed)
+                     cell_n_subsample = 0) {
 
   # some error checks
   cyto_check(cell_n_subsample = cell_n_subsample,
@@ -69,7 +65,6 @@ cytogroup = function(df_samples_subset,
   fit$group = group
   fit$cell_n_min = cell_n_min
   fit$cell_n_subsample = cell_n_subsample
-  fit$seed = seed
   class(fit) = "cytogroup"
   fit
 

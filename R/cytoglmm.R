@@ -11,10 +11,7 @@ cytoglmm = function(df_samples_subset,
                     covariate_names = NULL,
                     cell_n_min = Inf,
                     cell_n_subsample = 0,
-                    seed = 0xdada,
-                    num_cores = 4) {
-
-  set.seed(seed)
+                    num_cores = 1) {
 
   # suppress printout of warning messages in R package mbest
   logging::setLevel("ERROR", container = "mbest.mhglm")
@@ -64,7 +61,6 @@ cytoglmm = function(df_samples_subset,
   fit$covariate_names = covariate_names
   fit$cell_n_min = cell_n_min
   fit$cell_n_subsample = cell_n_subsample
-  fit$seed = seed
   fit$num_cores = num_cores
   class(fit) = "cytoglmm"
   fit

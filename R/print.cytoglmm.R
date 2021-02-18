@@ -7,7 +7,7 @@
 #'
 print.cytoglmm = function(fit) {
 
-  if(class(fit) != "cytoglmm")
+  if(!is(fit, "cytoglmm"))
     stop("Input needs to be a cytoglmm object computed by cytoglmm function.")
 
   cat("number of cells per group and condition:")

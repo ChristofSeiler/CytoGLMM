@@ -27,7 +27,6 @@ plot_coeff = function(tb,title_str, title_str_right, xlab_str, redline = 0,
   }
 
   # plot all bootstrap runs
-  set.seed(0xdada2)
   pall = ggplot(tb, aes(x = coeff, y = protein_name, color = protein_name)) +
     geom_vline(xintercept = redline,color = "red") +
     geom_jitter(size = 1,width = 0.001,alpha = 0.5) +

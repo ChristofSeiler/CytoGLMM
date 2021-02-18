@@ -3,9 +3,12 @@ title: "CytoGLMM Workflow for Pregnancy Dataset"
 author:
   name: Christof Seiler
   affiliation: Department of Statistics, Stanford University & Department of Data Science and Knowledge Engineering, Maastricht University
+date: February 18, 2021
+vignette: >
+  %\VignetteIndexEntry{CytoGLMM Workflow}
+  %\VignetteEngine{knitr::rmarkdown}
 output:
-  BiocStyle::html_document:
-    toc_float: true
+  BiocStyle::html_document
 bibliography: bibliography.bib
 ---
 
@@ -30,7 +33,6 @@ letsinstall = setdiff(pkgs_needed, installed.packages())
 if (length(letsinstall) > 0) {
   BiocManager::install(letsinstall)
 }
-# package is still private
 devtools::install_github("ChristofSeiler/CytoGLMM")
 # Bioconductor version breaks when updating to ggplot2 v3.0
 devtools::install_github("RGLab/ggcyto", ref="trunk")

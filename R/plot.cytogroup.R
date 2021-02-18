@@ -12,7 +12,7 @@
 #'
 plot.cytogroup = function(fit,order = FALSE, separate = FALSE) {
 
-  if(class(fit) != "cytogroup")
+  if(!is(fit, "cytogroup"))
     stop("Input needs to be a cytogroup object computed by cytogroup function.")
 
   summ = summary(fit$groupfit)
@@ -25,8 +25,8 @@ plot.cytogroup = function(fit,order = FALSE, separate = FALSE) {
   tb_coeff_donor = tibble(names = names(fit$groupfit$coefficients),
                     value = fit$groupfit$coefficients)
   tb_coeff_donor %<>%
-    mutate(protein_name = sapply(str_split(tb_coeff_donor$names,":"),function(x) x[1]),
-           donor = sapply(str_split(tb_coeff_donor$names,":"),function(x) x[2]))
+    mutate(protein_name = vapply(str_split(tb_coeff_donor$names,":"),function(x) x[1], character(1)),
+           donor = vapply(str_split(tb_coeff_donor$names,":"),function(x) x[2], character(1)))
   tb_coeff_donor %<>% dplyr::filter(!is.na(donor))
 
   # fixed effects
@@ -55,7 +55,6 @@ plot.cytogroup = function(fit,order = FALSE, separate = FALSE) {
   }
 
   # plotting
-  set.seed(0xdada2)
   pdonor = ggplot(tb_coeff_donor, aes(x = value,
                                       y = protein_name,
                                       group = donor,

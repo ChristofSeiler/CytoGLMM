@@ -12,8 +12,7 @@ cytoglmm(
   covariate_names = NULL,
   cell_n_min = Inf,
   cell_n_subsample = 0,
-  seed = 56026,
-  num_cores = 4
+  num_cores = 1
 )
 }
 \description{

@@ -10,7 +10,7 @@ glmm_moment = function(df_samples,
                        response,
                        group = "donor",
                        covariate_names = NULL,
-                       num_cores = detectCores()) {
+                       num_cores = 1) {
   parallel_str = "FALSE"
   if(num_cores > 1) {
     registerDoParallel(cores = num_cores)

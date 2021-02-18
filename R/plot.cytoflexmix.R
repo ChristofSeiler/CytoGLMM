@@ -13,14 +13,14 @@
 #'
 plot.cytoflexmix = function(fit, k = NULL, separate = FALSE) {
 
-  if(class(fit) != "cytoflexmix")
+  if(!is(fit, "cytoflexmix"))
     stop("Input needs to be a cytoflexmix object computed by cytoflexmix function.")
 
   # plot selection criteria
   tb_sel = tibble(
     id = seq(fit$flexmixfits),
-    k = sapply(fit$flexmixfits,function(fit) fit@components %>% length),
-    BIC = sapply(fit$flexmixfits,BIC)
+    k = vapply(fit$flexmixfits,function(fit) fit@components %>% length, numeric(1)),
+    BIC = vapply(fit$flexmixfits, BIC, numeric(1))
     )
   # select best model
   best_id = tb_sel$id[which.min(tb_sel$BIC)]

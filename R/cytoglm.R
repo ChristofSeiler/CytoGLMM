@@ -2,7 +2,6 @@
 #'
 #' @import magrittr
 #' @import stringr
-#' @import parallel
 #' @import BiocParallel
 #' @export
 #'
@@ -14,10 +13,7 @@ cytoglm = function(df_samples_subset,
                    cell_n_min = Inf,
                    cell_n_subsample = 0,
                    num_boot = 100,
-                   seed = 0xdada,
-                   num_cores = parallel::detectCores()) {
-
-  set.seed(seed)
+                   num_cores = 1) {
 
   # some error checks
   cyto_check(cell_n_subsample = cell_n_subsample,
@@ -52,8 +48,7 @@ cytoglm = function(df_samples_subset,
                             collapse = " + "))
 
   # bootstrap
-  bs = function(seed) {
-    set.seed(seed)
+  bs = function(i) {
     # bootstrap sample
     df_boot = df_samples_subset
     df_boot %<>% group_by(.data[[ group ]], .data[[ condition ]])
@@ -72,10 +67,10 @@ cytoglm = function(df_samples_subset,
                   data = df_boot)
     tibble(protein_name = protein_names,
            coeff = fit_glm$coefficients[protein_names],
-           run = seed)
+           run = i)
   }
   bpparam = MulticoreParam(workers = num_cores)
-  tb_coef = bplapply(1:num_boot, bs, BPPARAM = bpparam) %>% bind_rows()
+  tb_coef = bplapply(seq_len(num_boot), bs, BPPARAM = bpparam) %>% bind_rows()
 
   # return cytoglm object
   fit = NULL
@@ -89,7 +84,6 @@ cytoglm = function(df_samples_subset,
   fit$cell_n_subsample = cell_n_subsample
   fit$unpaired = unpaired
   fit$num_boot = num_boot
-  fit$seed = seed
   fit$num_cores = num_cores
   fit$formula_str = formula_str
   class(fit) = "cytoglm"

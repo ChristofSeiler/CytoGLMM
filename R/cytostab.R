@@ -2,7 +2,6 @@
 #'
 #' @import magrittr
 #' @import stringr
-#' @import parallel
 #' @import strucchange
 #' @import tibble
 #' @export
@@ -12,10 +11,7 @@ cytostab = function(df_samples_subset,
                     condition,
                     group = "donor",
                     cell_n_min = Inf,
-                    cell_n_subsample = 0,
-                    seed = 0xdada) {
-
-  set.seed(seed)
+                    cell_n_subsample = 0) {
 
   # some error checks
   cyto_check(cell_n_subsample = cell_n_subsample,

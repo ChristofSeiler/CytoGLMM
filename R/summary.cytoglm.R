@@ -10,7 +10,7 @@
 #'
 summary.cytoglm = function(fit, method = "BH") {
 
-  if(class(fit) != "cytoglm")
+  if(!is(fit, "cytoglm"))
     stop("Input needs to be a cytoglm object computed by cytoglm function.")
 
   # calculate p-values from bootstrap distribution

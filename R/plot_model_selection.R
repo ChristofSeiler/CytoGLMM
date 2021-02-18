@@ -9,16 +9,16 @@
 #' @export
 #'
 plot_model_selection = function(fit,k = NULL) {
-  
-  if(class(fit) != "cytoflexmix")
+
+  if(!is(fit, "cytoflexmix"))
     stop("Input needs to be a cytoflexmix object computed by cytoflexmix function.")
-  
+
   # plot selection criteria
   tb_sel = tibble(
     id = seq(fit$flexmixfits),
-    k = sapply(fit$flexmixfits,function(fit) fit@components %>% length),
-    BIC = sapply(fit$flexmixfits,BIC),
-    AIC = sapply(fit$flexmixfits,AIC)
+    k = vapply(fit$flexmixfits, function(fit) fit@components %>% length, numeric(1)),
+    BIC = vapply(fit$flexmixfits, BIC, numeric(1)),
+    AIC = vapply(fit$flexmixfits, AIC, numeric(1))
   )
   # select best model
   best_id = tb_sel$id[which.min(tb_sel$BIC)]
@@ -32,7 +32,7 @@ plot_model_selection = function(fit,k = NULL) {
     scale_x_continuous(breaks = fit$ks) +
     xlab("number of clusters") +
     ggtitle("Model Selection")
-  
+
   # # plot cluster sizes
   # ct = table(pull(fit$df_samples_subset,fit$group),
   #            fit$flexmixfits[[best_id]]@cluster)
@@ -47,7 +47,7 @@ plot_model_selection = function(fit,k = NULL) {
   #   ylab("cluster label") +
   #   theme(legend.position="none") +
   #   ggtitle("Cluster Assignment")
-  
+
   plot_grid(pmodel)
 
 }

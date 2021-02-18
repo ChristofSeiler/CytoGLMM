@@ -1,6 +1,6 @@
 Package: CytoGLMM
 Type: Package
-Title: Regression Models for Mass Cytometry Experiments
+Title: Conditional Differential Analysis for Flow and Mass Cytometry Experiments
 Version: 0.1.0
 Authors@R: c(
     person("Christof", "Seiler", , "christof.seiler@maastrichtuniversity.nl", role = c("aut", "cre"), 
@@ -44,3 +44,12 @@ Suggests:
 VignetteBuilder: knitr
 RoxygenNote: 7.0.2
 biocViews:
+    FlowCytometry,
+    Proteomics,
+    SingleCell,
+    CellBasedAssays,
+    CellBiology,
+    ImmunoOncology,
+    Regression,
+    StatisticalMethod,
+    Software

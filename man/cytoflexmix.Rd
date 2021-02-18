@@ -11,9 +11,8 @@ cytoflexmix(
   group = "donor",
   cell_n_min = Inf,
   cell_n_subsample = 0,
-  ks = 1:10,
-  seed = 56026,
-  num_cores = 4
+  ks = seq_len(10),
+  num_cores = 1
 )
 }
 \description{

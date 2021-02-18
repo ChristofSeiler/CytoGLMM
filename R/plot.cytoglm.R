@@ -12,7 +12,7 @@
 #'
 plot.cytoglm = function(fit, order = FALSE, separate = FALSE) {
 
-  if(class(fit) != "cytoglm")
+  if(!is(fit, "cytoglm"))
     stop("Input needs to be a cytoglm object computed by cytoglm function.")
 
   # some jobs may fail (because of computing cluster instabilities)

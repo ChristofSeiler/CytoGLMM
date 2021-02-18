@@ -12,11 +12,8 @@ cytoflexmix = function(df_samples_subset,
                        group = "donor",
                        cell_n_min = Inf,
                        cell_n_subsample = 0,
-                       ks = 1:10,
-                       seed = 0xdada,
-                       num_cores = 4) {
-
-  set.seed(seed)
+                       ks = seq_len(10),
+                       num_cores = 1) {
 
   # some error checks
   cyto_check(cell_n_subsample = cell_n_subsample,
@@ -58,8 +55,7 @@ cytoflexmix = function(df_samples_subset,
   # find best number of cluster
   param = MulticoreParam(workers = num_cores,
                          tasks = length(ks),
-                         progressbar = FALSE,
-                         RNGseed = seed)
+                         progressbar = FALSE)
   flexmixfits = bplapply(ks,
                          function(k) {
                            stepFlexmix(as.formula(varying_formula),
@@ -81,7 +77,6 @@ cytoflexmix = function(df_samples_subset,
   fit$group = group
   fit$cell_n_min = cell_n_min
   fit$cell_n_subsample = cell_n_subsample
-  fit$seed = seed
   fit$ks = ks
   fit$num_cores = num_cores
   class(fit) = "cytoflexmix"

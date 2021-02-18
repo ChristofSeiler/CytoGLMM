@@ -10,7 +10,7 @@
 #'
 summary.cytoglmm = function(fit, method = "BH") {
 
-  if(class(fit) != "cytoglmm")
+  if(!is(fit, "cytoglmm"))
     stop("Input needs to be a cytoglmm object computed by cytoglmm function.")
 
   pvalues_unadj = summary(fit$glmmfit)$coefficients[-1,4]

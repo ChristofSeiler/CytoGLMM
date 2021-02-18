@@ -12,7 +12,7 @@
 #'
 plot.cytoglmm = function(fit, order = FALSE, separate = FALSE) {
 
-  if(class(fit) != "cytoglmm")
+  if(!is(fit, "cytoglmm"))
     stop("Input needs to be a cytoglmm object computed by cytoglmm function.")
   if(!is.factor(fit$glmmfit$y))
     stop("Currently only plotting results for logistic regression.")

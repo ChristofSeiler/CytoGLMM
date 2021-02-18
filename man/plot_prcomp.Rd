@@ -9,7 +9,6 @@ plot_prcomp(
   protein_names,
   color_var = "treatment",
   subsample_size = 10000,
-  seed = 56026,
   repel = TRUE
 )
 }

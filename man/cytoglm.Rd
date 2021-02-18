@@ -13,8 +13,7 @@ cytoglm(
   cell_n_min = Inf,
   cell_n_subsample = 0,
   num_boot = 100,
-  seed = 56026,
-  num_cores = parallel::detectCores()
+  num_cores = 1
 )
 }
 \description{
