@@ -3,9 +3,12 @@ title: "CytoGLMM Workflow"
 author:
   name: Christof Seiler
   affiliation: Department of Statistics, Stanford University & Department of Data Science and Knowledge Engineering, Maastricht University
+date: February 18, 2021
+vignette: >
+  %\VignetteIndexEntry{CytoGLMM Workflow}
+  %\VignetteEngine{knitr::rmarkdown}
 output:
-  BiocStyle::html_document:
-    toc_float: true
+  BiocStyle::html_document
 ---
 
 ```{r setup, include=FALSE}
