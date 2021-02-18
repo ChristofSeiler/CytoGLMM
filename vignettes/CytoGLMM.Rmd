@@ -15,26 +15,18 @@ output:
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.retina = 2, dpi = 96, fig.width = 7.2916667, fig.asp = 0.6178571)
 ```
 
-# Goal
+# Introduction
 
-This is a step-by-step guide for a complete analysis of mass cytometry data.
-
-# Prerequisites
-
-Load packages.
-
-```{r load_packages}
-library("CytoGLMM")
-library("tidyverse")
-library("magrittr")
-source("generate_data.R")
-```
+Flow and mass cytometry are important modern immunology tools for measuring expression levels of multiple proteins on single cells. The goal is to better understand the mechanisms of responses on a single cell basis by studying differential expression of proteins. Most current data analysis tools compare expressions across many computationally discovered cell types. Our goal is to focus on just one cell type. Differential analysis of marker expressions can be difficult due to marker correlations and inter-subject heterogeneity, particularly for studies of human immunology. We address these challenges with two multiple regression strategies: A generalized linear mixed model (GLMM) and a bootstrapped generalized linear model (GLM). Here, we illustrate the `CytoGLMM` _R_ package and workflow for simulated mass cytometry data.
 
 # Prepare Simulated Data
 
 Generate data from a Poisson GLM with random effects.
 
 ```{r simulated_data}
+library("tidyverse")
+library("magrittr")
+source("generate_data.R")
 set.seed(23)
 df = generate_data()
 df
@@ -57,6 +49,7 @@ df %<>% dplyr::mutate_at(protein_names, function(x) asinh(x/5))
 Fit model. It is normal to receive a warning about the covariance matrix estimate. This warning can be ignored.
 
 ```{r glmm_fit}
+library("CytoGLMM")
 glmm_fit = CytoGLMM::cytoglmm(df,
                               protein_names = protein_names,
                               condition = "condition",
