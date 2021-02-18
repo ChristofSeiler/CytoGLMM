@@ -1,8 +1,39 @@
-#' Estimate random effects model
+#' Fit GLMM with method of moments
 #'
 #' @import magrittr
 #' @import stringr
 #' @export
+#'
+#' @param df_samples_subset Data frame or tibble with proteins counts,
+#'   cell condition, and group information
+#' @param protein_names A vector of column names of protein to use in the analysis
+#' @param condition The column name of the condition variable
+#' @param group The column name of the group variable
+#' @param covariate_names The column names of covariates
+#' @param cell_n_min Remove samples that are below this cell counts threshold
+#' @param cell_n_subsample Subsample samples to have this maximum cell count
+#' @param num_cores Number of computing cores
+#'
+#' @return A list of class \code{cytoglm} containing
+#'   \item{glmmfit}{\code{\link[mbest]{mbest}} object}
+#'   \item{df_samples_subset}{possibly subsampled df_samples_subset table}
+#'   \item{protein_names}{input protein names}
+#'   \item{condition}{input condition variable}
+#'   \item{group}{input group names}
+#'   \item{covariate_names}{input covariates}
+#'   \item{cell_n_min}{input cell_n_min}
+#'   \item{cell_n_subsample}{input cell_n_subsample}
+#'   \item{num_cores}{input num_cores}
+#'
+#' @examples
+#' set.seed(23)
+#' df = generate_data()
+#' protein_names = names(df)[3:12]
+#' glmm_fit = CytoGLMM::cytoglmm(df,
+#'                               protein_names = protein_names,
+#'                               condition = "condition",
+#'                               group = "donor")
+#' glmm_fit
 #'
 cytoglmm = function(df_samples_subset,
                     protein_names,

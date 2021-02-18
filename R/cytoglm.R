@@ -1,9 +1,45 @@
-#' Logistic regression with cases bootstrap
+#' Fit GLM with bootstrap resampling
 #'
 #' @import magrittr
 #' @import stringr
 #' @import BiocParallel
 #' @export
+#'
+#' @param df_samples_subset Data frame or tibble with proteins counts,
+#'   cell condition, and group information
+#' @param protein_names A vector of column names of protein to use in the analysis
+#' @param condition The column name of the condition variable
+#' @param group The column name of the group variable
+#' @param covariate_names The column names of covariates
+#' @param cell_n_min Remove samples that are below this cell counts threshold
+#' @param cell_n_subsample Subsample samples to have this maximum cell count
+#' @param num_boot Number of bootstrap samples
+#' @param num_cores Number of computing cores
+#'
+#' @return A list of class \code{cytoglm} containing
+#'   \item{tb_coef}{coefficent table}
+#'   \item{df_samples_subset}{possibly subsampled df_samples_subset table}
+#'   \item{protein_names}{input protein names}
+#'   \item{condition}{input condition variable}
+#'   \item{group}{input group names}
+#'   \item{covariate_names}{input covariates}
+#'   \item{cell_n_min}{input cell_n_min}
+#'   \item{cell_n_subsample}{input cell_n_subsample}
+#'   \item{unpaired}{true if unpaired samples were provided as input}
+#'   \item{num_boot}{input num_boot}
+#'   \item{num_cores}{input num_cores}
+#'   \item{formula_str}{formula use in the regression model}
+#'
+#' @examples
+#' set.seed(23)
+#' df = generate_data()
+#' protein_names = names(df)[3:12]
+#' glm_fit = CytoGLMM::cytoglm(df,
+#'                             protein_names = protein_names,
+#'                             condition = "condition",
+#'                             group = "donor",
+#'                             num_boot = 10) # just for docs, in practice >=1000
+#' glm_fit
 #'
 cytoglm = function(df_samples_subset,
                    protein_names,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/cytoglmm.R
 \name{cytoglmm}
 \alias{cytoglmm}
-\title{Estimate random effects model}
+\title{Fit GLMM with method of moments}
 \usage{
 cytoglmm(
   df_samples_subset,
@@ -15,6 +15,47 @@ cytoglmm(
   num_cores = 1
 )
 }
+\arguments{
+\item{df_samples_subset}{Data frame or tibble with proteins counts,
+cell condition, and group information}
+
+\item{protein_names}{A vector of column names of protein to use in the analysis}
+
+\item{condition}{The column name of the condition variable}
+
+\item{group}{The column name of the group variable}
+
+\item{covariate_names}{The column names of covariates}
+
+\item{cell_n_min}{Remove samples that are below this cell counts threshold}
+
+\item{cell_n_subsample}{Subsample samples to have this maximum cell count}
+
+\item{num_cores}{Number of computing cores}
+}
+\value{
+A list of class \code{cytoglm} containing
+  \item{glmmfit}{\code{\link[mbest]{mbest}} object}
+  \item{df_samples_subset}{possibly subsampled df_samples_subset table}
+  \item{protein_names}{input protein names}
+  \item{condition}{input condition variable}
+  \item{group}{input group names}
+  \item{covariate_names}{input covariates}
+  \item{cell_n_min}{input cell_n_min}
+  \item{cell_n_subsample}{input cell_n_subsample}
+  \item{num_cores}{input num_cores}
+}
 \description{
-Estimate random effects model
+Fit GLMM with method of moments
+}
+\examples{
+set.seed(23)
+df = generate_data()
+protein_names = names(df)[3:12]
+glmm_fit = CytoGLMM::cytoglmm(df,
+                              protein_names = protein_names,
+                              condition = "condition",
+                              group = "donor")
+glmm_fit
+
 }

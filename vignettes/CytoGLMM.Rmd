@@ -3,7 +3,7 @@ title: "CytoGLMM Workflow"
 author:
   name: Christof Seiler
   affiliation: Department of Statistics, Stanford University & Department of Data Science and Knowledge Engineering, Maastricht University
-date: February 18, 2021
+date: "`r Sys.Date()`"
 vignette: >
   %\VignetteIndexEntry{CytoGLMM Workflow}
   %\VignetteEngine{knitr::rmarkdown}
@@ -24,9 +24,8 @@ Flow and mass cytometry are important modern immunology tools for measuring expr
 Generate data from a Poisson GLM with random effects.
 
 ```{r simulated_data}
-library("tidyverse")
+library("CytoGLMM")
 library("magrittr")
-source("generate_data.R")
 set.seed(23)
 df = generate_data()
 df
@@ -49,7 +48,6 @@ df %<>% dplyr::mutate_at(protein_names, function(x) asinh(x/5))
 Fit model. It is normal to receive a warning about the covariance matrix estimate. This warning can be ignored.
 
 ```{r glmm_fit}
-library("CytoGLMM")
 glmm_fit = CytoGLMM::cytoglmm(df,
                               protein_names = protein_names,
                               condition = "condition",

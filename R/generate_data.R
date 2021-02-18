@@ -1,5 +1,21 @@
-library("MASS")
-
+#' Generate dataset for vignettes and simulation studies
+#'
+#' @import dplyr
+#' @import tibble
+#' @importFrom magrittr %>% %<>%
+#' @importFrom MASS mvrnorm
+#' @importFrom Matrix toeplitz
+#' @importFrom stringr str_pad
+#' @export
+#'
+#' @return \code{\link[tibble]{tibble}} data frame
+#'
+#' @examples
+#' set.seed(23)
+#' df = generate_data()
+#' str(df)
+#' df
+#'
 generate_data = function() {
 
   # simulation parameters
