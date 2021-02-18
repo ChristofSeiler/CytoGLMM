@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Estimate random effects model — cytoglmm • CytoGLMM</title>
+<title>Fit GLMM with method of moments — cytoglmm • CytoGLMM</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Estimate random effects model — cytoglmm" />
-<meta property="og:description" content="Estimate random effects model" />
+<meta property="og:title" content="Fit GLMM with method of moments — cytoglmm" />
+<meta property="og:description" content="Fit GLMM with method of moments" />
 
 
 
@@ -123,13 +123,13 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Estimate random effects model</h1>
+    <h1>Fit GLMM with method of moments</h1>
     <small class="dont-index">Source: <a href='https://github.com/ChristofSeiler/CytoGLMM/blob/master/R/cytoglmm.R'><code>R/cytoglmm.R</code></a></small>
     <div class="hidden name"><code>cytoglmm.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Estimate random effects model</p>
+    <p>Fit GLMM with method of moments</p>
     </div>
 
     <pre class="usage"><span class='fu'>cytoglmm</span>(
@@ -143,8 +143,82 @@
   <span class='kw'>num_cores</span> <span class='kw'>=</span> <span class='fl'>1</span>
 )</pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>df_samples_subset</th>
+      <td><p>Data frame or tibble with proteins counts,
+cell condition, and group information</p></td>
+    </tr>
+    <tr>
+      <th>protein_names</th>
+      <td><p>A vector of column names of protein to use in the analysis</p></td>
+    </tr>
+    <tr>
+      <th>condition</th>
+      <td><p>The column name of the condition variable</p></td>
+    </tr>
+    <tr>
+      <th>group</th>
+      <td><p>The column name of the group variable</p></td>
+    </tr>
+    <tr>
+      <th>covariate_names</th>
+      <td><p>The column names of covariates</p></td>
+    </tr>
+    <tr>
+      <th>cell_n_min</th>
+      <td><p>Remove samples that are below this cell counts threshold</p></td>
+    </tr>
+    <tr>
+      <th>cell_n_subsample</th>
+      <td><p>Subsample samples to have this maximum cell count</p></td>
+    </tr>
+    <tr>
+      <th>num_cores</th>
+      <td><p>Number of computing cores</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A list of class <code>cytoglm</code> containing</p>
+<dt>glmmfit</dt><dd><p><code><a href='https://rdrr.io/pkg/mbest/man/mbest-package.html'>mbest</a></code> object</p></dd>
+  <dt>df_samples_subset</dt><dd><p>possibly subsampled df_samples_subset table</p></dd>
+  <dt>protein_names</dt><dd><p>input protein names</p></dd>
+  <dt>condition</dt><dd><p>input condition variable</p></dd>
+  <dt>group</dt><dd><p>input group names</p></dd>
+  <dt>covariate_names</dt><dd><p>input covariates</p></dd>
+  <dt>cell_n_min</dt><dd><p>input cell_n_min</p></dd>
+  <dt>cell_n_subsample</dt><dd><p>input cell_n_subsample</p></dd>
+  <dt>num_cores</dt><dd><p>input num_cores</p></dd>
 
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>23</span>)
+<span class='no'>df</span> <span class='kw'>=</span> <span class='fu'><a href='generate_data.html'>generate_data</a></span>()
+<span class='no'>protein_names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span>(<span class='no'>df</span>)[<span class='fl'>3</span>:<span class='fl'>12</span>]
+<span class='no'>glmm_fit</span> <span class='kw'>=</span> <span class='kw pkg'>CytoGLMM</span><span class='kw ns'>::</span><span class='fu'>cytoglmm</span>(<span class='no'>df</span>,
+                              <span class='kw'>protein_names</span> <span class='kw'>=</span> <span class='no'>protein_names</span>,
+                              <span class='kw'>condition</span> <span class='kw'>=</span> <span class='st'>"condition"</span>,
+                              <span class='kw'>group</span> <span class='kw'>=</span> <span class='st'>"donor"</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: moment-based covariance matrix estimate is not positive semi-definite; using projection</span></div><div class='input'><span class='no'>glmm_fit</span></div><div class='output co'>#&gt; number of cells per group and condition:   
+#&gt;     control treatment
+#&gt;   1    1000      1000
+#&gt;   2    1000      1000
+#&gt;   3    1000      1000
+#&gt;   4    1000      1000
+#&gt;   5    1000      1000
+#&gt;   6    1000      1000
+#&gt;   7    1000      1000
+#&gt;   8    1000      1000
+#&gt; 
+#&gt; proteins included in the analysis:
+#&gt;  m01 m02 m03 m04 m05 m06 m07 m08 m09 m10 
+#&gt; 
+#&gt; condition compared: condition 
+#&gt; grouping variable: donor </div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
