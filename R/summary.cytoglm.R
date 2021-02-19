@@ -10,6 +10,7 @@
 #'
 #' @param fit A \code{cytoglm} class
 #' @param method Multiple comparison adjustment method
+#' @return \code{\link[tibble]{tibble}} data frame
 #'
 #' @examples
 #' set.seed(23)

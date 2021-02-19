@@ -11,6 +11,9 @@
 
 \item{method}{Multiple comparison adjustment method}
 }
+\value{
+\code{\link[tibble]{tibble}} data frame
+}
 \description{
 Extact and calculate p-values of GLMM fit
 }
