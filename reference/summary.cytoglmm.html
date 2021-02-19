@@ -135,8 +135,41 @@
     <pre class="usage"><span class='co'># S3 method for cytoglmm</span>
 <span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='no'>fit</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"BH"</span>)</pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>fit</th>
+      <td><p>A <code>cytoglmm</code> class</p></td>
+    </tr>
+    <tr>
+      <th>method</th>
+      <td><p>Multiple comparison adjustment method</p></td>
+    </tr>
+    </table>
 
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>23</span>)
+<span class='no'>df</span> <span class='kw'>=</span> <span class='fu'><a href='generate_data.html'>generate_data</a></span>()
+<span class='no'>protein_names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span>(<span class='no'>df</span>)[<span class='fl'>3</span>:<span class='fl'>12</span>]
+<span class='no'>df</span> <span class='kw'>=</span> <span class='kw pkg'>dplyr</span><span class='kw ns'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate_all.html'>mutate_at</a></span>(<span class='no'>df</span>, <span class='no'>protein_names</span>, <span class='kw'>function</span>(<span class='no'>x</span>) <span class='fu'><a href='https://rdrr.io/r/base/Hyperbolic.html'>asinh</a></span>(<span class='no'>x</span>/<span class='fl'>5</span>))
+<span class='no'>glmm_fit</span> <span class='kw'>=</span> <span class='kw pkg'>CytoGLMM</span><span class='kw ns'>::</span><span class='fu'><a href='cytoglmm.html'>cytoglmm</a></span>(<span class='no'>df</span>,
+                              <span class='kw'>protein_names</span> <span class='kw'>=</span> <span class='no'>protein_names</span>,
+                              <span class='kw'>condition</span> <span class='kw'>=</span> <span class='st'>"condition"</span>,
+                              <span class='kw'>group</span> <span class='kw'>=</span> <span class='st'>"donor"</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: moment-based covariance matrix estimate is not positive semi-definite; using projection</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='no'>glmm_fit</span>)</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 10 x 3</span><span>
+#&gt;    protein_name pvalues_unadj pvalues_adj
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>                </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 1</span><span> m03              0.000</span><span style='text-decoration: underline;'>068</span><span>2    0.000</span><span style='text-decoration: underline;'>682</span><span>
+#&gt; </span><span style='color: #555555;'> 2</span><span> m02              0.000</span><span style='text-decoration: underline;'>163</span><span>     0.000</span><span style='text-decoration: underline;'>813</span><span>
+#&gt; </span><span style='color: #555555;'> 3</span><span> m01              0.000</span><span style='text-decoration: underline;'>681</span><span>     0.002</span><span style='text-decoration: underline;'>27</span><span> 
+#&gt; </span><span style='color: #555555;'> 4</span><span> m06              0.155        0.388   
+#&gt; </span><span style='color: #555555;'> 5</span><span> m05              0.371        0.646   
+#&gt; </span><span style='color: #555555;'> 6</span><span> m08              0.388        0.646   
+#&gt; </span><span style='color: #555555;'> 7</span><span> m04              0.512        0.731   
+#&gt; </span><span style='color: #555555;'> 8</span><span> m09              0.859        0.954   
+#&gt; </span><span style='color: #555555;'> 9</span><span> m10              0.874        0.954   
+#&gt; </span><span style='color: #555555;'>10</span><span> m07              0.954        0.954   </div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

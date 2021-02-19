@@ -134,8 +134,34 @@
 
     <pre class="usage"><span class='fu'>plot_model_selection</span>(<span class='no'>fit</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>fit</th>
+      <td><p>A <code>cytoflexmix</code> class</p></td>
+    </tr>
+    <tr>
+      <th>k</th>
+      <td><p>Number of clusters</p></td>
+    </tr>
+    </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
+    <p><code><a href='https://rdrr.io/pkg/cowplot/man/cowplot.html'>cowplot</a></code> object</p>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>23</span>)
+<span class='no'>df</span> <span class='kw'>=</span> <span class='fu'><a href='generate_data.html'>generate_data</a></span>()
+<span class='no'>protein_names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span>(<span class='no'>df</span>)[<span class='fl'>3</span>:<span class='fl'>12</span>]
+<span class='no'>df</span> <span class='kw'>=</span> <span class='kw pkg'>dplyr</span><span class='kw ns'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate_all.html'>mutate_at</a></span>(<span class='no'>df</span>, <span class='no'>protein_names</span>, <span class='kw'>function</span>(<span class='no'>x</span>) <span class='fu'><a href='https://rdrr.io/r/base/Hyperbolic.html'>asinh</a></span>(<span class='no'>x</span>/<span class='fl'>5</span>))
+<span class='no'>mix_fit</span> <span class='kw'>=</span> <span class='kw pkg'>CytoGLMM</span><span class='kw ns'>::</span><span class='fu'><a href='cytoflexmix.html'>cytoflexmix</a></span>(<span class='no'>df</span>,
+                                <span class='kw'>protein_names</span> <span class='kw'>=</span> <span class='no'>protein_names</span>,
+                                <span class='kw'>condition</span> <span class='kw'>=</span> <span class='st'>"condition"</span>,
+                                <span class='kw'>group</span> <span class='kw'>=</span> <span class='st'>"donor"</span>,
+                                <span class='kw'>ks</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='fl'>2</span>)</div><div class='output co'>#&gt; 1 : * * * * *
+#&gt; 2 : * * * * *</div><div class='input'><span class='fu'>plot_model_selection</span>(<span class='no'>mix_fit</span>)</div><div class='img'><img src='plot_model_selection-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

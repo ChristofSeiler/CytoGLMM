@@ -143,8 +143,120 @@
   <span class='kw'>num_cores</span> <span class='kw'>=</span> <span class='fl'>1</span>
 )</pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>df_samples_subset</th>
+      <td><p>Data frame or tibble with proteins counts,
+cell condition, and group information</p></td>
+    </tr>
+    <tr>
+      <th>protein_names</th>
+      <td><p>A vector of column names of protein to use in the analysis</p></td>
+    </tr>
+    <tr>
+      <th>condition</th>
+      <td><p>The column name of the condition variable</p></td>
+    </tr>
+    <tr>
+      <th>group</th>
+      <td><p>The column name of the group variable</p></td>
+    </tr>
+    <tr>
+      <th>cell_n_min</th>
+      <td><p>Remove samples that are below this cell counts threshold</p></td>
+    </tr>
+    <tr>
+      <th>cell_n_subsample</th>
+      <td><p>Subsample samples to have this maximum cell count</p></td>
+    </tr>
+    <tr>
+      <th>ks</th>
+      <td><p>A vector of cluster sizes</p></td>
+    </tr>
+    <tr>
+      <th>num_cores</th>
+      <td><p>Number of computing cores</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A list of class <code>cytoglm</code> containing</p>
+<dt>flexmixfits</dt><dd><p>list of <code><a href='https://rdrr.io/pkg/flexmix/man/flexmix.html'>flexmix</a></code> objects</p></dd>
+  <dt>df_samples_subset</dt><dd><p>possibly subsampled df_samples_subset table</p></dd>
+  <dt>protein_names</dt><dd><p>input protein names</p></dd>
+  <dt>condition</dt><dd><p>input condition variable</p></dd>
+  <dt>group</dt><dd><p>input group names</p></dd>
+  <dt>cell_n_min</dt><dd><p>input cell_n_min</p></dd>
+  <dt>cell_n_subsample</dt><dd><p>input cell_n_subsample</p></dd>
+  <dt>ks</dt><dd><p>input ks</p></dd>
+  <dt>num_cores</dt><dd><p>input num_cores</p></dd>
 
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>23</span>)
+<span class='no'>df</span> <span class='kw'>=</span> <span class='fu'><a href='generate_data.html'>generate_data</a></span>()
+<span class='no'>protein_names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span>(<span class='no'>df</span>)[<span class='fl'>3</span>:<span class='fl'>12</span>]
+<span class='no'>df</span> <span class='kw'>=</span> <span class='kw pkg'>dplyr</span><span class='kw ns'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate_all.html'>mutate_at</a></span>(<span class='no'>df</span>, <span class='no'>protein_names</span>, <span class='kw'>function</span>(<span class='no'>x</span>) <span class='fu'><a href='https://rdrr.io/r/base/Hyperbolic.html'>asinh</a></span>(<span class='no'>x</span>/<span class='fl'>5</span>))
+<span class='no'>mix_fit</span> <span class='kw'>=</span> <span class='kw pkg'>CytoGLMM</span><span class='kw ns'>::</span><span class='fu'>cytoflexmix</span>(<span class='no'>df</span>,
+                                <span class='kw'>protein_names</span> <span class='kw'>=</span> <span class='no'>protein_names</span>,
+                                <span class='kw'>condition</span> <span class='kw'>=</span> <span class='st'>"condition"</span>,
+                                <span class='kw'>group</span> <span class='kw'>=</span> <span class='st'>"donor"</span>,
+                                <span class='kw'>ks</span> <span class='kw'>=</span> <span class='fl'>2</span>)</div><div class='output co'>#&gt; 2 : * * * * *</div><div class='input'><span class='no'>mix_fit</span></div><div class='output co'>#&gt; $flexmixfits
+#&gt; $flexmixfits[[1]]
+#&gt; 
+#&gt; Call:
+#&gt; stepFlexmix(as.formula(varying_formula), data = df_samples_subset, 
+#&gt;     model = FLXMRglm(family = "binomial"), k = 2, nrep = 5)
+#&gt; 
+#&gt; Cluster sizes:
+#&gt;     1     2 
+#&gt; 10000  6000 
+#&gt; 
+#&gt; convergence after 10 iterations
+#&gt; 
+#&gt; 
+#&gt; $df_samples_subset
+#&gt; <span style='color: #555555;'># A tibble: 16,000 x 13</span><span>
+#&gt;    donor condition   m01   m02   m03   m04   m05   m06   m07   m08   m09   m10
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;fct&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 1</span><span>     1 treatment 0.390  3.93  3.84 1.94   1.94 1.94   3.11 3.18  1.14   3.44
+#&gt; </span><span style='color: #555555;'> 2</span><span>     1 treatment 0      3.65  3.07 2.46   4.21 2.56   2.75 1.53  2.05   3.09
+#&gt; </span><span style='color: #555555;'> 3</span><span>     1 treatment 0.199  1.75  3.04 4.29   2.35 1.61   1.14 1.02  2.70   4.70
+#&gt; </span><span style='color: #555555;'> 4</span><span>     1 treatment 1.02   2.09  2.62 2.14   2.82 0.569  2.49 2.05  1.14   3.30
+#&gt; </span><span style='color: #555555;'> 5</span><span>     1 treatment 1.99   2.49  1.82 4.02   2.19 0.733  1.44 0.881 2.56   2.05
+#&gt; </span><span style='color: #555555;'> 6</span><span>     1 treatment 0.199  1.94  2.73 4.10   1.75 0.881  2.35 2.46  2.35   3.50
+#&gt; </span><span style='color: #555555;'> 7</span><span>     1 treatment 2.27   4.27  1.44 1.25   5.29 2.14   2.35 2.59  1.25   2.35
+#&gt; </span><span style='color: #555555;'> 8</span><span>     1 treatment 0.199  3.50  1.88 3.16   3.53 0.390  1.53 2.42  1.53   2.42
+#&gt; </span><span style='color: #555555;'> 9</span><span>     1 treatment 0.390  2.27  2.96 1.68   2.39 1.94   3.02 4.35  2.42   4.50
+#&gt; </span><span style='color: #555555;'>10</span><span>     1 treatment 0.390  2.75  1.68 0.733  2.67 2.42   2.75 3.73  0.199  3.18
+#&gt; </span><span style='color: #555555;'># … with 15,990 more rows, and 1 more variable: xtreatment </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
+#&gt; 
+#&gt; $protein_names
+#&gt;  [1] "m01" "m02" "m03" "m04" "m05" "m06" "m07" "m08" "m09" "m10"
+#&gt; 
+#&gt; $condition
+#&gt; [1] "condition"
+#&gt; 
+#&gt; $group
+#&gt; [1] "donor"
+#&gt; 
+#&gt; $cell_n_min
+#&gt; [1] Inf
+#&gt; 
+#&gt; $cell_n_subsample
+#&gt; [1] 0
+#&gt; 
+#&gt; $ks
+#&gt; [1] 2
+#&gt; 
+#&gt; $num_cores
+#&gt; [1] 1
+#&gt; 
+#&gt; attr(,"class")
+#&gt; [1] "cytoflexmix"</div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -141,8 +141,136 @@
   <span class='kw'>cell_n_subsample</span> <span class='kw'>=</span> <span class='fl'>0</span>
 )</pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>df_samples_subset</th>
+      <td><p>Data frame or tibble with proteins counts,
+cell condition, and group information</p></td>
+    </tr>
+    <tr>
+      <th>protein_names</th>
+      <td><p>A vector of column names of protein to use in the analysis</p></td>
+    </tr>
+    <tr>
+      <th>condition</th>
+      <td><p>The column name of the condition variable</p></td>
+    </tr>
+    <tr>
+      <th>group</th>
+      <td><p>The column name of the group variable</p></td>
+    </tr>
+    <tr>
+      <th>cell_n_min</th>
+      <td><p>Remove samples that are below this cell counts threshold</p></td>
+    </tr>
+    <tr>
+      <th>cell_n_subsample</th>
+      <td><p>Subsample samples to have this maximum cell count</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A list of class <code>cytoglm</code> containing</p>
+<dt>groupfit</dt><dd><p><code><a href='https://rdrr.io/pkg/speedglm/man/speedglm.html'>speedglm</a></code> object</p></dd>
+  <dt>df_samples_subset</dt><dd><p>possibly subsampled df_samples_subset table</p></dd>
+  <dt>protein_names</dt><dd><p>input protein names</p></dd>
+  <dt>condition</dt><dd><p>input condition variable</p></dd>
+  <dt>group</dt><dd><p>input group names</p></dd>
+  <dt>cell_n_min</dt><dd><p>input cell_n_min</p></dd>
+  <dt>cell_n_subsample</dt><dd><p>input cell_n_subsample</p></dd>
 
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>23</span>)
+<span class='no'>df</span> <span class='kw'>=</span> <span class='fu'><a href='generate_data.html'>generate_data</a></span>()
+<span class='no'>protein_names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span>(<span class='no'>df</span>)[<span class='fl'>3</span>:<span class='fl'>12</span>]
+<span class='no'>df</span> <span class='kw'>=</span> <span class='kw pkg'>dplyr</span><span class='kw ns'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate_all.html'>mutate_at</a></span>(<span class='no'>df</span>, <span class='no'>protein_names</span>, <span class='kw'>function</span>(<span class='no'>x</span>) <span class='fu'><a href='https://rdrr.io/r/base/Hyperbolic.html'>asinh</a></span>(<span class='no'>x</span>/<span class='fl'>5</span>))
+<span class='no'>group_fit</span> <span class='kw'>=</span> <span class='kw pkg'>CytoGLMM</span><span class='kw ns'>::</span><span class='fu'>cytogroup</span>(<span class='no'>df</span>,
+                                <span class='kw'>protein_names</span> <span class='kw'>=</span> <span class='no'>protein_names</span>,
+                                <span class='kw'>condition</span> <span class='kw'>=</span> <span class='st'>"condition"</span>,
+                                <span class='kw'>group</span> <span class='kw'>=</span> <span class='st'>"donor"</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: `as.tibble()` is deprecated as of tibble 2.0.0.</span>
+#&gt; <span class='warning'>Please use `as_tibble()` instead.</span>
+#&gt; <span class='warning'>The signature and semantics have changed, see `?as_tibble`.</span>
+#&gt; <span class='warning'><span style='color: #555555;'>This warning is displayed once every 8 hours.</span><span></span>
+#&gt; <span class='warning'></span><span style='color: #555555;'>Call `lifecycle::last_warnings()` to see where this warning was generated.</span><span></span></div><div class='input'><span class='no'>group_fit</span></div><div class='output co'>#&gt; $groupfit
+#&gt; Generalized Linear Model of class 'speedglm':
+#&gt; 
+#&gt; Call:  speedglm(formula = formula_str, data = df_samples_subset, family = binomial()) 
+#&gt; 
+#&gt; Coefficients:
+#&gt; (Intercept)          m01          m02          m03          m04          m05  
+#&gt;  -9.090e-01    8.698e-02    1.545e-01    7.363e-02   -5.642e-03    1.077e-02  
+#&gt;         m06          m07          m08          m09          m10           X1  
+#&gt;   2.152e-03    4.735e-02    4.610e-02   -1.773e-04    2.919e-02    1.016e+00  
+#&gt;          X2           X3           X4           X5           X6           X7  
+#&gt;   3.993e-01    6.928e-01    5.071e-01    7.220e-01    1.251e-01    4.852e-01  
+#&gt;          X8       m01:X1       m01:X2       m01:X3       m01:X4       m01:X5  
+#&gt;          NA    1.843e-01   -4.158e-02   -5.075e-03   -1.402e-02   -9.011e-02  
+#&gt;      m01:X6       m01:X7       m01:X8       m02:X1       m02:X2       m02:X3  
+#&gt;  -2.758e-03   -7.174e-02           NA   -1.089e-01   -9.177e-02   -1.093e-01  
+#&gt;      m02:X4       m02:X5       m02:X6       m02:X7       m02:X8       m03:X1  
+#&gt;  -1.058e-01   -1.124e-01   -7.804e-02   -4.882e-02           NA    2.120e-02  
+#&gt;      m03:X2       m03:X3       m03:X4       m03:X5       m03:X6       m03:X7  
+#&gt;   1.178e-01   -1.858e-02    4.345e-03   -4.760e-02    3.601e-02    3.170e-02  
+#&gt;      m03:X8       m04:X1       m04:X2       m04:X3       m04:X4       m04:X5  
+#&gt;          NA   -8.086e-02    1.334e-02    3.134e-02   -5.542e-02    2.500e-02  
+#&gt;      m04:X6       m04:X7       m04:X8       m05:X1       m05:X2       m05:X3  
+#&gt;   3.327e-02   -8.551e-03           NA    1.530e-02   -4.858e-02   -1.451e-02  
+#&gt;      m05:X4       m05:X5       m05:X6       m05:X7       m05:X8       m06:X1  
+#&gt;   1.958e-03    3.823e-02   -5.835e-02    2.097e-03           NA   -8.318e-02  
+#&gt;      m06:X2       m06:X3       m06:X4       m06:X5       m06:X6       m06:X7  
+#&gt;   1.141e-01   -4.265e-02   -3.411e-02   -1.946e-02   -5.368e-02   -6.319e-02  
+#&gt;      m06:X8       m07:X1       m07:X2       m07:X3       m07:X4       m07:X5  
+#&gt;          NA   -1.102e-01   -1.820e-02   -8.430e-02   -3.744e-02   -1.059e-01  
+#&gt;      m07:X6       m07:X7       m07:X8       m08:X1       m08:X2       m08:X3  
+#&gt;  -3.105e-03   -1.263e-02           NA   -9.409e-02   -9.344e-02   -3.130e-02  
+#&gt;      m08:X4       m08:X5       m08:X6       m08:X7       m08:X8       m09:X1  
+#&gt;   3.927e-03   -4.415e-03   -5.756e-02   -6.987e-05           NA    6.399e-02  
+#&gt;      m09:X2       m09:X3       m09:X4       m09:X5       m09:X6       m09:X7  
+#&gt;  -5.561e-02   -3.413e-02   -4.475e-03   -7.922e-03   -1.096e-02   -1.039e-02  
+#&gt;      m09:X8       m10:X1       m10:X2       m10:X3       m10:X4       m10:X5  
+#&gt;          NA   -6.815e-02    2.977e-02   -4.956e-02   -3.438e-02   -1.950e-02  
+#&gt;      m10:X6       m10:X7       m10:X8  
+#&gt;   3.076e-02   -1.028e-01           NA  
+#&gt; 
+#&gt; 
+#&gt; $df_samples_subset
+#&gt; </span><span style='color: #555555;'># A tibble: 16,000 x 20</span><span>
+#&gt;    donor condition   m01   m02   m03   m04   m05   m06   m07   m08   m09   m10
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;fct&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;fct&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 1</span><span> 1     treatment 0.390  3.93  3.84 1.94   1.94 1.94   3.11 3.18  1.14   3.44
+#&gt; </span><span style='color: #555555;'> 2</span><span> 1     treatment 0      3.65  3.07 2.46   4.21 2.56   2.75 1.53  2.05   3.09
+#&gt; </span><span style='color: #555555;'> 3</span><span> 1     treatment 0.199  1.75  3.04 4.29   2.35 1.61   1.14 1.02  2.70   4.70
+#&gt; </span><span style='color: #555555;'> 4</span><span> 1     treatment 1.02   2.09  2.62 2.14   2.82 0.569  2.49 2.05  1.14   3.30
+#&gt; </span><span style='color: #555555;'> 5</span><span> 1     treatment 1.99   2.49  1.82 4.02   2.19 0.733  1.44 0.881 2.56   2.05
+#&gt; </span><span style='color: #555555;'> 6</span><span> 1     treatment 0.199  1.94  2.73 4.10   1.75 0.881  2.35 2.46  2.35   3.50
+#&gt; </span><span style='color: #555555;'> 7</span><span> 1     treatment 2.27   4.27  1.44 1.25   5.29 2.14   2.35 2.59  1.25   2.35
+#&gt; </span><span style='color: #555555;'> 8</span><span> 1     treatment 0.199  3.50  1.88 3.16   3.53 0.390  1.53 2.42  1.53   2.42
+#&gt; </span><span style='color: #555555;'> 9</span><span> 1     treatment 0.390  2.27  2.96 1.68   2.39 1.94   3.02 4.35  2.42   4.50
+#&gt; </span><span style='color: #555555;'>10</span><span> 1     treatment 0.390  2.75  1.68 0.733  2.67 2.42   2.75 3.73  0.199  3.18
+#&gt; </span><span style='color: #555555;'># … with 15,990 more rows, and 8 more variables: X1 </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, X2 </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, X3 </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>,</span><span>
+#&gt; </span><span style='color: #555555;'>#   X4 </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, X5 </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, X6 </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, X7 </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, X8 </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
+#&gt; 
+#&gt; $protein_names
+#&gt;  [1] "m01" "m02" "m03" "m04" "m05" "m06" "m07" "m08" "m09" "m10"
+#&gt; 
+#&gt; $condition
+#&gt; [1] "condition"
+#&gt; 
+#&gt; $group
+#&gt; [1] "donor"
+#&gt; 
+#&gt; $cell_n_min
+#&gt; [1] Inf
+#&gt; 
+#&gt; $cell_n_subsample
+#&gt; [1] 0
+#&gt; 
+#&gt; attr(,"class")
+#&gt; [1] "cytogroup"</div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
