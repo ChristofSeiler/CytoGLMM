@@ -4,7 +4,7 @@
 #' @method print cytoglmm
 #' @export
 #'
-#' @param fit A \code{cytoglmm} class
+#' @param x A \code{cytoglmm} class
 #' @param ... Other parameters
 #'
 #' @examples
@@ -17,20 +17,20 @@
 #'                               condition = "condition",
 #'                               group = "donor")
 #' print(glmm_fit)
-print.cytoglmm = function(fit, ...) {
+print.cytoglmm = function(x, ...) {
 
-  if(!is(fit, "cytoglmm"))
+  if(!is(x, "cytoglmm"))
     stop("Input needs to be a cytoglmm object computed by cytoglmm function.")
 
   cat("number of cells per group and condition:")
-  cell_count = table(pull(fit$df_samples_subset,fit$group),
-                     pull(fit$df_samples_subset,fit$condition))
+  cell_count = table(pull(x$df_samples_subset,x$group),
+                     pull(x$df_samples_subset,x$condition))
   print(cell_count)
 
-  cat("\nproteins included in the analysis:\n",fit$protein_names,"\n\n")
-  cat("condition compared:",fit$condition,"\n")
-  cat("grouping variable:",fit$group,"\n")
-  if(!is.null(fit$covariate_names))
-    cat("controlled covariates:",fit$covariate_names,"\n")
+  cat("\nproteins included in the analysis:\n",x$protein_names,"\n\n")
+  cat("condition compared:",x$condition,"\n")
+  cat("grouping variable:",x$group,"\n")
+  if(!is.null(x$covariate_names))
+    cat("controlled covariates:",x$covariate_names,"\n")
 
 }

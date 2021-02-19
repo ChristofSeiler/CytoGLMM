@@ -15,6 +15,9 @@ plot_heatmap(
 )
 }
 \arguments{
+\item{df_samples}{Data frame or tibble with proteins counts,
+cell condition, and group information}
+
 \item{sample_info_names}{Column names that contain information about
 the cell, e.g. donor, condition, file name, or cell type}
 
@@ -27,9 +30,6 @@ the cell, e.g. donor, condition, file name, or cell type}
 \item{cluster_cols}{Apply hierarchical cluster to columns}
 
 \item{fun}{Summary statistics of marker expression}
-
-\item{df_samples_subset}{Data frame or tibble with proteins counts,
-cell condition, and group information}
 }
 \value{
 \code{\link[pheatmap]{pheatmap}} object

@@ -15,6 +15,9 @@ plot_lda(
 )
 }
 \arguments{
+\item{df_samples}{Data frame or tibble with proteins counts,
+cell condition, and group information}
+
 \item{protein_names}{A vector of column names of protein to use in the analysis}
 
 \item{group}{The column name of the group variable}
@@ -26,9 +29,6 @@ plot_lda(
 \item{marker_color}{Colors of marker names}
 
 \item{marker_size}{Size of markerr names}
-
-\item{df_samples_subset}{Data frame or tibble with proteins counts,
-cell condition, and group information}
 }
 \value{
 \code{\link[ggplot2]{ggplot2}} object

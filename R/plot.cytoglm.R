@@ -9,7 +9,7 @@
 #' @import dplyr
 #' @export
 #'
-#' @param fit A \code{cytoglm} class
+#' @param x A \code{cytoglm} class
 #' @param order Order the markers according to the mangintute of the coefficients
 #' @param separate create two separate \code{\link[ggplot2]{ggplot2}} objects
 #' @param ... Other parameters
@@ -26,21 +26,21 @@
 #'                             group = "donor",
 #'                             num_boot = 10) # just for docs, in practice >=1000
 #' plot(glm_fit)
-plot.cytoglm = function(fit, order = FALSE, separate = FALSE, ...) {
+plot.cytoglm = function(x, order = FALSE, separate = FALSE, ...) {
 
-  if(!is(fit, "cytoglm"))
+  if(!is(x, "cytoglm"))
     stop("Input needs to be a cytoglm object computed by cytoglm function.")
 
   # some jobs may fail (because of computing cluster instabilities)
-  if(nrow(fit$tb_coef) == 0)
+  if(nrow(x$tb_coef) == 0)
     stop("no results available")
 
-  xlab_str = fit$df_samples_subset %>%
-    pull(fit$condition) %>%
+  xlab_str = x$df_samples_subset %>%
+    pull(x$condition) %>%
     levels %>%
     paste(collapse = " <-> ")
 
-  plot_coeff(tb = fit$tb_coef,
+  plot_coeff(tb = x$tb_coef,
              title_str = "Bootstraps",
              title_str_right = "cytoglm",
              xlab_str = xlab_str,

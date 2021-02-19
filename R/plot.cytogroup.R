@@ -10,7 +10,7 @@
 #' @importFrom cowplot plot_grid
 #' @export
 #'
-#' @param fit A \code{cytoglmm} class
+#' @param x A \code{cytoglmm} class
 #' @param order Order the markers according to the mangintute of the coefficients
 #' @param separate create two separate \code{\link[ggplot2]{ggplot2}} objects
 #' @param ... Other parameters
@@ -26,20 +26,20 @@
 #'                                 condition = "condition",
 #'                                 group = "donor")
 #' plot(group_fit)
-plot.cytogroup = function(fit, order = FALSE, separate = FALSE, ...) {
+plot.cytogroup = function(x, order = FALSE, separate = FALSE, ...) {
 
-  if(!is(fit, "cytogroup"))
+  if(!is(x, "cytogroup"))
     stop("Input needs to be a cytogroup object computed by cytogroup function.")
 
-  summ = summary(fit$groupfit)
-  xlab_str = fit$df_samples_subset %>%
-    pull(fit$condition) %>%
+  summ = summary(x$groupfit)
+  xlab_str = x$df_samples_subset %>%
+    pull(x$condition) %>%
     levels %>%
     paste(collapse = " <-> ")
 
   # donor-specific effects
-  tb_coeff_donor = tibble(names = names(fit$groupfit$coefficients),
-                    value = fit$groupfit$coefficients)
+  tb_coeff_donor = tibble(names = names(x$groupfit$coefficients),
+                    value = x$groupfit$coefficients)
   tb_coeff_donor %<>%
     mutate(protein_name = vapply(str_split(tb_coeff_donor$names,":"),function(x) x[1], character(1)),
            donor = vapply(str_split(tb_coeff_donor$names,":"),function(x) x[2], character(1)))
@@ -49,7 +49,7 @@ plot.cytogroup = function(fit, order = FALSE, separate = FALSE, ...) {
   alpha = 0.05
   ci = qnorm(1-alpha/2)
   tb_coeff = summ$coefficient
-  tb_coeff = tb_coeff[fit$protein_names,]
+  tb_coeff = tb_coeff[x$protein_names,]
   tb_coeff %<>%
     as.data.frame %>%
     rownames_to_column(var = "protein_name") %>%

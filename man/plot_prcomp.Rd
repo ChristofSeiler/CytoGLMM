@@ -13,6 +13,9 @@ plot_prcomp(
 )
 }
 \arguments{
+\item{df_samples}{Data frame or tibble with proteins counts,
+cell condition, and group information}
+
 \item{protein_names}{A vector of column names of protein to use in the analysis}
 
 \item{color_var}{A column name}
@@ -20,9 +23,6 @@ plot_prcomp(
 \item{subsample_size}{Subsample per color_var variable}
 
 \item{repel}{Repel labels}
-
-\item{df_samples_subset}{Data frame or tibble with proteins counts,
-cell condition, and group information}
 }
 \value{
 \code{\link[cowplot]{cowplot}} object

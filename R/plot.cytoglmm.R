@@ -9,7 +9,7 @@
 #' @import dplyr
 #' @export
 #'
-#' @param fit A \code{cytoglmm} class
+#' @param x A \code{cytoglmm} class
 #' @param order Order the markers according to the mangintute of the coefficients
 #' @param separate create two separate \code{\link[ggplot2]{ggplot2}} objects
 #' @param ... Other parameters
@@ -25,20 +25,20 @@
 #'                               condition = "condition",
 #'                               group = "donor")
 #' plot(glmm_fit)
-plot.cytoglmm = function(fit, order = FALSE, separate = FALSE, ...) {
+plot.cytoglmm = function(x, order = FALSE, separate = FALSE, ...) {
 
-  if(!is(fit, "cytoglmm"))
+  if(!is(x, "cytoglmm"))
     stop("Input needs to be a cytoglmm object computed by cytoglmm function.")
-  if(!is.factor(fit$glmmfit$y))
+  if(!is.factor(x$glmmfit$y))
     stop("Currently only plotting results for logistic regression.")
 
-  summ = summary(fit$glmmfit)
+  summ = summary(x$glmmfit)
 
   # random effects
   stdev = sqrt(diag(summ$varcor[[1]])[-1])
   tb_random = tibble(protein_name = names(stdev),
                      stdev = stdev)
-  tb_random = tb_random[tb_random$protein_name %in% fit$protein_names,]
+  tb_random = tb_random[tb_random$protein_name %in% x$protein_names,]
 
   # fixed effects
   alpha = 0.05
@@ -52,7 +52,7 @@ plot.cytoglmm = function(fit, order = FALSE, separate = FALSE, ...) {
   tb_coeff %<>%
     mutate(high = tb_coeff$Estimate+ci*tb_coeff$`Std. Error`,
            low = tb_coeff$Estimate-ci*tb_coeff$`Std. Error`)
-  tb_coeff = tb_coeff[tb_coeff$protein_name %in% fit$protein_names,]
+  tb_coeff = tb_coeff[tb_coeff$protein_name %in% x$protein_names,]
 
   # order proteins according to coefficients
   if(order) {
@@ -68,8 +68,8 @@ plot.cytoglmm = function(fit, order = FALSE, separate = FALSE, ...) {
     ggtitle("Random Effects") +
     xlab("standard deviation") +
     theme(axis.title.y = element_blank())
-  xlab_str = fit$df_samples_subset %>%
-    pull(fit$condition) %>%
+  xlab_str = x$df_samples_subset %>%
+    pull(x$condition) %>%
     levels %>%
     paste(collapse = " <-> ")
   pcoef = ggplot(tb_coeff, aes(x = Estimate, y = protein_name)) +

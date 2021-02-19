@@ -4,10 +4,10 @@
 \alias{plot.cytoglmm}
 \title{Plot fixded coefficients of random effects model}
 \usage{
-\method{plot}{cytoglmm}(fit, order = FALSE, separate = FALSE, ...)
+\method{plot}{cytoglmm}(x, order = FALSE, separate = FALSE, ...)
 }
 \arguments{
-\item{fit}{A \code{cytoglmm} class}
+\item{x}{A \code{cytoglmm} class}
 
 \item{order}{Order the markers according to the mangintute of the coefficients}
 

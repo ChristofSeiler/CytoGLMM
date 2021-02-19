@@ -7,9 +7,9 @@
 \method{print}{cytoglm}(fit, ...)
 }
 \arguments{
-\item{fit}{A \code{cytoglm} class}
-
 \item{...}{Other parameters}
+
+\item{x}{A \code{cytoglm} class}
 }
 \description{
 Extact and print bootstrap GLM fit

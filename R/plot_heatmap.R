@@ -6,7 +6,7 @@
 #' @importFrom pheatmap pheatmap
 #' @export
 #'
-#' @param df_samples_subset Data frame or tibble with proteins counts,
+#' @param df_samples Data frame or tibble with proteins counts,
 #'   cell condition, and group information
 #' @param sample_info_names Column names that contain information about
 #'   the cell, e.g. donor, condition, file name, or cell type

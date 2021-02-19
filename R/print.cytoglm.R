@@ -4,7 +4,7 @@
 #' @method print cytoglm
 #' @export
 #'
-#' @param fit A \code{cytoglm} class
+#' @param x A \code{cytoglm} class
 #' @param ... Other parameters
 #'
 #' @examples

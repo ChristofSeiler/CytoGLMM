@@ -8,7 +8,7 @@
 #' @import dplyr
 #' @export
 #'
-#' @param fit A \code{cytoglm} class
+#' @param x A \code{cytoglm} class
 #' @param method Multiple comparison adjustment method
 #' @param ... Other parameters
 #' @return \code{\link[tibble]{tibble}} data frame
@@ -24,18 +24,18 @@
 #'                             group = "donor",
 #'                             num_boot = 10) # just for docs, in practice >=1000
 #' summary(glm_fit)
-summary.cytoglm = function(fit, method = "BH", ...) {
+summary.cytoglm = function(x, method = "BH", ...) {
 
-  if(!is(fit, "cytoglm"))
+  if(!is(x, "cytoglm"))
     stop("Input needs to be a cytoglm object computed by cytoglm function.")
 
   # calculate p-values from bootstrap distribution
-  df_pvalues = fit$tb_coef %>%
+  df_pvalues = x$tb_coef %>%
     group_by(protein_name) %>%
     summarize(pvalues_unadj = 2*min(mean(coeff < 0), mean(coeff > 0)))
   df_pvalues %<>% mutate(pvalues_unadj = if_else(
     condition = pvalues_unadj == 0,
-    true = 2*1/fit$num_boot,
+    true = 2*1/x$num_boot,
     false = pvalues_unadj))
   df_pvalues %<>% mutate(pvalues_adj = p.adjust(pvalues_unadj,
                                                 method = method))

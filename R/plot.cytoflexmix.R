@@ -12,7 +12,7 @@
 #' @importFrom caret cluster
 #' @export
 #'
-#' @param fit A \code{cytoflexmix} class
+#' @param x A \code{cytoflexmix} class
 #' @param k Number of clusters
 #' @param separate create two separate \code{\link[ggplot2]{ggplot2}} objects
 #' @param ... Other parameters
@@ -29,16 +29,16 @@
 #'                                 group = "donor",
 #'                                 ks = 2)
 #' plot(mix_fit)
-plot.cytoflexmix = function(fit, k = NULL, separate = FALSE, ...) {
+plot.cytoflexmix = function(x, k = NULL, separate = FALSE, ...) {
 
-  if(!is(fit, "cytoflexmix"))
+  if(!is(x, "cytoflexmix"))
     stop("Input needs to be a cytoflexmix object computed by cytoflexmix function.")
 
   # plot selection criteria
   tb_sel = tibble(
-    id = seq(fit$flexmixfits),
-    k = vapply(fit$flexmixfits,function(fit) fit@components %>% length, numeric(1)),
-    BIC = vapply(fit$flexmixfits, BIC, numeric(1))
+    id = seq(x$flexmixfits),
+    k = vapply(x$flexmixfits,function(fit) fit@components %>% length, numeric(1)),
+    BIC = vapply(x$flexmixfits, BIC, numeric(1))
     )
   # select best model
   best_id = tb_sel$id[which.min(tb_sel$BIC)]
@@ -46,8 +46,8 @@ plot.cytoflexmix = function(fit, k = NULL, separate = FALSE, ...) {
 
   # plot cell to cluster assignments
   tb = tibble(
-    group = pull(fit$df_samples_subset,fit$group),
-    cluster = fit$flexmixfits[[best_id]]@cluster
+    group = pull(x$df_samples_subset,x$group),
+    cluster = x$flexmixfits[[best_id]]@cluster
   )
   tb$cluster %<>% as.factor
   tb_tally = tb %>%
@@ -57,24 +57,24 @@ plot.cytoflexmix = function(fit, k = NULL, separate = FALSE, ...) {
   tb_tally$group %<>% factor(levels = rev(tb_tally$group))
   pceltocluster = ggplot(tb_tally, aes(x = group, y = n, fill = cluster)) +
     geom_bar(stat="identity", position = "dodge") +
-    xlab(fit$group) +
+    xlab(x$group) +
     ylab("number of cells") +
     coord_flip() +
     ggtitle("Cluster Assigment")
 
   # plot component-wise coefficients
-  xlab_str = fit$df_samples_subset %>%
-    pull(fit$condition) %>%
+  xlab_str = x$df_samples_subset %>%
+    pull(x$condition) %>%
     levels %>%
     paste(collapse = " <-> ")
 
-  best_refit = refit(fit$flexmixfits[[best_id]],method = "mstep")
+  best_refit = refit(x$flexmixfits[[best_id]],method = "mstep")
   alpha = 0.05
   ci = qnorm(1-alpha/2)
   tb_coeff_all = lapply(seq(tb_sel$k[best_id]),function(comp) {
     summ = summary(best_refit@components[[1]][[comp]])
     tb_coeff = summ$coefficient
-    tb_coeff = tb_coeff[fit$protein_names,]
+    tb_coeff = tb_coeff[x$protein_names,]
     tb_coeff %<>%
       as.data.frame %>%
       rownames_to_column(var = "protein_name") %>%

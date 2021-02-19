@@ -8,7 +8,7 @@
 #' @importFrom MASS lda
 #' @export
 #'
-#' @param df_samples_subset Data frame or tibble with proteins counts,
+#' @param df_samples Data frame or tibble with proteins counts,
 #'   cell condition, and group information
 #' @param protein_names A vector of column names of protein to use in the analysis
 #' @param group The column name of the group variable

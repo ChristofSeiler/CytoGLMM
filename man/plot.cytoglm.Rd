@@ -4,10 +4,10 @@
 \alias{plot.cytoglm}
 \title{Plot bootstraped coefficients}
 \usage{
-\method{plot}{cytoglm}(fit, order = FALSE, separate = FALSE, ...)
+\method{plot}{cytoglm}(x, order = FALSE, separate = FALSE, ...)
 }
 \arguments{
-\item{fit}{A \code{cytoglm} class}
+\item{x}{A \code{cytoglm} class}
 
 \item{order}{Order the markers according to the mangintute of the coefficients}
 

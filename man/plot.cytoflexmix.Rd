@@ -4,10 +4,10 @@
 \alias{plot.cytoflexmix}
 \title{Plot all components of mixture regression}
 \usage{
-\method{plot}{cytoflexmix}(fit, k = NULL, separate = FALSE, ...)
+\method{plot}{cytoflexmix}(x, k = NULL, separate = FALSE, ...)
 }
 \arguments{
-\item{fit}{A \code{cytoflexmix} class}
+\item{x}{A \code{cytoflexmix} class}
 
 \item{k}{Number of clusters}
 

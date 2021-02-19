@@ -4,10 +4,10 @@
 \alias{summary.cytoglm}
 \title{Extact and calculate p-values of bootstrap GLM fit}
 \usage{
-\method{summary}{cytoglm}(fit, method = "BH", ...)
+\method{summary}{cytoglm}(x, method = "BH", ...)
 }
 \arguments{
-\item{fit}{A \code{cytoglm} class}
+\item{x}{A \code{cytoglm} class}
 
 \item{method}{Multiple comparison adjustment method}
 
