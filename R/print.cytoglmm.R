@@ -6,6 +6,7 @@
 #'
 #' @param x A \code{cytoglmm} class
 #' @param ... Other parameters
+#' @return NULL.
 #'
 #' @examples
 #' set.seed(23)

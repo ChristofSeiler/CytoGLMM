@@ -11,6 +11,9 @@
 
 \item{...}{Other parameters}
 }
+\value{
+NULL.
+}
 \description{
 Extact and print bootstrap GLM fit
 }

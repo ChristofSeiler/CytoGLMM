@@ -6,6 +6,7 @@
 #' @param group The column name of the group variable
 #' @param unpaired true if unpaired samples were provided as input
 #' @param cell_n_min Remove samples that are below this cell counts threshold
+#' @return NULL.
 #'
 remove_samples = function(df_samples_subset,
                           condition,

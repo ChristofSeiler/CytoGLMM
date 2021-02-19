@@ -3,6 +3,7 @@
 #' @param cell_n_subsample Subsample samples to have this maximum cell count
 #' @param cell_n_min A vector of column names of protein to use in the analysis
 #' @param protein_names A vector of column names of protein to use in the analysis
+#' @return NULL.
 #'
 cyto_check = function(cell_n_subsample,
                       cell_n_min,

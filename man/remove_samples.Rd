@@ -18,6 +18,9 @@ cell condition, and group information}
 
 \item{cell_n_min}{Remove samples that are below this cell counts threshold}
 }
+\value{
+NULL.
+}
 \description{
 Remove samples based on low cell counts
 }
