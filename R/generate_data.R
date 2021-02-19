@@ -29,7 +29,7 @@ generate_data = function() {
   n_true = 3
 
   # patient information
-  donor = rep(1:n_donors, each = n_cells)
+  donor = rep(seq_len(n_donors), each = n_cells)
   donor %<>% rep(2)
   condition = c(
     rep("treatment", length(donor)/2),
@@ -38,7 +38,7 @@ generate_data = function() {
   df = tibble(donor, condition)
 
   # generate protein counts
-  protein_names = paste0("m", str_pad(1:n_markers, width = 2, pad = "0"))
+  protein_names = paste0("m", str_pad(seq_len(n_markers), width = 2, pad = "0"))
   rcov = function(rho, sigma) {
     corr = rho^toeplitz(0:(n_markers-1))
     sigma_vec = rep(sigma, n_markers)
@@ -48,7 +48,7 @@ generate_data = function() {
     corr = diag(1, nrow = n_markers)
     corr_act = rho^toeplitz(0:(n_true-1))
     corr_notact = rho^toeplitz(0:(n_markers-n_true-1))
-    corr[1:n_true,1:n_true] = corr_act
+    corr[seq_len(n_true),seq_len(n_true)] = corr_act
     corr[(n_true+1):n_markers,(n_true+1):n_markers] = corr_notact
     sigma_vec = rep(sigma, n_markers)
     diag(sigma_vec) %*% corr %*% diag(sigma_vec)
@@ -59,7 +59,7 @@ generate_data = function() {
   u = mvrnorm(n = n_donors, mu = rep(0, n_markers), Sigma_u)
   u = u[donor, ]
   beta = matrix(beta_control, nrow = nrow(b), ncol = n_markers)
-  beta[,1:n_true] = ifelse(condition == "treatment", beta_treatment, beta_control)
+  beta[,seq_len(n_true)] = ifelse(condition == "treatment", beta_treatment, beta_control)
   log_lambda = beta + b + u
   lambda = exp(log_lambda)
   y = rpois(length(lambda), lambda)

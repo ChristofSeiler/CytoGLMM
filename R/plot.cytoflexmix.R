@@ -9,6 +9,7 @@
 #' @import dplyr
 #' @import flexmix
 #' @importFrom cowplot plot_grid
+#' @importFrom caret cluster
 #' @export
 #'
 #' @param fit A \code{cytoflexmix} class

@@ -2,6 +2,7 @@
 #'
 #' @import magrittr
 #' @importFrom speedglm speedglm
+#' @importFrom caret class2ind
 #' @export
 #'
 #' @param df_samples_subset Data frame or tibble with proteins counts,
