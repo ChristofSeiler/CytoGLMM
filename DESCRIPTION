@@ -32,7 +32,8 @@ Imports:
     MASS,
     logging,
     Matrix,
-    tidyr
+    tidyr,
+    caret
 Depends:
     Rcpp
 Suggests:
