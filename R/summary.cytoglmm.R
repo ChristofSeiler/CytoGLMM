@@ -10,6 +10,7 @@
 #'
 #' @param fit A \code{cytoglmm} class
 #' @param method Multiple comparison adjustment method
+#' @param ... Other parameters
 #' @return \code{\link[tibble]{tibble}} data frame
 #'
 #' @examples
@@ -22,7 +23,7 @@
 #'                               condition = "condition",
 #'                               group = "donor")
 #' summary(glmm_fit)
-summary.cytoglmm = function(fit, method = "BH") {
+summary.cytoglmm = function(fit, method = "BH", ...) {
 
   if(!is(fit, "cytoglmm"))
     stop("Input needs to be a cytoglmm object computed by cytoglmm function.")

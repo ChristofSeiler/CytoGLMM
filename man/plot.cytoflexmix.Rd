@@ -4,7 +4,7 @@
 \alias{plot.cytoflexmix}
 \title{Plot all components of mixture regression}
 \usage{
-\method{plot}{cytoflexmix}(fit, k = NULL, separate = FALSE)
+\method{plot}{cytoflexmix}(fit, k = NULL, separate = FALSE, ...)
 }
 \arguments{
 \item{fit}{A \code{cytoflexmix} class}
@@ -12,6 +12,8 @@
 \item{k}{Number of clusters}
 
 \item{separate}{create two separate \code{\link[ggplot2]{ggplot2}} objects}
+
+\item{...}{Other parameters}
 }
 \value{
 \code{\link[ggplot2]{ggplot2}} object

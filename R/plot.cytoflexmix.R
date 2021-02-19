@@ -15,6 +15,7 @@
 #' @param fit A \code{cytoflexmix} class
 #' @param k Number of clusters
 #' @param separate create two separate \code{\link[ggplot2]{ggplot2}} objects
+#' @param ... Other parameters
 #' @return \code{\link[ggplot2]{ggplot2}} object
 #'
 #' @examples
@@ -28,7 +29,7 @@
 #'                                 group = "donor",
 #'                                 ks = 2)
 #' plot(mix_fit)
-plot.cytoflexmix = function(fit, k = NULL, separate = FALSE) {
+plot.cytoflexmix = function(fit, k = NULL, separate = FALSE, ...) {
 
   if(!is(fit, "cytoflexmix"))
     stop("Input needs to be a cytoflexmix object computed by cytoflexmix function.")

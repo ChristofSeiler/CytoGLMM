@@ -5,6 +5,7 @@
 #' @export
 #'
 #' @param fit A \code{cytoglmm} class
+#' @param ... Other parameters
 #'
 #' @examples
 #' set.seed(23)
@@ -16,7 +17,7 @@
 #'                               condition = "condition",
 #'                               group = "donor")
 #' print(glmm_fit)
-print.cytoglmm = function(fit) {
+print.cytoglmm = function(fit, ...) {
 
   if(!is(fit, "cytoglmm"))
     stop("Input needs to be a cytoglmm object computed by cytoglmm function.")

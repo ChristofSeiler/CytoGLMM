@@ -4,10 +4,12 @@
 \alias{print.cytoglmm}
 \title{Extact and print GLMM fit}
 \usage{
-\method{print}{cytoglmm}(fit)
+\method{print}{cytoglmm}(fit, ...)
 }
 \arguments{
 \item{fit}{A \code{cytoglmm} class}
+
+\item{...}{Other parameters}
 }
 \description{
 Extact and print GLMM fit

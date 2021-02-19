@@ -4,12 +4,14 @@
 \alias{summary.cytoglmm}
 \title{Extact and calculate p-values of GLMM fit}
 \usage{
-\method{summary}{cytoglmm}(fit, method = "BH")
+\method{summary}{cytoglmm}(fit, method = "BH", ...)
 }
 \arguments{
 \item{fit}{A \code{cytoglmm} class}
 
 \item{method}{Multiple comparison adjustment method}
+
+\item{...}{Other parameters}
 }
 \value{
 \code{\link[tibble]{tibble}} data frame

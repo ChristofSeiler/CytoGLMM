@@ -12,6 +12,7 @@
 #' @param fit A \code{cytoglm} class
 #' @param order Order the markers according to the mangintute of the coefficients
 #' @param separate create two separate \code{\link[ggplot2]{ggplot2}} objects
+#' @param ... Other parameters
 #' @return \code{\link[ggplot2]{ggplot2}} object
 #'
 #' @examples
@@ -25,7 +26,7 @@
 #'                             group = "donor",
 #'                             num_boot = 10) # just for docs, in practice >=1000
 #' plot(glm_fit)
-plot.cytoglm = function(fit, order = FALSE, separate = FALSE) {
+plot.cytoglm = function(fit, order = FALSE, separate = FALSE, ...) {
 
   if(!is(fit, "cytoglm"))
     stop("Input needs to be a cytoglm object computed by cytoglm function.")

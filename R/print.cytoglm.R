@@ -5,6 +5,7 @@
 #' @export
 #'
 #' @param fit A \code{cytoglm} class
+#' @param ... Other parameters
 #'
 #' @examples
 #' set.seed(23)
@@ -17,7 +18,7 @@
 #'                             group = "donor",
 #'                             num_boot = 10) # just for docs, in practice >=1000
 #' print(glm_fit)
-print.cytoglm = function(fit) {
+print.cytoglm = function(fit, ...) {
 
   if(!is(fit, "cytoglm"))
     stop("Input needs to be a cytoglm object computed by cytoglm function.")

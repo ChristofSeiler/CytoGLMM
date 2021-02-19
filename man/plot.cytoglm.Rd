@@ -4,7 +4,7 @@
 \alias{plot.cytoglm}
 \title{Plot bootstraped coefficients}
 \usage{
-\method{plot}{cytoglm}(fit, order = FALSE, separate = FALSE)
+\method{plot}{cytoglm}(fit, order = FALSE, separate = FALSE, ...)
 }
 \arguments{
 \item{fit}{A \code{cytoglm} class}
@@ -12,6 +12,8 @@
 \item{order}{Order the markers according to the mangintute of the coefficients}
 
 \item{separate}{create two separate \code{\link[ggplot2]{ggplot2}} objects}
+
+\item{...}{Other parameters}
 }
 \value{
 \code{\link[ggplot2]{ggplot2}} object
