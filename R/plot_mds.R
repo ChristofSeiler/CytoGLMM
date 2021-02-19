@@ -1,4 +1,4 @@
-#' MDS on median marker expression.
+#' MDS on median marker expression
 #'
 #' @import ggplot2
 #' @import dplyr
@@ -7,6 +7,24 @@
 #' @import cowplot
 #' @export
 #'
+#' @param df_samples Data frame or tibble with proteins counts,
+#'   cell condition, and group information
+#' @param protein_names A vector of column names of protein to use in the analysis
+#' @param sample_info_names Column names that contain information about
+#'   the cell, e.g. donor, condition, file name, or cell type
+#' @param color Column name
+#' @param sample_label Column name
+#' @return \code{\link[cowplot]{cowplot}} object
+#'
+#' @examples
+#' set.seed(23)
+#' df = generate_data()
+#' protein_names = names(df)[3:12]
+#' df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+#' CytoGLMM::plot_mds(df,
+#'                    protein_names = protein_names,
+#'                    sample_info_names = c("donor", "condition"),
+#'                    color = "condition")
 plot_mds = function(df_samples,
                     protein_names,
                     sample_info_names,

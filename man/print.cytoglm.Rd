@@ -6,6 +6,21 @@
 \usage{
 \method{print}{cytoglm}(fit)
 }
+\arguments{
+\item{fit}{A \code{cytoglm} class}
+}
 \description{
 Extact and print bootstrap GLM fit
+}
+\examples{
+set.seed(23)
+df = generate_data()
+protein_names = names(df)[3:12]
+df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+glm_fit = CytoGLMM::cytoglm(df,
+                            protein_names = protein_names,
+                            condition = "condition",
+                            group = "donor",
+                            num_boot = 10) # just for docs, in practice >=1000
+print(glm_fit)
 }

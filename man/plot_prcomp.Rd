@@ -12,6 +12,30 @@ plot_prcomp(
   repel = TRUE
 )
 }
+\arguments{
+\item{protein_names}{A vector of column names of protein to use in the analysis}
+
+\item{color_var}{A column name}
+
+\item{subsample_size}{Subsample per color_var variable}
+
+\item{repel}{Repel labels}
+
+\item{df_samples_subset}{Data frame or tibble with proteins counts,
+cell condition, and group information}
+}
+\value{
+\code{\link[cowplot]{cowplot}} object
+}
 \description{
 Plot PCA of subsampled data using ggplot.
+}
+\examples{
+set.seed(23)
+df = generate_data()
+protein_names = names(df)[3:12]
+df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+CytoGLMM::plot_prcomp(df,
+                      protein_names = protein_names,
+                      color_var = "condition")
 }

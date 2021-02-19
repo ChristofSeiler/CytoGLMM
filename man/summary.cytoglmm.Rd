@@ -6,6 +6,22 @@
 \usage{
 \method{summary}{cytoglmm}(fit, method = "BH")
 }
+\arguments{
+\item{fit}{A \code{cytoglmm} class}
+
+\item{method}{Multiple comparison adjustment method}
+}
 \description{
 Extact and calculate p-values of GLMM fit
+}
+\examples{
+set.seed(23)
+df = generate_data()
+protein_names = names(df)[3:12]
+df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+glmm_fit = CytoGLMM::cytoglmm(df,
+                              protein_names = protein_names,
+                              condition = "condition",
+                              group = "donor")
+summary(glmm_fit)
 }

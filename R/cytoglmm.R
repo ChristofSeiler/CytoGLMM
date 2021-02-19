@@ -29,12 +29,12 @@
 #' set.seed(23)
 #' df = generate_data()
 #' protein_names = names(df)[3:12]
+#' df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
 #' glmm_fit = CytoGLMM::cytoglmm(df,
 #'                               protein_names = protein_names,
 #'                               condition = "condition",
 #'                               group = "donor")
 #' glmm_fit
-#'
 cytoglmm = function(df_samples_subset,
                     protein_names,
                     condition,

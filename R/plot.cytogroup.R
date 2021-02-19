@@ -10,7 +10,22 @@
 #' @import cowplot
 #' @export
 #'
-plot.cytogroup = function(fit,order = FALSE, separate = FALSE) {
+#' @param fit A \code{cytoglmm} class
+#' @param order Order the markers according to the mangintute of the coefficients
+#' @param separate create two separate \code{\link[ggplot2]{ggplot2}} objects
+#' @return \code{\link[ggplot2]{ggplot2}} object
+#'
+#' @examples
+#' set.seed(23)
+#' df = generate_data()
+#' protein_names = names(df)[3:12]
+#' df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+#' group_fit = CytoGLMM::cytogroup(df,
+#'                                 protein_names = protein_names,
+#'                                 condition = "condition",
+#'                                 group = "donor")
+#' plot(group_fit)
+plot.cytogroup = function(fit, order = FALSE, separate = FALSE) {
 
   if(!is(fit, "cytogroup"))
     stop("Input needs to be a cytogroup object computed by cytogroup function.")

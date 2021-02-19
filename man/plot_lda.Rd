@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_lda.R
 \name{plot_lda}
 \alias{plot_lda}
-\title{LDA on marker expression.}
+\title{LDA on marker expression}
 \usage{
 plot_lda(
   df_samples,
@@ -14,6 +14,36 @@ plot_lda(
   marker_size = 5
 )
 }
+\arguments{
+\item{protein_names}{A vector of column names of protein to use in the analysis}
+
+\item{group}{The column name of the group variable}
+
+\item{cor_scaling_factor}{Scaling factor of circle of correlations}
+
+\item{arrow_color}{Color of correlation circle}
+
+\item{marker_color}{Colors of marker names}
+
+\item{marker_size}{Size of markerr names}
+
+\item{df_samples_subset}{Data frame or tibble with proteins counts,
+cell condition, and group information}
+}
+\value{
+\code{\link[ggplot2]{ggplot2}} object
+}
 \description{
-LDA on marker expression.
+LDA on marker expression
+}
+\examples{
+set.seed(23)
+df = generate_data()
+protein_names = names(df)[3:12]
+df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+df$condition = rep(c("A", "B", "C", "D"), each = length(df$condition)/4)
+CytoGLMM::plot_lda(df,
+                   protein_names = protein_names,
+                   group = "condition",
+                   cor_scaling_factor = 2)
 }

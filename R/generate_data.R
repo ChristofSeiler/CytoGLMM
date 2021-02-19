@@ -15,7 +15,6 @@
 #' df = generate_data()
 #' str(df)
 #' df
-#'
 generate_data = function() {
 
   # simulation parameters

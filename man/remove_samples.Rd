@@ -6,6 +6,18 @@
 \usage{
 remove_samples(df_samples_subset, condition, group, unpaired, cell_n_min)
 }
+\arguments{
+\item{df_samples_subset}{Data frame or tibble with proteins counts,
+cell condition, and group information}
+
+\item{condition}{The column name of the condition variable}
+
+\item{group}{The column name of the group variable}
+
+\item{unpaired}{true if unpaired samples were provided as input}
+
+\item{cell_n_min}{Remove samples that are below this cell counts threshold}
+}
 \description{
 Remove samples based on low cell counts
 }

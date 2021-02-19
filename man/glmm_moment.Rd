@@ -13,6 +13,23 @@ glmm_moment(
   num_cores = 1
 )
 }
+\arguments{
+\item{protein_names}{A vector of column names of protein to use in the analysis}
+
+\item{group}{The column name of the group variable}
+
+\item{covariate_names}{The column names of covariates}
+
+\item{num_cores}{Number of computing cores}
+
+\item{df_samples_subset}{Data frame or tibble with proteins counts,
+cell condition, and group information}
+
+\item{condition}{The column name of the condition variable}
+}
+\value{
+\code{\link[mbest]{mbest}} object
+}
 \description{
 Generalized linear mixed model with maximum likelihood.
 }

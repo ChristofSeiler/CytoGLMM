@@ -15,6 +15,48 @@ cytoflexmix(
   num_cores = 1
 )
 }
+\arguments{
+\item{df_samples_subset}{Data frame or tibble with proteins counts,
+cell condition, and group information}
+
+\item{protein_names}{A vector of column names of protein to use in the analysis}
+
+\item{condition}{The column name of the condition variable}
+
+\item{group}{The column name of the group variable}
+
+\item{cell_n_min}{Remove samples that are below this cell counts threshold}
+
+\item{cell_n_subsample}{Subsample samples to have this maximum cell count}
+
+\item{ks}{A vector of cluster sizes}
+
+\item{num_cores}{Number of computing cores}
+}
+\value{
+A list of class \code{cytoglm} containing
+  \item{flexmixfits}{list of \code{\link[flexmix]{flexmix}} objects}
+  \item{df_samples_subset}{possibly subsampled df_samples_subset table}
+  \item{protein_names}{input protein names}
+  \item{condition}{input condition variable}
+  \item{group}{input group names}
+  \item{cell_n_min}{input cell_n_min}
+  \item{cell_n_subsample}{input cell_n_subsample}
+  \item{ks}{input ks}
+  \item{num_cores}{input num_cores}
+}
 \description{
 Logistic mixture regression
+}
+\examples{
+set.seed(23)
+df = generate_data()
+protein_names = names(df)[3:12]
+df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+mix_fit = CytoGLMM::cytoflexmix(df,
+                                protein_names = protein_names,
+                                condition = "condition",
+                                group = "donor",
+                                ks = 2)
+mix_fit
 }

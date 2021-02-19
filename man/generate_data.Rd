@@ -17,5 +17,4 @@ set.seed(23)
 df = generate_data()
 str(df)
 df
-
 }

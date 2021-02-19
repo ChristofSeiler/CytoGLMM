@@ -8,6 +8,19 @@
 #' @import dplyr
 #' @export
 #'
+#' @param fit A \code{cytoglmm} class
+#' @param method Multiple comparison adjustment method
+#'
+#' @examples
+#' set.seed(23)
+#' df = generate_data()
+#' protein_names = names(df)[3:12]
+#' df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+#' glmm_fit = CytoGLMM::cytoglmm(df,
+#'                               protein_names = protein_names,
+#'                               condition = "condition",
+#'                               group = "donor")
+#' summary(glmm_fit)
 summary.cytoglmm = function(fit, method = "BH") {
 
   if(!is(fit, "cytoglmm"))

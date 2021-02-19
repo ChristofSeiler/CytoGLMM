@@ -7,6 +7,22 @@
 #' @import factoextra
 #' @export
 #'
+#' @param df_samples_subset Data frame or tibble with proteins counts,
+#'   cell condition, and group information
+#' @param protein_names A vector of column names of protein to use in the analysis
+#' @param color_var A column name
+#' @param subsample_size Subsample per color_var variable
+#' @param repel Repel labels
+#' @return \code{\link[cowplot]{cowplot}} object
+#'
+#' @examples
+#' set.seed(23)
+#' df = generate_data()
+#' protein_names = names(df)[3:12]
+#' df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+#' CytoGLMM::plot_prcomp(df,
+#'                       protein_names = protein_names,
+#'                       color_var = "condition")
 plot_prcomp = function(df_samples,
                        protein_names,
                        color_var = "treatment",

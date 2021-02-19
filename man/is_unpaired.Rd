@@ -6,6 +6,17 @@
 \usage{
 is_unpaired(df_samples_subset, condition, group)
 }
+\arguments{
+\item{df_samples_subset}{Data frame or tibble with proteins counts,
+cell condition, and group information}
+
+\item{condition}{The column name of the condition variable}
+
+\item{group}{The column name of the group variable}
+}
+\value{
+A boolean
+}
 \description{
 Check if samples match or paired on condition
 }

@@ -13,6 +13,41 @@ cytogroup(
   cell_n_subsample = 0
 )
 }
+\arguments{
+\item{df_samples_subset}{Data frame or tibble with proteins counts,
+cell condition, and group information}
+
+\item{protein_names}{A vector of column names of protein to use in the analysis}
+
+\item{condition}{The column name of the condition variable}
+
+\item{group}{The column name of the group variable}
+
+\item{cell_n_min}{Remove samples that are below this cell counts threshold}
+
+\item{cell_n_subsample}{Subsample samples to have this maximum cell count}
+}
+\value{
+A list of class \code{cytoglm} containing
+  \item{groupfit}{\code{\link[speedglm]{speedglm}} object}
+  \item{df_samples_subset}{possibly subsampled df_samples_subset table}
+  \item{protein_names}{input protein names}
+  \item{condition}{input condition variable}
+  \item{group}{input group names}
+  \item{cell_n_min}{input cell_n_min}
+  \item{cell_n_subsample}{input cell_n_subsample}
+}
 \description{
 Group-specific fixed effects model
+}
+\examples{
+set.seed(23)
+df = generate_data()
+protein_names = names(df)[3:12]
+df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+group_fit = CytoGLMM::cytogroup(df,
+                                protein_names = protein_names,
+                                condition = "condition",
+                                group = "donor")
+group_fit
 }

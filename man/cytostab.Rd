@@ -13,6 +13,34 @@ cytostab(
   cell_n_subsample = 0
 )
 }
+\arguments{
+\item{df_samples_subset}{Data frame or tibble with proteins counts,
+cell condition, and group information}
+
+\item{protein_names}{A vector of column names of protein to use in the analysis}
+
+\item{condition}{The column name of the condition variable}
+
+\item{group}{The column name of the group variable}
+
+\item{cell_n_min}{Remove samples that are below this cell counts threshold}
+
+\item{cell_n_subsample}{Subsample samples to have this maximum cell count}
+}
+\value{
+A data frame
+}
 \description{
 Evaluate parameter stability with respect to gating sheme.
+}
+\examples{
+set.seed(23)
+df = generate_data()
+protein_names = names(df)[3:12]
+df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+stab = CytoGLMM::cytostab(df,
+                          protein_names = protein_names,
+                          condition = "condition",
+                          group = "donor")
+stab
 }

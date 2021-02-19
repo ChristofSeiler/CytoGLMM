@@ -10,6 +10,22 @@
 #' @import cowplot
 #' @export
 #'
+#' @param fit A \code{cytoglm} class
+#' @param order Order the markers according to the mangintute of the coefficients
+#' @param separate create two separate \code{\link[ggplot2]{ggplot2}} objects
+#' @return \code{\link[ggplot2]{ggplot2}} object
+#'
+#' @examples
+#' set.seed(23)
+#' df = generate_data()
+#' protein_names = names(df)[3:12]
+#' df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+#' glm_fit = CytoGLMM::cytoglm(df,
+#'                             protein_names = protein_names,
+#'                             condition = "condition",
+#'                             group = "donor",
+#'                             num_boot = 10) # just for docs, in practice >=1000
+#' plot(glm_fit)
 plot.cytoglm = function(fit, order = FALSE, separate = FALSE) {
 
   if(!is(fit, "cytoglm"))

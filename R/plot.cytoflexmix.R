@@ -11,6 +11,22 @@
 #' @import flexmix
 #' @export
 #'
+#' @param fit A \code{cytoflexmix} class
+#' @param k Number of clusters
+#' @param separate create two separate \code{\link[ggplot2]{ggplot2}} objects
+#' @return \code{\link[ggplot2]{ggplot2}} object
+#'
+#' @examples
+#' set.seed(23)
+#' df = generate_data()
+#' protein_names = names(df)[3:12]
+#' df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+#' mix_fit = CytoGLMM::cytoflexmix(df,
+#'                                 protein_names = protein_names,
+#'                                 condition = "condition",
+#'                                 group = "donor",
+#'                                 ks = 2)
+#' plot(mix_fit)
 plot.cytoflexmix = function(fit, k = NULL, separate = FALSE) {
 
   if(!is(fit, "cytoflexmix"))

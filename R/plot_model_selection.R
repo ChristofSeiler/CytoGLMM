@@ -8,6 +8,21 @@
 #' @import flexmix
 #' @export
 #'
+#' @param fit A \code{cytoflexmix} class
+#' @param k Number of clusters
+#' @return \code{\link[cowplot]{cowplot}} object
+#'
+#' @examples
+#' set.seed(23)
+#' df = generate_data()
+#' protein_names = names(df)[3:12]
+#' df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+#' mix_fit = CytoGLMM::cytoflexmix(df,
+#'                                 protein_names = protein_names,
+#'                                 condition = "condition",
+#'                                 group = "donor",
+#'                                 ks = 1:2)
+#' plot_model_selection(mix_fit)
 plot_model_selection = function(fit,k = NULL) {
 
   if(!is(fit, "cytoflexmix"))
@@ -23,7 +38,7 @@ plot_model_selection = function(fit,k = NULL) {
   # select best model
   best_id = tb_sel$id[which.min(tb_sel$BIC)]
   if(!is.null(k)) best_id = k
-  pmodel = ggplot(tb_sel %>% gather(criterion,value,-c(k,id)),
+  pmodel = ggplot(tb_sel %>% tidyr::gather(criterion,value,-c(k,id)),
                   aes(k,value, color = criterion)) +
     geom_vline(xintercept = tb_sel$k[best_id],color = "darkgray") +
     geom_hline(yintercept = tb_sel$BIC[best_id],color = "darkgray") +

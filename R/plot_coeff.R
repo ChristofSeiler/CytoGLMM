@@ -6,7 +6,16 @@
 #' @import dplyr
 #' @import cowplot
 #'
-plot_coeff = function(tb,title_str, title_str_right, xlab_str, redline = 0,
+#' @param tb A data frame
+#' @param title_str Title string for summary plot
+#' @param title_str_right Title for bootstrap sample plot
+#' @param xlab_str Label on x-axis
+#' @param redline Point on x-axis to draw the red line
+#' @param order Order the markers according to the mangintute of the coefficients
+#' @param separate Plot both summary and bootstrap samples
+#' @return \code{\link[ggplot2]{ggplot2}} object or list of two objects if separate is true
+#'
+plot_coeff = function(tb, title_str, title_str_right, xlab_str, redline = 0,
                       order = FALSE, separate = FALSE) {
 
   tb$run %<>% as.factor

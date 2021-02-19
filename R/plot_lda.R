@@ -1,4 +1,4 @@
-#' LDA on marker expression.
+#' LDA on marker expression
 #'
 #' @import ggplot2
 #' @import dplyr
@@ -8,6 +8,26 @@
 #' @import ggrepel
 #' @export
 #'
+#' @param df_samples_subset Data frame or tibble with proteins counts,
+#'   cell condition, and group information
+#' @param protein_names A vector of column names of protein to use in the analysis
+#' @param group The column name of the group variable
+#' @param cor_scaling_factor Scaling factor of circle of correlations
+#' @param arrow_color Color of correlation circle
+#' @param marker_color Colors of marker names
+#' @param marker_size Size of markerr names
+#' @return \code{\link[ggplot2]{ggplot2}} object
+#'
+#' @examples
+#' set.seed(23)
+#' df = generate_data()
+#' protein_names = names(df)[3:12]
+#' df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+#' df$condition = rep(c("A", "B", "C", "D"), each = length(df$condition)/4)
+#' CytoGLMM::plot_lda(df,
+#'                    protein_names = protein_names,
+#'                    group = "condition",
+#'                    cor_scaling_factor = 2)
 plot_lda = function(df_samples,
                     protein_names,
                     group,
@@ -16,11 +36,14 @@ plot_lda = function(df_samples,
                     marker_color = "black",
                     marker_size = 5) {
 
+  if(nlevels(factor(dplyr::pull(df_samples, group))) <= 2)
+    stop("need more than 2 levels in group variable")
+
   formula_str = paste(group, "~", paste(protein_names, collapse = " + "))
   expr_lda = lda(as.formula(formula_str), data = df_samples)
   expr_lda_pred = predict(expr_lda)
   # collect all necessary plotting info
-  tb = tibble(type = pull(df_samples, group),
+  tb = tibble(type = dplyr::pull(df_samples, group),
               LD1 = expr_lda_pred$x[,1],
               LD2 = expr_lda_pred$x[,2],
               pred = expr_lda_pred$class)

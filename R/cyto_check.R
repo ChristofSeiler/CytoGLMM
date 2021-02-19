@@ -1,8 +1,12 @@
 #' Check if input to cytoxxx function have errors
 #'
+#' @param cell_n_subsample Subsample samples to have this maximum cell count
+#' @param cell_n_min A vector of column names of protein to use in the analysis
+#' @param protein_names A vector of column names of protein to use in the analysis
+#'
 cyto_check = function(cell_n_subsample,
-                       cell_n_min,
-                       protein_names) {
+                      cell_n_min,
+                      protein_names) {
 
   if(cell_n_subsample > cell_n_min) stop("cell_n_subsample is larger than cell_n_min")
   if(sum(str_detect(protein_names,"/")) > 0) stop("protein names cannot contain '/'")

@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_mds.R
 \name{plot_mds}
 \alias{plot_mds}
-\title{MDS on median marker expression.}
+\title{MDS on median marker expression}
 \usage{
 plot_mds(
   df_samples,
@@ -12,6 +12,32 @@ plot_mds(
   sample_label = ""
 )
 }
+\arguments{
+\item{df_samples}{Data frame or tibble with proteins counts,
+cell condition, and group information}
+
+\item{protein_names}{A vector of column names of protein to use in the analysis}
+
+\item{sample_info_names}{Column names that contain information about
+the cell, e.g. donor, condition, file name, or cell type}
+
+\item{color}{Column name}
+
+\item{sample_label}{Column name}
+}
+\value{
+\code{\link[cowplot]{cowplot}} object
+}
 \description{
-MDS on median marker expression.
+MDS on median marker expression
+}
+\examples{
+set.seed(23)
+df = generate_data()
+protein_names = names(df)[3:12]
+df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+CytoGLMM::plot_mds(df,
+                   protein_names = protein_names,
+                   sample_info_names = c("donor", "condition"),
+                   color = "condition")
 }

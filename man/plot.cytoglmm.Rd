@@ -6,6 +6,27 @@
 \usage{
 \method{plot}{cytoglmm}(fit, order = FALSE, separate = FALSE)
 }
+\arguments{
+\item{fit}{A \code{cytoglmm} class}
+
+\item{order}{Order the markers according to the mangintute of the coefficients}
+
+\item{separate}{create two separate \code{\link[ggplot2]{ggplot2}} objects}
+}
+\value{
+\code{\link[ggplot2]{ggplot2}} object
+}
 \description{
 Plot fixded coefficients of random effects model
+}
+\examples{
+set.seed(23)
+df = generate_data()
+protein_names = names(df)[3:12]
+df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+glmm_fit = CytoGLMM::cytoglmm(df,
+                              protein_names = protein_names,
+                              condition = "condition",
+                              group = "donor")
+plot(glmm_fit)
 }

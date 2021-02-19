@@ -6,6 +6,26 @@
 #' @import tibble
 #' @export
 #'
+#' @param df_samples_subset Data frame or tibble with proteins counts,
+#'   cell condition, and group information
+#' @param protein_names A vector of column names of protein to use in the analysis
+#' @param condition The column name of the condition variable
+#' @param group The column name of the group variable
+#' @param cell_n_min Remove samples that are below this cell counts threshold
+#' @param cell_n_subsample Subsample samples to have this maximum cell count
+#'
+#' @return A data frame
+#'
+#' @examples
+#' set.seed(23)
+#' df = generate_data()
+#' protein_names = names(df)[3:12]
+#' df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+#' stab = CytoGLMM::cytostab(df,
+#'                           protein_names = protein_names,
+#'                           condition = "condition",
+#'                           group = "donor")
+#' stab
 cytostab = function(df_samples_subset,
                     protein_names,
                     condition,
