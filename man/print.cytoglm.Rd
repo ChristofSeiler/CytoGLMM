@@ -4,12 +4,12 @@
 \alias{print.cytoglm}
 \title{Extact and print bootstrap GLM fit}
 \usage{
-\method{print}{cytoglm}(fit, ...)
+\method{print}{cytoglm}(x, ...)
 }
 \arguments{
-\item{...}{Other parameters}
-
 \item{x}{A \code{cytoglm} class}
+
+\item{...}{Other parameters}
 }
 \description{
 Extact and print bootstrap GLM fit
