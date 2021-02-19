@@ -7,8 +7,8 @@
 #' @import tibble
 #' @import magrittr
 #' @import dplyr
-#' @import cowplot
 #' @import flexmix
+#' @importFrom cowplot plot_grid
 #' @export
 #'
 #' @param fit A \code{cytoflexmix} class

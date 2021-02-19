@@ -3,8 +3,8 @@
 #' @import ggplot2
 #' @import dplyr
 #' @import magrittr
-#' @import cowplot
-#' @import factoextra
+#' @importFrom cowplot plot_grid
+#' @importFrom factoextra fviz_eig fviz_pca_var
 #' @export
 #'
 #' @param df_samples_subset Data frame or tibble with proteins counts,

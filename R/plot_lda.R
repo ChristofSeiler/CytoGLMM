@@ -4,8 +4,8 @@
 #' @import dplyr
 #' @import magrittr
 #' @import tibble
-#' @import MASS
-#' @import ggrepel
+#' @importFrom ggrepel geom_text_repel
+#' @importFrom MASS lda
 #' @export
 #'
 #' @param df_samples_subset Data frame or tibble with proteins counts,

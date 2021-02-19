@@ -7,7 +7,7 @@
 #' @import tibble
 #' @import magrittr
 #' @import dplyr
-#' @import cowplot
+#' @importFrom cowplot plot_grid
 #' @export
 #'
 #' @param fit A \code{cytoglmm} class

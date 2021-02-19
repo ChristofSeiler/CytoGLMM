@@ -4,7 +4,6 @@
 #' @import tibble
 #' @import magrittr
 #' @import dplyr
-#' @import cowplot
 #'
 #' @param tb A data frame
 #' @param title_str Title string for summary plot

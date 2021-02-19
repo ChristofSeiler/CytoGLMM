@@ -4,7 +4,7 @@
 #' @import dplyr
 #' @import magrittr
 #' @import tibble
-#' @import cowplot
+#' @importFrom cowplot plot_grid
 #' @export
 #'
 #' @param df_samples Data frame or tibble with proteins counts,

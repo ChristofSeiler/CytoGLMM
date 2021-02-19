@@ -2,7 +2,7 @@
 #'
 #' @import dplyr
 #' @import tibble
-#' @importFrom magrittr %>% %<>%
+#' @import magrittr
 #' @importFrom MASS mvrnorm
 #' @importFrom Matrix toeplitz
 #' @importFrom stringr str_pad

@@ -1,9 +1,8 @@
 #' Evaluate parameter stability with respect to gating sheme
 #'
 #' @import magrittr
-#' @import stringr
-#' @import strucchange
 #' @import tibble
+#' @importFrom strucchange gefp
 #' @export
 #'
 #' @param df_samples_subset Data frame or tibble with proteins counts,

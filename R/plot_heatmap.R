@@ -2,8 +2,8 @@
 #'
 #' @import dplyr
 #' @import magrittr
-#' @import pheatmap
 #' @import RColorBrewer
+#' @importFrom pheatmap pheatmap
 #' @export
 #'
 #' @param df_samples_subset Data frame or tibble with proteins counts,

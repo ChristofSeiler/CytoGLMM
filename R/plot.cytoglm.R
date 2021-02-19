@@ -7,7 +7,6 @@
 #' @import tibble
 #' @import magrittr
 #' @import dplyr
-#' @import cowplot
 #' @export
 #'
 #' @param fit A \code{cytoglm} class

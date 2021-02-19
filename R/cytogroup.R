@@ -1,11 +1,7 @@
 #' Group-specific fixed effects model
 #'
 #' @import magrittr
-#' @import stringr
-#' @import flexmix
-#' @import cowplot
-#' @import caret
-#' @import speedglm
+#' @importFrom speedglm speedglm
 #' @export
 #'
 #' @param df_samples_subset Data frame or tibble with proteins counts,

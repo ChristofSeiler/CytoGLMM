@@ -2,7 +2,6 @@
 #'
 #' @import mbest
 #' @import doParallel
-#' @import dplyr
 #'
 #' @param df_samples_subset Data frame or tibble with proteins counts,
 #'   cell condition, and group information

@@ -2,7 +2,7 @@
 #'
 #' @import ggplot2
 #' @import tibble
-#' @importFrom magrittr %>% %<>%
+#' @import magrittr
 #' @importFrom cowplot plot_grid
 #' @importFrom tidyr pivot_longer
 #' @export
