@@ -2,10 +2,9 @@
 #'
 #' @import ggplot2
 #' @import tibble
-#' @import magrittr
-#' @import dplyr
-#' @import cowplot
-#' @import flexmix
+#' @importFrom magrittr %>% %<>%
+#' @importFrom cowplot plot_grid
+#' @importFrom tidyr pivot_longer
 #' @export
 #'
 #' @param fit A \code{cytoflexmix} class
@@ -38,7 +37,9 @@ plot_model_selection = function(fit,k = NULL) {
   # select best model
   best_id = tb_sel$id[which.min(tb_sel$BIC)]
   if(!is.null(k)) best_id = k
-  pmodel = ggplot(tb_sel %>% tidyr::gather(criterion,value,-c(k,id)),
+  pmodel = ggplot(tb_sel %>% tidyr::pivot_longer(!c(id,k),
+                                                 names_to = "criterion",
+                                                 values_to = "value"),
                   aes(k,value, color = criterion)) +
     geom_vline(xintercept = tb_sel$k[best_id],color = "darkgray") +
     geom_hline(yintercept = tb_sel$BIC[best_id],color = "darkgray") +
