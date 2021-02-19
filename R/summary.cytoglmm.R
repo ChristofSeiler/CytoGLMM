@@ -8,7 +8,7 @@
 #' @import dplyr
 #' @export
 #'
-#' @param x A \code{cytoglmm} class
+#' @param object A \code{cytoglmm} class
 #' @param method Multiple comparison adjustment method
 #' @param ... Other parameters
 #' @return \code{\link[tibble]{tibble}} data frame
@@ -23,12 +23,12 @@
 #'                               condition = "condition",
 #'                               group = "donor")
 #' summary(glmm_fit)
-summary.cytoglmm = function(x, method = "BH", ...) {
+summary.cytoglmm = function(object, method = "BH", ...) {
 
-  if(!is(x, "cytoglmm"))
+  if(!is(object, "cytoglmm"))
     stop("Input needs to be a cytoglmm object computed by cytoglmm function.")
 
-  pvalues_unadj = summary(x$glmmfit)$coefficients[-1,4]
+  pvalues_unadj = summary(object$glmmfit)$coefficients[-1,4]
   pvalues_adj = p.adjust(pvalues_unadj,method = method)
   df_pvalues = tibble(protein_name = names(pvalues_unadj),
                       pvalues_unadj,
