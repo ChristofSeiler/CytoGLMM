@@ -2,7 +2,7 @@
 % Please edit documentation in R/cytostab.R
 \name{cytostab}
 \alias{cytostab}
-\title{Evaluate parameter stability with respect to gating sheme.}
+\title{Evaluate parameter stability with respect to gating sheme}
 \usage{
 cytostab(
   df_samples_subset,
@@ -31,7 +31,7 @@ cell condition, and group information}
 A data frame
 }
 \description{
-Evaluate parameter stability with respect to gating sheme.
+Evaluate parameter stability with respect to gating sheme
 }
 \examples{
 set.seed(23)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/glmm_moment.R
 \name{glmm_moment}
 \alias{glmm_moment}
-\title{Generalized linear mixed model with maximum likelihood.}
+\title{Generalized linear mixed model with maximum likelihood}
 \usage{
 glmm_moment(
   df_samples,
@@ -31,5 +31,5 @@ cell condition, and group information}
 \code{\link[mbest]{mbest}} object
 }
 \description{
-Generalized linear mixed model with maximum likelihood.
+Generalized linear mixed model with maximum likelihood
 }

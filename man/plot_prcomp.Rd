@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_prcomp.R
 \name{plot_prcomp}
 \alias{plot_prcomp}
-\title{Plot PCA of subsampled data using ggplot.}
+\title{Plot PCA of subsampled data using ggplot}
 \usage{
 plot_prcomp(
   df_samples,
@@ -28,7 +28,7 @@ cell condition, and group information}
 \code{\link[cowplot]{cowplot}} object
 }
 \description{
-Plot PCA of subsampled data using ggplot.
+Plot PCA of subsampled data using ggplot
 }
 \examples{
 set.seed(23)

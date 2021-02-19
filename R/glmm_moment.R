@@ -1,4 +1,4 @@
-#' Generalized linear mixed model with maximum likelihood.
+#' Generalized linear mixed model with maximum likelihood
 #'
 #' @import mbest
 #' @import doParallel

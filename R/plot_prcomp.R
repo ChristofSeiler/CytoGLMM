@@ -1,4 +1,4 @@
-#' Plot PCA of subsampled data using ggplot.
+#' Plot PCA of subsampled data using ggplot
 #'
 #' @import ggplot2
 #' @import dplyr

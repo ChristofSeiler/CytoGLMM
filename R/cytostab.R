@@ -1,4 +1,4 @@
-#' Evaluate parameter stability with respect to gating sheme.
+#' Evaluate parameter stability with respect to gating sheme
 #'
 #' @import magrittr
 #' @import stringr
