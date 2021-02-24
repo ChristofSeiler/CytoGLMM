@@ -6,7 +6,15 @@ Authors@R: c(
     person("Christof", "Seiler", , "christof.seiler@maastrichtuniversity.nl", role = c("aut", "cre"), 
       comment = c(ORCID = "0000-0001-8802-3642"))
     )
-Description: Exploratory plots and regression analysis for mass cytometric experiments.
+Description: The CytoGLMM R package implements two multiple regression strategies: 
+  A generalized linear mixed model (GLMM) and a bootstrapped generalized linear 
+  model (GLM). Most current data analysis tools compare expressions across many 
+  computationally discovered cell types. CytoGLMM focuses on just one cell type. 
+  Our narrower field of application allows us to define a more specific statistical 
+  model with easier to control statistical guarantees. As a result, CytoGLMM finds 
+  differential proteins in flow and mass cytometry data while reducing biases arising 
+  from marker correlations and safeguarding against false discoveries induced by 
+  patient heterogeneity.
 License: LGPL-3
 URL: https://christofseiler.github.io/CytoGLMM, https://github.com/ChristofSeiler/CytoGLMM
 BugReports: https://github.com/ChristofSeiler/CytoGLMM/issues
