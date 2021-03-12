@@ -9,7 +9,8 @@
 \arguments{
 \item{x}{A \code{cytoglm} class}
 
-\item{order}{Order the markers according to the mangintute of the coefficients}
+\item{order}{Order the markers according to the mangintute of the
+coefficients}
 
 \item{separate}{create two separate \code{\link[ggplot2]{ggplot2}} objects}
 
@@ -30,6 +31,6 @@ glm_fit <- CytoGLMM::cytoglm(df,
                              protein_names = protein_names,
                              condition = "condition",
                              group = "donor",
-                             num_boot = 10) # just for docs, in practice >=1000
+                             num_boot = 10) # in practice >=1000
 plot(glm_fit)
 }

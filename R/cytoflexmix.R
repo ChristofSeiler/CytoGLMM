@@ -9,7 +9,8 @@
 #'
 #' @param df_samples_subset Data frame or tibble with proteins counts,
 #'   cell condition, and group information
-#' @param protein_names A vector of column names of protein to use in the analysis
+#' @param protein_names A vector of column names of protein to use in the
+#'   analysis
 #' @param condition The column name of the condition variable
 #' @param group The column name of the group variable
 #' @param cell_n_min Remove samples that are below this cell counts threshold
@@ -77,10 +78,9 @@ cytoflexmix <- function(df_samples_subset,
   df_samples_subset %<>% mutate_at(.vars = condition,.funs = as.factor)
   df_samples_subset %<>% mutate(
     xtreatment = ifelse(pull(df_samples_subset,condition) ==
-                          levels(pull(df_samples_subset,condition))[1],yes = 0,no = 1)
+                          levels(pull(df_samples_subset,condition))[1],
+                        yes = 0,no = 1)
   )
-  #varying_formula <- paste0("cbind(xtreatment,1-xtreatment) ~ 1 | donor")
-  #fixed_formula <- paste("~",paste(protein_names, collapse = " + "))
   varying_formula <- paste0("cbind(xtreatment,1-xtreatment) ~ (",
                             paste(protein_names, collapse = " + "),
                             ") | ",group)
@@ -94,8 +94,6 @@ cytoflexmix <- function(df_samples_subset,
                             stepFlexmix(as.formula(varying_formula),
                                         data = df_samples_subset,
                                         model = FLXMRglm(family = "binomial"),
-                                        #model = FLXMRglmfix(family = "binomial",
-                                        #                    fixed = as.formula(fixed_formula)),
                                         k = k,
                                         nrep = 5)
                             },

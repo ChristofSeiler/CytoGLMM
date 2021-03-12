@@ -11,7 +11,8 @@
 #'
 #' @param df_samples Data frame or tibble with proteins counts,
 #'   cell condition, and group information
-#' @param protein_names A vector of column names of protein to use in the analysis
+#' @param protein_names A vector of column names of protein to use in the
+#'   analysis
 #' @param sample_info_names Column names that contain information about
 #'   the cell, e.g. donor, condition, file name, or cell type
 #' @param color Column name
@@ -40,7 +41,8 @@ plot_mds <- function(df_samples,
     as.data.frame
   dist_matrix <- dist(expr_median[,-seq(sample_info_names)])
   mds_res <- cmdscale(dist_matrix,eig = TRUE, k = 2) # k is the number of dim
-  explained_var <- (100*mds_res$eig[seq_len(2)]/sum(mds_res$eig)) %>% round(digits = 1)
+  explained_var <- (100*mds_res$eig[seq_len(2)]/sum(mds_res$eig)) %>%
+    round(digits = 1)
   expr_median %<>% bind_cols(tibble(MDS1 = mds_res$points[,1],
                                     MDS2 = mds_res$points[,2]))
 
@@ -49,7 +51,8 @@ plot_mds <- function(df_samples,
   # only keep makers that have some variability
   protein_selection <- protein_names[protein_sd != 0]
   # correlations between variables and MDS axes
-  expr_cor <- cor(expr_median[,protein_selection],expr_median[,c("MDS1","MDS2")]) %>% as.tibble
+  expr_cor <- cor(expr_median[,protein_selection],
+                  expr_median[,c("MDS1","MDS2")]) %>% as.tibble
   expr_cor %<>% add_column(protein_selection)
   # add arrows coordinates
   expr_cor %<>% add_column(x0 = rep(0,nrow(expr_cor)))
@@ -64,21 +67,25 @@ plot_mds <- function(df_samples,
   }
   corcir <- circle(c(0, 0), npoints = 100)
   circle_plot <- ggplot() +
-    geom_path(data = corcir, aes(x = .data$x, y = .data$y), colour = "gray65") +
+    geom_path(data = corcir, aes(x = .data$x, y = .data$y),
+              colour = "gray65") +
     geom_hline(yintercept = 0, colour = "gray65") +
     geom_vline(xintercept = 0, colour = "gray65") +
     xlim(-1.1, 1.1) + ylim(-1.1, 1.1) +
     geom_segment(data = expr_cor,
-                 aes(x = .data$x0, y = .data$y0, xend = .data$MDS1, yend = .data$MDS2),
+                 aes(x = .data$x0, y = .data$y0,
+                     xend = .data$MDS1, yend = .data$MDS2),
                  colour = "gray65") +
     geom_text(data = expr_cor,
-              aes(x = .data$MDS1, y = .data$MDS2, label = .data$protein_selection)) +
+              aes(x = .data$MDS1, y = .data$MDS2,
+                  label = .data$protein_selection)) +
     labs(x = "MDS1") +
     labs(y = "MDS2") +
     coord_fixed()
 
   # plot MDS
-  mds_plot <- ggplot(expr_median, aes_string(x = "MDS1", y = "MDS2", color = color)) +
+  mds_plot <- ggplot(expr_median, aes_string(x = "MDS1", y = "MDS2",
+                                             color = color)) +
     geom_point(size = 2) +
     coord_fixed(ratio = explained_var[2] / explained_var[1]) +
     xlab(paste0("MDS1 (",explained_var[1],"%)")) +

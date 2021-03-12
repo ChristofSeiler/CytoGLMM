@@ -20,7 +20,8 @@ cytoglm(
 \item{df_samples_subset}{Data frame or tibble with proteins counts,
 cell condition, and group information}
 
-\item{protein_names}{A vector of column names of protein to use in the analysis}
+\item{protein_names}{A vector of column names of protein to use in the
+analysis}
 
 \item{condition}{The column name of the condition variable}
 
@@ -63,6 +64,6 @@ glm_fit <- CytoGLMM::cytoglm(df,
                              protein_names = protein_names,
                              condition = "condition",
                              group = "donor",
-                             num_boot = 10) # just for docs, in practice >=1000
+                             num_boot = 10) # in practice >=1000
 glm_fit
 }

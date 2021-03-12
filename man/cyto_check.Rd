@@ -11,7 +11,8 @@ cyto_check(cell_n_subsample, cell_n_min, protein_names)
 
 \item{cell_n_min}{A vector of column names of protein to use in the analysis}
 
-\item{protein_names}{A vector of column names of protein to use in the analysis}
+\item{protein_names}{A vector of column names of protein to use in the
+analysis}
 }
 \value{
 NULL.

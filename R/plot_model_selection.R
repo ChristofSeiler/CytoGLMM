@@ -28,12 +28,13 @@
 plot_model_selection <- function(fit,k = NULL) {
 
   if(!is(fit, "cytoflexmix"))
-    stop("Input needs to be a cytoflexmix object computed by cytoflexmix function.")
+    stop("Input needs to be a cytoflexmix object.")
 
   # plot selection criteria
   tb_sel <- tibble(
     id = seq(fit$flexmixfits),
-    k = vapply(fit$flexmixfits, function(fit) fit@components %>% length, numeric(1)),
+    k = vapply(fit$flexmixfits,
+               function(fit) fit@components %>% length, numeric(1)),
     BIC = vapply(fit$flexmixfits, BIC, numeric(1)),
     AIC = vapply(fit$flexmixfits, AIC, numeric(1))
   )

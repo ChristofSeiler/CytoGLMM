@@ -6,7 +6,8 @@
 #'
 #' @param df_samples_subset Data frame or tibble with proteins counts,
 #'   cell condition, and group information
-#' @param protein_names A vector of column names of protein to use in the analysis
+#' @param protein_names A vector of column names of protein to use in the
+#'   analysis
 #' @param condition The column name of the condition variable
 #' @param group The column name of the group variable
 #' @param covariate_names The column names of covariates

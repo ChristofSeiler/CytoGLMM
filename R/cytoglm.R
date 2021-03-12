@@ -8,7 +8,8 @@
 #'
 #' @param df_samples_subset Data frame or tibble with proteins counts,
 #'   cell condition, and group information
-#' @param protein_names A vector of column names of protein to use in the analysis
+#' @param protein_names A vector of column names of protein to use in the
+#'   analysis
 #' @param condition The column name of the condition variable
 #' @param group The column name of the group variable
 #' @param covariate_names The column names of covariates
@@ -40,7 +41,7 @@
 #'                              protein_names = protein_names,
 #'                              condition = "condition",
 #'                              group = "donor",
-#'                              num_boot = 10) # just for docs, in practice >=1000
+#'                              num_boot = 10) # in practice >=1000
 #' glm_fit
 cytoglm <- function(df_samples_subset,
                     protein_names,

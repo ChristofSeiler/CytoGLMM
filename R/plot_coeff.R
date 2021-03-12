@@ -12,9 +12,11 @@
 #' @param title_str_right Title for bootstrap sample plot
 #' @param xlab_str Label on x-axis
 #' @param redline Point on x-axis to draw the red line
-#' @param order Order the markers according to the mangintute of the coefficients
+#' @param order Order the markers according to the mangintute of the
+#'   coefficients
 #' @param separate Plot both summary and bootstrap samples
-#' @return \code{\link[ggplot2]{ggplot2}} object or list of two objects if separate is true
+#' @return \code{\link[ggplot2]{ggplot2}} object or list of two objects if
+#'   separate is true
 #'
 plot_coeff <- function(tb, title_str, title_str_right, xlab_str, redline = 0,
                       order = FALSE, separate = FALSE) {
@@ -37,7 +39,8 @@ plot_coeff <- function(tb, title_str, title_str_right, xlab_str, redline = 0,
   }
 
   # plot all bootstrap runs
-  pall <- ggplot(tb, aes(x = .data$coeff, y = .data$protein_name, color = .data$protein_name)) +
+  pall <- ggplot(tb, aes(x = .data$coeff, y = .data$protein_name,
+                         color = .data$protein_name)) +
     geom_vline(xintercept = redline,color = "red") +
     geom_jitter(size = 1, width = 0.001, alpha = 0.5) +
     ggtitle(title_str) +
@@ -46,7 +49,8 @@ plot_coeff <- function(tb, title_str, title_str_right, xlab_str, redline = 0,
           axis.title.y = element_blank())
 
   # plot summary
-  psummary <- ggplot(tb_summary, aes(x = .data$coeff_median, y = .data$protein_name)) +
+  psummary <- ggplot(tb_summary,
+                     aes(x = .data$coeff_median, y = .data$protein_name)) +
     geom_vline(xintercept = redline, color = "red") +
     geom_point(size = 2) +
     geom_errorbarh(aes(xmin = .data$min_median, xmax = .data$max_median)) +

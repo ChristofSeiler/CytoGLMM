@@ -18,7 +18,7 @@
 #'                              protein_names = protein_names,
 #'                              condition = "condition",
 #'                              group = "donor",
-#'                              num_boot = 10) # just for docs, in practice >=1000
+#'                              num_boot = 10) # in practice >=1000
 #' print(glm_fit)
 print.cytoglm <- function(x, ...) {
 

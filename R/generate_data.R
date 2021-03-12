@@ -39,7 +39,8 @@ generate_data <- function() {
   df <- tibble(donor, condition)
 
   # generate protein counts
-  protein_names <- paste0("m", str_pad(seq_len(n_markers), width = 2, pad = "0"))
+  protein_names <- paste0("m", str_pad(seq_len(n_markers),
+                                       width = 2, pad = "0"))
   rcov <- function(rho, sigma) {
     corr <- rho^toeplitz(0:(n_markers-1))
     sigma_vec <- rep(sigma, n_markers)
@@ -60,7 +61,8 @@ generate_data <- function() {
   u <- mvrnorm(n = n_donors, mu = rep(0, n_markers), Sigma_u)
   u <- u[donor, ]
   beta <- matrix(beta_control, nrow = nrow(b), ncol = n_markers)
-  beta[,seq_len(n_true)] <- ifelse(condition == "treatment", beta_treatment, beta_control)
+  beta[,seq_len(n_true)] <- ifelse(condition == "treatment",
+                                   beta_treatment, beta_control)
   log_lambda <- beta + b + u
   lambda <- exp(log_lambda)
   y <- rpois(length(lambda), lambda)

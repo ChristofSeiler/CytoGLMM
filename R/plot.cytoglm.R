@@ -11,7 +11,8 @@
 #' @export
 #'
 #' @param x A \code{cytoglm} class
-#' @param order Order the markers according to the mangintute of the coefficients
+#' @param order Order the markers according to the mangintute of the
+#'   coefficients
 #' @param separate create two separate \code{\link[ggplot2]{ggplot2}} objects
 #' @param ... Other parameters
 #' @return \code{\link[ggplot2]{ggplot2}} object
@@ -25,7 +26,7 @@
 #'                              protein_names = protein_names,
 #'                              condition = "condition",
 #'                              group = "donor",
-#'                              num_boot = 10) # just for docs, in practice >=1000
+#'                              num_boot = 10) # in practice >=1000
 #' plot(glm_fit)
 plot.cytoglm <- function(x, order = FALSE, separate = FALSE, ...) {
 

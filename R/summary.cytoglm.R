@@ -25,7 +25,7 @@
 #'                              protein_names = protein_names,
 #'                              condition = "condition",
 #'                              group = "donor",
-#'                              num_boot = 10) # just for docs, in practice >=1000
+#'                              num_boot = 10) # in practice >=1000
 #' summary(glm_fit)
 summary.cytoglm <- function(object, method = "BH", ...) {
 
@@ -35,7 +35,8 @@ summary.cytoglm <- function(object, method = "BH", ...) {
   # calculate p-values from bootstrap distribution
   df_pvalues <- object$tb_coef %>%
     group_by(.data$protein_name) %>%
-    summarize(pvalues_unadj = 2*min(mean(.data$coeff < 0), mean(.data$coeff > 0)))
+    summarize(pvalues_unadj = 2*min(mean(.data$coeff < 0),
+                                    mean(.data$coeff > 0)))
   df_pvalues %<>% mutate(pvalues_unadj = if_else(
     condition = .data$pvalues_unadj == 0,
     true = 2*1/object$num_boot,

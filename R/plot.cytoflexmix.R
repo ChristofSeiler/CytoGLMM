@@ -35,12 +35,13 @@
 plot.cytoflexmix <- function(x, k = NULL, separate = FALSE, ...) {
 
   if(!is(x, "cytoflexmix"))
-    stop("Input needs to be a cytoflexmix object computed by cytoflexmix function.")
+    stop("Input needs to be a cytoflexmix object.")
 
   # plot selection criteria
   tb_sel <- tibble(
     id = seq(x$flexmixfits),
-    k = vapply(x$flexmixfits,function(fit) fit@components %>% length, numeric(1)),
+    k = vapply(x$flexmixfits,
+               function(fit) fit@components %>% length, numeric(1)),
     BIC = vapply(x$flexmixfits, BIC, numeric(1))
     )
   # select best model
@@ -58,7 +59,8 @@ plot.cytoflexmix <- function(x, k = NULL, separate = FALSE, ...) {
     tally() %>%
     arrange(cluster)
   tb_tally$group %<>% factor(levels = rev(tb_tally$group))
-  pceltocluster <- ggplot(tb_tally, aes(x = .data$group, y = .data$n, fill = .data$cluster)) +
+  pceltocluster <- ggplot(tb_tally, aes(x = .data$group, y = .data$n,
+                                        fill = .data$cluster)) +
     geom_bar(stat="identity", position = "dodge") +
     xlab(x$group) +
     ylab("number of cells") +
@@ -91,7 +93,8 @@ plot.cytoflexmix <- function(x, k = NULL, separate = FALSE, ...) {
   tb_coeff_all$comp %<>% as.factor
 
   peffects <- ggplot(tb_coeff_all,
-                     aes(x = .data$Estimate, y = .data$protein_name, color = .data$comp)) +
+                     aes(x = .data$Estimate, y = .data$protein_name,
+                         color = .data$comp)) +
     geom_vline(xintercept = 0,color = "red") +
     geom_point(size = 2) +
     geom_errorbarh(aes(xmin = .data$low, xmax = .data$high)) +

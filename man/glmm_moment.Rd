@@ -17,7 +17,8 @@ glmm_moment(
 \item{df_samples}{Data frame or tibble with proteins counts,
 cell condition, and group information}
 
-\item{protein_names}{A vector of column names of protein to use in the analysis}
+\item{protein_names}{A vector of column names of protein to use in the
+analysis}
 
 \item{response}{The column name of the condition variable}
 

@@ -16,7 +16,8 @@ plot_mds(
 \item{df_samples}{Data frame or tibble with proteins counts,
 cell condition, and group information}
 
-\item{protein_names}{A vector of column names of protein to use in the analysis}
+\item{protein_names}{A vector of column names of protein to use in the
+analysis}
 
 \item{sample_info_names}{Column names that contain information about
 the cell, e.g. donor, condition, file name, or cell type}

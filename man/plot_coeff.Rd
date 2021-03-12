@@ -25,12 +25,14 @@ plot_coeff(
 
 \item{redline}{Point on x-axis to draw the red line}
 
-\item{order}{Order the markers according to the mangintute of the coefficients}
+\item{order}{Order the markers according to the mangintute of the
+coefficients}
 
 \item{separate}{Plot both summary and bootstrap samples}
 }
 \value{
-\code{\link[ggplot2]{ggplot2}} object or list of two objects if separate is true
+\code{\link[ggplot2]{ggplot2}} object or list of two objects if
+  separate is true
 }
 \description{
 Helper function to plot regression coeffcient

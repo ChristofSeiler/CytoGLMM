@@ -12,7 +12,8 @@
 #'   cell condition, and group information
 #' @param sample_info_names Column names that contain information about
 #'   the cell, e.g. donor, condition, file name, or cell type
-#' @param protein_names A vector of column names of protein to use in the analysis
+#' @param protein_names A vector of column names of protein to use in the
+#'   analysis
 #' @param arrange_by_1 Column name
 #' @param arrange_by_2 Column name
 #' @param cluster_cols Apply hierarchical cluster to columns

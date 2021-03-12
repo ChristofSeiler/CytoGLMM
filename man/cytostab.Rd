@@ -17,7 +17,8 @@ cytostab(
 \item{df_samples_subset}{Data frame or tibble with proteins counts,
 cell condition, and group information}
 
-\item{protein_names}{A vector of column names of protein to use in the analysis}
+\item{protein_names}{A vector of column names of protein to use in the
+analysis}
 
 \item{condition}{The column name of the condition variable}
 

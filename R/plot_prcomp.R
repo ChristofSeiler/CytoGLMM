@@ -11,7 +11,8 @@
 #'
 #' @param df_samples Data frame or tibble with proteins counts,
 #'   cell condition, and group information
-#' @param protein_names A vector of column names of protein to use in the analysis
+#' @param protein_names A vector of column names of protein to use in the
+#'   analysis
 #' @param color_var A column name
 #' @param subsample_size Subsample per color_var variable
 #' @param repel Repel labels
@@ -31,7 +32,11 @@ plot_prcomp <- function(df_samples,
                         subsample_size = 10000,
                         repel = TRUE) {
   n <- min(table(df_samples[,color_var]),subsample_size)
-  by_variable <- df_samples %>% group_by_(color_var) %>% sample_n(n) %>% ungroup %>% as.data.frame
+  by_variable <- df_samples %>%
+    group_by_(color_var) %>%
+    sample_n(n) %>%
+    ungroup %>%
+    as.data.frame
   res_pca <- prcomp(by_variable[,protein_names],scale. = FALSE)
   explained_var <- round((100*res_pca$sdev^2/sum(res_pca$sdev^2)), 1)
   xlab_str <- paste0("PC1 (",explained_var[1],"%)")

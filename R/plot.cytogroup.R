@@ -14,7 +14,8 @@
 #' @export
 #'
 #' @param x A \code{cytoglmm} class
-#' @param order Order the markers according to the mangintute of the coefficients
+#' @param order Order the markers according to the mangintute of the
+#'   coefficients
 #' @param separate create two separate \code{\link[ggplot2]{ggplot2}} objects
 #' @param ... Other parameters
 #' @return \code{\link[ggplot2]{ggplot2}} object
@@ -32,7 +33,7 @@
 plot.cytogroup <- function(x, order = FALSE, separate = FALSE, ...) {
 
   if(!is(x, "cytogroup"))
-    stop("Input needs to be a cytogroup object computed by cytogroup function.")
+    stop("Input needs to be a cytogroup object.")
 
   summ <- summary(x$groupfit)
   xlab_str <- x$df_samples_subset %>%
@@ -44,8 +45,10 @@ plot.cytogroup <- function(x, order = FALSE, separate = FALSE, ...) {
   tb_coeff_donor <- tibble(names = names(x$groupfit$coefficients),
                            value = x$groupfit$coefficients)
   tb_coeff_donor %<>%
-    mutate(protein_name = vapply(str_split(tb_coeff_donor$names,":"),function(x) x[1], character(1)),
-           donor = vapply(str_split(tb_coeff_donor$names,":"),function(x) x[2], character(1)))
+    mutate(protein_name = vapply(str_split(tb_coeff_donor$names,":"),
+                                 function(x) x[1], character(1)),
+           donor = vapply(str_split(tb_coeff_donor$names,":"),
+                          function(x) x[2], character(1)))
   tb_coeff_donor %<>% dplyr::filter(!is.na(.data$donor))
 
   # fixed effects

@@ -11,7 +11,8 @@
 #'
 #' @param df_samples Data frame or tibble with proteins counts,
 #'   cell condition, and group information
-#' @param protein_names A vector of column names of protein to use in the analysis
+#' @param protein_names A vector of column names of protein to use in the
+#'   analysis
 #' @param group The column name of the group variable
 #' @param cor_scaling_factor Scaling factor of circle of correlations
 #' @param arrow_color Color of correlation circle

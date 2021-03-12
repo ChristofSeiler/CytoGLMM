@@ -9,7 +9,8 @@
 \arguments{
 \item{x}{A \code{cytoglmm} class}
 
-\item{order}{Order the markers according to the mangintute of the coefficients}
+\item{order}{Order the markers according to the mangintute of the
+coefficients}
 
 \item{separate}{create two separate \code{\link[ggplot2]{ggplot2}} objects}
 
