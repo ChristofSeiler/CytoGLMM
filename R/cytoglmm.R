@@ -27,22 +27,22 @@
 #'
 #' @examples
 #' set.seed(23)
-#' df = generate_data()
-#' protein_names = names(df)[3:12]
-#' df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
-#' glmm_fit = CytoGLMM::cytoglmm(df,
-#'                               protein_names = protein_names,
-#'                               condition = "condition",
-#'                               group = "donor")
+#' df <- generate_data()
+#' protein_names <- names(df)[3:12]
+#' df <- dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+#' glmm_fit <- CytoGLMM::cytoglmm(df,
+#'                                protein_names = protein_names,
+#'                                condition = "condition",
+#'                                group = "donor")
 #' glmm_fit
-cytoglmm = function(df_samples_subset,
-                    protein_names,
-                    condition,
-                    group = "donor",
-                    covariate_names = NULL,
-                    cell_n_min = Inf,
-                    cell_n_subsample = 0,
-                    num_cores = 1) {
+cytoglmm <- function(df_samples_subset,
+                     protein_names,
+                     condition,
+                     group = "donor",
+                     covariate_names = NULL,
+                     cell_n_min = Inf,
+                     cell_n_subsample = 0,
+                     num_cores = 1) {
 
   # suppress printout of warning messages in R package mbest
   logging::setLevel("ERROR", container = "mbest.mhglm")
@@ -56,16 +56,16 @@ cytoglmm = function(df_samples_subset,
     stop("cleanup your covariates names (don't use special characters)")
 
   # are the samples paired?
-  unpaired = is_unpaired(df_samples_subset,
-                         condition = condition,
-                         group = group)
+  unpaired <- is_unpaired(df_samples_subset,
+                          condition = condition,
+                          group = group)
 
   # remove donors with low cell count
-  df_samples_subset = remove_samples(df_samples_subset,
-                                     condition = condition,
-                                     group = group,
-                                     unpaired = unpaired,
-                                     cell_n_min = cell_n_min)
+  df_samples_subset <- remove_samples(df_samples_subset,
+                                      condition = condition,
+                                      group = group,
+                                      unpaired = unpaired,
+                                      cell_n_min = cell_n_min)
 
   # subsample cells
   if(cell_n_subsample > 0) {
@@ -75,25 +75,25 @@ cytoglmm = function(df_samples_subset,
       ungroup
   }
 
-  glmmfit = glmm_moment(df_samples = df_samples_subset,
-                        protein_names = protein_names,
-                        response = condition,
-                        group = group,
-                        covariate_names = covariate_names,
-                        num_cores = num_cores)
+  glmmfit <- glmm_moment(df_samples = df_samples_subset,
+                         protein_names = protein_names,
+                         response = condition,
+                         group = group,
+                         covariate_names = covariate_names,
+                         num_cores = num_cores)
 
   # return cytoglmm object
-  fit = NULL
-  fit$glmmfit = glmmfit
-  fit$df_samples_subset = df_samples_subset
-  fit$protein_names = protein_names
-  fit$condition = condition
-  fit$group = group
-  fit$covariate_names = covariate_names
-  fit$cell_n_min = cell_n_min
-  fit$cell_n_subsample = cell_n_subsample
-  fit$num_cores = num_cores
-  class(fit) = "cytoglmm"
+  fit <- NULL
+  fit$glmmfit <- glmmfit
+  fit$df_samples_subset <- df_samples_subset
+  fit$protein_names <- protein_names
+  fit$condition <- condition
+  fit$group <- group
+  fit$covariate_names <- covariate_names
+  fit$cell_n_min <- cell_n_min
+  fit$cell_n_subsample <- cell_n_subsample
+  fit$num_cores <- num_cores
+  class(fit) <- "cytoglmm"
   fit
 
 }

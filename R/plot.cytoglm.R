@@ -7,6 +7,7 @@
 #' @import tibble
 #' @import magrittr
 #' @import dplyr
+#' @importFrom methods is
 #' @export
 #'
 #' @param x A \code{cytoglm} class
@@ -17,16 +18,16 @@
 #'
 #' @examples
 #' set.seed(23)
-#' df = generate_data()
-#' protein_names = names(df)[3:12]
-#' df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
-#' glm_fit = CytoGLMM::cytoglm(df,
-#'                             protein_names = protein_names,
-#'                             condition = "condition",
-#'                             group = "donor",
-#'                             num_boot = 10) # just for docs, in practice >=1000
+#' df <- generate_data()
+#' protein_names <- names(df)[3:12]
+#' df <- dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+#' glm_fit <- CytoGLMM::cytoglm(df,
+#'                              protein_names = protein_names,
+#'                              condition = "condition",
+#'                              group = "donor",
+#'                              num_boot = 10) # just for docs, in practice >=1000
 #' plot(glm_fit)
-plot.cytoglm = function(x, order = FALSE, separate = FALSE, ...) {
+plot.cytoglm <- function(x, order = FALSE, separate = FALSE, ...) {
 
   if(!is(x, "cytoglm"))
     stop("Input needs to be a cytoglm object computed by cytoglm function.")
@@ -35,7 +36,7 @@ plot.cytoglm = function(x, order = FALSE, separate = FALSE, ...) {
   if(nrow(x$tb_coef) == 0)
     stop("no results available")
 
-  xlab_str = x$df_samples_subset %>%
+  xlab_str <- x$df_samples_subset %>%
     pull(x$condition) %>%
     levels %>%
     paste(collapse = " <-> ")

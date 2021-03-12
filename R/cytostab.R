@@ -2,6 +2,7 @@
 #'
 #' @import magrittr
 #' @import tibble
+#' @importFrom stats binomial
 #' @importFrom strucchange gefp
 #' @export
 #'
@@ -17,15 +18,15 @@
 #'
 #' @examples
 #' set.seed(23)
-#' df = generate_data()
-#' protein_names = names(df)[3:12]
-#' df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
-#' stab = CytoGLMM::cytostab(df,
-#'                           protein_names = protein_names,
-#'                           condition = "condition",
-#'                           group = "donor")
+#' df <- generate_data()
+#' protein_names <- names(df)[3:12]
+#' df <- dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+#' stab <- CytoGLMM::cytostab(df,
+#'                            protein_names = protein_names,
+#'                            condition = "condition",
+#'                            group = "donor")
 #' stab
-cytostab = function(df_samples_subset,
+cytostab <- function(df_samples_subset,
                     protein_names,
                     condition,
                     group = "donor",
@@ -38,16 +39,16 @@ cytostab = function(df_samples_subset,
              protein_names = protein_names)
 
   # are the samples paired?
-  unpaired = is_unpaired(df_samples_subset,
-                         condition = condition,
-                         group = group)
+  unpaired <- is_unpaired(df_samples_subset,
+                          condition = condition,
+                          group = group)
 
   # remove donors with low cell count
-  df_samples_subset = remove_samples(df_samples_subset,
-                                     condition = condition,
-                                     group = group,
-                                     unpaired = unpaired,
-                                     cell_n_min = cell_n_min)
+  df_samples_subset <- remove_samples(df_samples_subset,
+                                      condition = condition,
+                                      group = group,
+                                      unpaired = unpaired,
+                                      cell_n_min = cell_n_min)
 
   # subsample cells
   if(cell_n_subsample > 0) {
@@ -58,14 +59,14 @@ cytostab = function(df_samples_subset,
   }
 
   # compute generalized empirical M-fluctuation process
-  fluc = gefp(paste(condition,"~",
-                    paste(protein_names,
-                          collapse = " + ")),
+  fluc <- gefp(paste(condition,"~",
+                     paste(protein_names,
+                           collapse = " + ")),
               family = binomial,
               data = df_samples_subset)
 
   # gather common test statistics about process
-  tb = tibble(
+  tb <- tibble(
     max_abs = apply(fluc$process,
                     MARGIN = 2,
                     function(x) max(abs(x))),

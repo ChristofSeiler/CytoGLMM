@@ -42,12 +42,12 @@ Group-specific fixed effects model
 }
 \examples{
 set.seed(23)
-df = generate_data()
-protein_names = names(df)[3:12]
-df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
-group_fit = CytoGLMM::cytogroup(df,
-                                protein_names = protein_names,
-                                condition = "condition",
-                                group = "donor")
+df <- generate_data()
+protein_names <- names(df)[3:12]
+df <- dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+group_fit <- CytoGLMM::cytogroup(df,
+                                 protein_names = protein_names,
+                                 condition = "condition",
+                                 group = "donor")
 group_fit
 }

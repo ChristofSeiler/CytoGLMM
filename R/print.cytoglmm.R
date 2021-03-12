@@ -1,5 +1,6 @@
 #' Extact and print GLMM fit
 #'
+#' @importFrom methods is
 #' @aliases print.cytoglmm
 #' @method print cytoglmm
 #' @export
@@ -10,15 +11,15 @@
 #'
 #' @examples
 #' set.seed(23)
-#' df = generate_data()
-#' protein_names = names(df)[3:12]
-#' df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
-#' glmm_fit = CytoGLMM::cytoglmm(df,
+#' df <- generate_data()
+#' protein_names <- names(df)[3:12]
+#' df <- dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+#' glmm_fit <- CytoGLMM::cytoglmm(df,
 #'                               protein_names = protein_names,
 #'                               condition = "condition",
 #'                               group = "donor")
 #' print(glmm_fit)
-print.cytoglmm = function(x, ...) {
+print.cytoglmm <- function(x, ...) {
 
   if(!is(x, "cytoglmm"))
     stop("Input needs to be a cytoglmm object computed by cytoglmm function.")

@@ -38,10 +38,10 @@ LDA on marker expression
 }
 \examples{
 set.seed(23)
-df = generate_data()
-protein_names = names(df)[3:12]
-df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
-df$condition = rep(c("A", "B", "C", "D"), each = length(df$condition)/4)
+df <- generate_data()
+protein_names <- names(df)[3:12]
+df <- dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+df$condition <- rep(c("A", "B", "C", "D"), each = length(df$condition)/4)
 CytoGLMM::plot_lda(df,
                    protein_names = protein_names,
                    group = "condition",

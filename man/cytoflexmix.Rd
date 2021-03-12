@@ -50,13 +50,13 @@ Logistic mixture regression
 }
 \examples{
 set.seed(23)
-df = generate_data()
-protein_names = names(df)[3:12]
-df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
-mix_fit = CytoGLMM::cytoflexmix(df,
-                                protein_names = protein_names,
-                                condition = "condition",
-                                group = "donor",
-                                ks = 2)
+df <- generate_data()
+protein_names <- names(df)[3:12]
+df <- dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+mix_fit <- CytoGLMM::cytoflexmix(df,
+                                 protein_names = protein_names,
+                                 condition = "condition",
+                                 group = "donor",
+                                 ks = 2)
 mix_fit
 }

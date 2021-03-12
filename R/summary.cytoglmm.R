@@ -6,6 +6,8 @@
 #' @import tibble
 #' @import magrittr
 #' @import dplyr
+#' @importFrom stats p.adjust
+#' @importFrom methods is
 #' @export
 #'
 #' @param object A \code{cytoglmm} class

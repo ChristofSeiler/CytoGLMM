@@ -1,5 +1,6 @@
 #' Extact and print bootstrap GLM fit
 #'
+#' @importFrom methods is
 #' @aliases print.cytoglm
 #' @method print cytoglm
 #' @export
@@ -10,16 +11,16 @@
 #'
 #' @examples
 #' set.seed(23)
-#' df = generate_data()
-#' protein_names = names(df)[3:12]
-#' df = dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
-#' glm_fit = CytoGLMM::cytoglm(df,
-#'                             protein_names = protein_names,
-#'                             condition = "condition",
-#'                             group = "donor",
-#'                             num_boot = 10) # just for docs, in practice >=1000
+#' df <- generate_data()
+#' protein_names <- names(df)[3:12]
+#' df <- dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
+#' glm_fit <- CytoGLMM::cytoglm(df,
+#'                              protein_names = protein_names,
+#'                              condition = "condition",
+#'                              group = "donor",
+#'                              num_boot = 10) # just for docs, in practice >=1000
 #' print(glm_fit)
-print.cytoglm = function(x, ...) {
+print.cytoglm <- function(x, ...) {
 
   if(!is(x, "cytoglm"))
     stop("Input needs to be a cytoglm object computed by cytoglm function.")
