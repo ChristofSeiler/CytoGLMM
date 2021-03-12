@@ -1,0 +1,1381 @@
+---
+title: "CytoGLMM Workflow for Pregnancy Dataset"
+author:
+  name: Christof Seiler
+  affiliation: Department of Statistics, Stanford University & Department of Data Science and Knowledge Engineering, Maastricht University
+date: "2021-03-12"
+vignette: >
+  %\VignetteIndexEntry{CytoGLMM Workflow for Pregnancy Dataset}
+  %\VignetteEngine{knitr::rmarkdown}
+output:
+  BiocStyle::html_document
+bibliography: bibliography.bib
+---
+
+
+
+# Goal
+
+This is a step-by-step guide for a complete analysis of mass cytometry data.
+
+# Prerequisites
+
+Install [R](https://www.r-project.org/) and [RStudio](https://www.rstudio.com/). Open this `Rmd` file in RStudio. Then run the following code to install all required packages.
+
+
+```r
+pkgs_needed = c("devtools","tidyverse","magrittr","FlowRepositoryR",
+                "flowCore","openCyto","scales","parallel",
+                "RColorBrewer","ggcorrplot","SummarizedExperiment",
+                "lme4","lmerTest")
+letsinstall = setdiff(pkgs_needed, installed.packages())
+if (length(letsinstall) > 0) {
+  BiocManager::install(letsinstall)
+}
+devtools::install_github("ChristofSeiler/CytoGLMM")
+# Bioconductor version breaks when updating to ggplot2 v3.0
+devtools::install_github("RGLab/ggcyto", ref="trunk")
+```
+
+Load packages.
+
+
+```r
+library("CytoGLMM")
+library("tidyverse")
+library("magrittr")
+library("FlowRepositoryR")
+```
+
+```
+## Error in library("FlowRepositoryR"): there is no package called 'FlowRepositoryR'
+```
+
+```r
+library("flowCore")
+```
+
+```
+## Error in library("flowCore"): there is no package called 'flowCore'
+```
+
+```r
+library("openCyto")
+```
+
+```
+## Error in library("openCyto"): there is no package called 'openCyto'
+```
+
+```r
+library("ggcyto")
+```
+
+```
+## Error in library("ggcyto"): there is no package called 'ggcyto'
+```
+
+```r
+library("scales")
+library("parallel")
+library("RColorBrewer")
+library("ggcorrplot")
+```
+
+```
+## Error in library("ggcorrplot"): there is no package called 'ggcorrplot'
+```
+
+```r
+library("SummarizedExperiment")
+```
+
+```
+## Error in library("SummarizedExperiment"): there is no package called 'SummarizedExperiment'
+```
+
+```r
+library("lme4")
+library("lmerTest")
+```
+
+```
+## Error in library("lmerTest"): there is no package called 'lmerTest'
+```
+
+Set plotting style and assign computational resources.
+
+
+```r
+theme_set(theme_light())
+ncores = parallel::detectCores()
+```
+
+# Download and Prepare Data
+
+## FCS Files
+
+Reanalysis of mass cytometry data from @aghaeepour2017immune. We use the package `FlowRepositoryR` to download `fcs` files from [FlowRepository](http://flowrepository.org/id/FR-FCM-ZY3Q). We download mass cytometry data measured on whole blood samples collected from 16 women during pregnancy stimulated with IFNa at first and third trimester.
+
+
+```r
+repo = flowRep.get("FR-FCM-ZY3Q")
+data = download(repo, only.files = ".*_2_IFNa.*fcs")
+data = download(repo, only.files = ".*_1_IFNa.*fcs")
+data = download(repo, only.files = ".*_BL_IFNa.*fcs")
+```
+
+## Sample Table
+
+The previous commands downloaded `fcs` files to the `FR-FCM-ZY3Q` folder. Now, we prepare the sample table by parsing the `fcs` filenames. For some studies, it might be easier to prepare a `sample_table.csv` textfile and load it using the `readr` package.
+
+
+```r
+fcs_files = list.files(path = "FR-FCM-ZY3Q/", pattern = "fcs")
+map_time = function(x) {
+  if (str_detect(x, "_2_")) "3rd trimester"
+  else if (str_detect(x, "_1_")) "2st trimester"
+  else if (str_detect(x, "_BL_")) "1st trimester"
+  else NA
+}
+sample_table = tibble(
+  donor = str_extract(fcs_files, "PTLG[0-9]{3}"),
+  term = sapply(fcs_files, map_time) %>% as.factor,
+  file_name = paste0("FR-FCM-ZY3Q/",fcs_files)
+)
+sample_table
+```
+
+```
+## # A tibble: 0 x 3
+## # … with 3 variables: donor <chr>, term <fct>, file_name <chr>
+```
+
+## Marker Table
+
+Load marker isotopes and protein names. Make sure that marker names don't have `-` or start with a number. This is important to be compatible with the formula syntax of `R`.
+
+
+```r
+markers = read_csv("markers.csv")
+markers$protein_name %<>% str_replace_all("-","_")
+markers$protein_name %<>% make.names
+markers
+```
+
+```
+## # A tibble: 35 x 3
+##    isotope      protein_name type     
+##    <chr>        <chr>        <chr>    
+##  1 Event_length Event_length none     
+##  2 In113Di      CD235ab_CD61 phenotype
+##  3 In115Di      CD45         phenotype
+##  4 La139Di      CD66         phenotype
+##  5 Pr141Di      CD7          phenotype
+##  6 Nd142Di      CD19         phenotype
+##  7 Nd143Di      CD45RA       phenotype
+##  8 Nd144Di      CD11b        phenotype
+##  9 Nd145Di      CD4          phenotype
+## 10 Nd146Di      CD8a         phenotype
+## # … with 25 more rows
+```
+
+Check if bead normalized. This only works if the bead normalizer added an additional column `beadDist` to the `fcs`.
+
+
+```r
+ifelse(sum(colnames(read.FCS(sample_table$file_name[1])) == "beadDist")==1,
+       yes = "bead normalized",
+       no = "not bead normalized")
+```
+
+```
+## Error in read.FCS(sample_table$file_name[1]): could not find function "read.FCS"
+```
+
+# Gating
+
+Gate with [openCyto](https://bioconductor.org/packages/release/bioc/html/openCyto.html) according to supplementary material (Fig. S1) from @aghaeepour2017immune.
+
+
+```r
+# load data
+ncfs = read.ncdfFlowSet(sample_table$file_name, mc.cores = ncores)
+```
+
+```
+## Error in read.ncdfFlowSet(sample_table$file_name, mc.cores = ncores): could not find function "read.ncdfFlowSet"
+```
+
+```r
+gs = GatingSet(ncfs)
+```
+
+```
+## Error in GatingSet(ncfs): could not find function "GatingSet"
+```
+
+```r
+pData(gs) = cbind(pData(gs),sample_table)
+```
+
+```
+## Error in pData(gs): could not find function "pData"
+```
+
+```r
+trans_func = function(x) asinh(x/5)
+inv_func = function(x) 5*sinh(x)
+trans_obj = trans_new("asinh_cytof", trans_func, inv_func)
+translist = transformerList(markers$isotope[-1], trans_obj)
+```
+
+```
+## Error in transformerList(markers$isotope[-1], trans_obj): could not find function "transformerList"
+```
+
+```r
+gs = transform(gs, translist)
+```
+
+```
+## Error in transform(gs, translist): object 'gs' not found
+```
+
+```r
+# apply gating template
+gt_aghaeepour = gatingTemplate("gating_template.csv")
+```
+
+```
+## Error in gatingTemplate("gating_template.csv"): could not find function "gatingTemplate"
+```
+
+```r
+plot(gt_aghaeepour)
+```
+
+```
+## Error in plot(gt_aghaeepour): object 'gt_aghaeepour' not found
+```
+
+```r
+gt_gating(gt_aghaeepour, gs, mc.cores = ncores, parallel_type = "multicore")
+```
+
+```
+## Error in gt_gating(gt_aghaeepour, gs, mc.cores = ncores, parallel_type = "multicore"): could not find function "gt_gating"
+```
+
+```r
+# rename some subsets
+gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4+CD8a-/CD45RA+",
+                "CD4+Tnaive") %>% invisible
+```
+
+```
+## Error in gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4+CD8a-/CD45RA+", : could not find function "gs_pop_set_name"
+```
+
+```r
+gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4+CD8a-/CD45RA-",
+                "CD4+Tmem") %>% invisible
+```
+
+```
+## Error in gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4+CD8a-/CD45RA-", : could not find function "gs_pop_set_name"
+```
+
+```r
+gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4-CD8a+/CD45RA+",
+                "CD8+Tnaive") %>% invisible
+```
+
+```
+## Error in gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4-CD8a+/CD45RA+", : could not find function "gs_pop_set_name"
+```
+
+```r
+gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4-CD8a+/CD45RA-",
+                "CD8+Tmem") %>% invisible
+```
+
+```
+## Error in gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4-CD8a+/CD45RA-", : could not find function "gs_pop_set_name"
+```
+
+```r
+gs_pop_set_name(gs, "CD3-CD19+", "B") %>% invisible
+```
+
+```
+## Error in gs_pop_set_name(gs, "CD3-CD19+", "B"): could not find function "gs_pop_set_name"
+```
+
+```r
+gs_pop_set_name(gs, "CD3+CD19-", "T") %>% invisible
+```
+
+```
+## Error in gs_pop_set_name(gs, "CD3+CD19-", "T"): could not find function "gs_pop_set_name"
+```
+
+```r
+gs_pop_set_name(gs, "CD4+CD8a-", "CD4+T") %>% invisible
+```
+
+```
+## Error in gs_pop_set_name(gs, "CD4+CD8a-", "CD4+T"): could not find function "gs_pop_set_name"
+```
+
+```r
+gs_pop_set_name(gs, "CD4-CD8a+", "CD8+T") %>% invisible
+```
+
+```
+## Error in gs_pop_set_name(gs, "CD4-CD8a+", "CD8+T"): could not find function "gs_pop_set_name"
+```
+
+```r
+gs_pop_set_name(gs, "CD7+", "NK") %>% invisible
+```
+
+```
+## Error in gs_pop_set_name(gs, "CD7+", "NK"): could not find function "gs_pop_set_name"
+```
+
+```r
+gs_pop_set_name(gs, "CD14+CD16-", "cMC") %>% invisible
+```
+
+```
+## Error in gs_pop_set_name(gs, "CD14+CD16-", "cMC"): could not find function "gs_pop_set_name"
+```
+
+```r
+gs_pop_set_name(gs, "CD14-CD16+", "ncMC") %>% invisible
+```
+
+```
+## Error in gs_pop_set_name(gs, "CD14-CD16+", "ncMC"): could not find function "gs_pop_set_name"
+```
+
+```r
+gs_pop_set_name(gs, "CD14+CD16+", "intMC") %>% invisible
+```
+
+```
+## Error in gs_pop_set_name(gs, "CD14+CD16+", "intMC"): could not find function "gs_pop_set_name"
+```
+
+```r
+plot(gs)
+```
+
+```
+## Error in plot(gs): object 'gs' not found
+```
+
+```r
+# hide nodes
+nodes_to_hide = c(
+  "granulocyte", "CD19+", "CD3+", "CD3+CD19+",
+  "CD8a+", "CD4+", "CD16+", "CD14+", "CD14-CD16-",
+  "CD4+CD8a+", "CD4+Tnaive/CD25+", "CD4+Tmem/CD25+",
+  "CD4+Tnaive/FoxP3+", "CD4+Tmem/FoxP3+"
+  )
+for(this_node in nodes_to_hide) setNode(gs, this_node, FALSE)
+```
+
+```
+## Error in setNode(gs, this_node, FALSE): could not find function "setNode"
+```
+
+```r
+plot(gs)
+```
+
+```
+## Error in plot(gs): object 'gs' not found
+```
+
+Visualize gates with [ggcyto](https://bioconductor.org/packages/release/bioc/html/ggcyto.html).
+
+
+```r
+set.seed(0xdada)
+ids = sample(length(gs), size = 6)
+```
+
+```
+## Error in sample(length(gs), size = 6): object 'gs' not found
+```
+
+```r
+ggcyto(gs[ids], aes(x = CD66, y = CD45), subset = "leukocyte") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate(c("mononuclear","granulocyte"))
+```
+
+```
+## Error in ggcyto(gs[ids], aes(x = CD66, y = CD45), subset = "leukocyte"): could not find function "ggcyto"
+```
+
+```r
+ggcyto(gs[ids], aes(x = CD3, y = CD19), subset = "mononuclear") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate(c("B","T","CD3-CD19-"))
+```
+
+```
+## Error in ggcyto(gs[ids], aes(x = CD3, y = CD19), subset = "mononuclear"): could not find function "ggcyto"
+```
+
+```r
+ggcyto(gs[ids], aes(x = CD14, y = CD7), subset = "CD3-CD19-") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate("NK")
+```
+
+```
+## Error in ggcyto(gs[ids], aes(x = CD14, y = CD7), subset = "CD3-CD19-"): could not find function "ggcyto"
+```
+
+```r
+ggcyto(gs[ids], aes(x = CD14, y = CD16), subset = "CD7-") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate(c("cMC","ncMC","intMC"))
+```
+
+```
+## Error in ggcyto(gs[ids], aes(x = CD14, y = CD16), subset = "CD7-"): could not find function "ggcyto"
+```
+
+```r
+ggcyto(gs[ids], aes(x = CD4, y = CD8a), subset = "T") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate(c("CD4+T","CD8+T","CD4-CD8a-"))
+```
+
+```
+## Error in ggcyto(gs[ids], aes(x = CD4, y = CD8a), subset = "T"): could not find function "ggcyto"
+```
+
+```r
+ggcyto(gs[ids], aes(x = TCRgd, y = CD3), subset = "CD4-CD8a-") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate("gdT")
+```
+
+```
+## Error in ggcyto(gs[ids], aes(x = TCRgd, y = CD3), subset = "CD4-CD8a-"): could not find function "ggcyto"
+```
+
+```r
+ggcyto(gs[ids], aes(x = CD4, y = CD45RA), subset = "CD4+T") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate(c("CD4+Tnaive","CD4+Tmem"))
+```
+
+```
+## Error in ggcyto(gs[ids], aes(x = CD4, y = CD45RA), subset = "CD4+T"): could not find function "ggcyto"
+```
+
+```r
+ggcyto(gs[ids], aes(x = FoxP3, y = CD25), subset = "CD4+Tnaive") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate("Tregsnaive")
+```
+
+```
+## Error in ggcyto(gs[ids], aes(x = FoxP3, y = CD25), subset = "CD4+Tnaive"): could not find function "ggcyto"
+```
+
+```r
+ggcyto(gs[ids], aes(x = FoxP3, y = CD25), subset = "CD4+Tmem") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate("Tregsmem")
+```
+
+```
+## Error in ggcyto(gs[ids], aes(x = FoxP3, y = CD25), subset = "CD4+Tmem"): could not find function "ggcyto"
+```
+
+```r
+ggcyto(gs[ids], aes(x = CD8a, y = CD45RA), subset = "CD8+T") +
+  ggcyto_par_set(limits = "instrument") + geom_hex(bins = 64) +
+  geom_gate(c("CD8+Tnaive","CD8+Tmem"))
+```
+
+```
+## Error in ggcyto(gs[ids], aes(x = CD8a, y = CD45RA), subset = "CD8+T"): could not find function "ggcyto"
+```
+
+Combine cell types of interest into one data frame. Change marker name from isotope name to protein name and remove markers that are unmapped.
+
+
+```r
+nodes_exclude = c("root","singlet","leukocyte","mononuclear",
+                  "CD3-CD19-","CD7-","CD4-CD8a-",
+                  "CD4+T","CD8+T","T")
+nodes_all = gs_get_pop_paths(gs, path = "auto")
+```
+
+```
+## Error in gs_get_pop_paths(gs, path = "auto"): could not find function "gs_get_pop_paths"
+```
+
+```r
+nodes_select = nodes_all[!nodes_all %in% nodes_exclude]
+```
+
+```
+## Error in eval(expr, envir, enclos): object 'nodes_all' not found
+```
+
+```r
+df_samples = lapply(nodes_select, function(celltype) {
+  fset = gs_pop_get_data(gs, celltype)
+  lapply(seq(fset), function(sample_id) {
+    marker_ids = which(fset@origColnames %in% markers$isotope)
+    exprs = as_tibble(exprs(fset[[sample_id]]))[,marker_ids]
+    file_name = pData(fset[sample_id])$file_name
+    exprs %>% add_column(file_name, celltype)
+  }) %>% bind_rows
+}) %>% bind_rows
+```
+
+```
+## Error in lapply(nodes_select, function(celltype) {: object 'nodes_select' not found
+```
+
+```r
+df_samples %<>% inner_join(sample_table,by = "file_name")
+```
+
+```
+## Error in inner_join(., sample_table, by = "file_name"): object 'df_samples' not found
+```
+
+```r
+oldnames = markers$isotope
+newnames = markers$protein_name
+df_samples %<>% rename_at(vars(all_of(oldnames)), ~ newnames)
+```
+
+```
+## Error in tbl_vars_dispatch(x): object 'df_samples' not found
+```
+
+```r
+str(df_samples)
+```
+
+```
+## Error in str(df_samples): object 'df_samples' not found
+```
+
+List cell counts per donor and trimester.
+
+
+```r
+table(df_samples$donor,df_samples$term)
+```
+
+```
+## Error in table(df_samples$donor, df_samples$term): object 'df_samples' not found
+```
+
+Plot abundance of each celltype per sample.
+
+
+```r
+df_abundance = df_samples %>%
+  group_by(file_name, donor, term, celltype) %>%
+  tally()
+```
+
+```
+## Error in group_by(., file_name, donor, term, celltype): object 'df_samples' not found
+```
+
+```r
+ggplot(df_abundance, aes(term, n, color = term)) +
+  geom_violin() +
+  geom_jitter(width = 0.2, alpha = 0.5) +
+  facet_wrap(~celltype, nrow = 2) +
+  theme(axis.text.x = element_blank())
+```
+
+```
+## Error in ggplot(df_abundance, aes(term, n, color = term)): object 'df_abundance' not found
+```
+
+Focus on functional proteins.
+
+
+```r
+protein_names = markers %>%
+  dplyr::filter(type == "function") %>%
+  .$protein_name
+protein_names
+```
+
+```
+##  [1] "pCREB"    "pSTAT5"   "pP38"     "pSTAT1"   "pSTAT3"   "prpS6"    "pMAPKAPK" "IkB"      "pNFkB"    "pERK1_2"
+```
+
+Declare the columns in `df_samples` that are not protein markers. In our example, we have donor ID, time point when the sample was collected, `FCS` filename, and the cell type that we have defined through gating.
+
+
+```r
+sample_info_names = c(names(sample_table),"celltype")
+sample_info_names
+```
+
+```
+## [1] "donor"     "term"      "file_name" "celltype"
+```
+
+# Data Exploration
+
+## MDS
+
+MDS on median marker expression of all cell types following @Nowicka2017cytof.
+
+
+```r
+CytoGLMM::plot_mds(df_samples,
+                   protein_names = protein_names,
+                   sample_info_names = sample_info_names,
+                   color = "celltype")
+```
+
+```
+## Error in group_by(., .dots = sample_info_names): object 'df_samples' not found
+```
+
+Subset to NK cells to illustrate visualization for one cell type.
+
+
+```r
+df_samples_subset = df_samples %>% dplyr::filter(celltype == "NK")
+```
+
+```
+## Error in dplyr::filter(., celltype == "NK"): object 'df_samples' not found
+```
+
+MDS on median marker expression of NK cells.
+
+
+```r
+CytoGLMM::plot_mds(df_samples_subset,
+                   protein_names = protein_names,
+                   sample_info_names = sample_info_names,
+                   color = "term")
+```
+
+```
+## Error in group_by(., .dots = sample_info_names): object 'df_samples_subset' not found
+```
+
+## Heatmap
+
+Heatmap of median marker expression of all cell types following @Nowicka2017cytof.
+
+
+```r
+CytoGLMM::plot_heatmap(df_samples,
+                       protein_names = protein_names,
+                       sample_info_names = sample_info_names,
+                       arrange_by_1 = "term",
+                       arrange_by_2 = "celltype")
+```
+
+```
+## Error in group_by(., .dots = sample_info_names): object 'df_samples' not found
+```
+
+Heatmap of median marker expression of NK cells.
+
+
+```r
+CytoGLMM::plot_heatmap(df_samples_subset,
+                       protein_names = protein_names,
+                       sample_info_names = sample_info_names,
+                       arrange_by_1 = "term")
+```
+
+```
+## Error in group_by(., .dots = sample_info_names): object 'df_samples_subset' not found
+```
+
+## PCA
+
+PCA plot of all cell types.
+
+
+```r
+CytoGLMM::plot_prcomp(df_samples,
+                      protein_names = protein_names,
+                      color_var = "celltype",
+                      repel = TRUE)
+```
+
+```
+## Error in table(df_samples[, color_var]): object 'df_samples' not found
+```
+
+PCA plot of NK cells.
+
+
+```r
+CytoGLMM::plot_prcomp(df_samples_subset,
+                      protein_names = protein_names,
+                      color_var = "term",
+                      repel = TRUE)
+```
+
+```
+## Error in table(df_samples[, color_var]): object 'df_samples_subset' not found
+```
+
+## LDA
+
+LDA plot of NK cells.
+
+
+```r
+CytoGLMM::plot_lda(df_samples_subset,
+                   protein_names,
+                   group = "term",
+                   cor_scaling_factor = 2.5,
+                   arrow_color = "black",
+                   marker_color = "black",
+                   marker_size = 4)
+```
+
+```
+## Error in dplyr::pull(df_samples, group): object 'df_samples_subset' not found
+```
+
+## Density Plots
+
+Density plots of one marker for all donors.
+
+
+```r
+ggplot(df_samples_subset, aes_string(x = "pCREB", color = "term")) +
+  geom_density() +
+  facet_wrap(~donor)
+```
+
+```
+## Error in ggplot(df_samples_subset, aes_string(x = "pCREB", color = "term")): object 'df_samples_subset' not found
+```
+
+## Two-Dimensional Histograms
+
+Two-dimensional histograms for plotting two markers for all donors.
+
+
+```r
+colorscale = scale_fill_gradientn(
+  colors = rev(brewer.pal(9, "YlGnBu")),
+  values = c(0, exp(seq(-5, 0, length.out = 100)))
+  )
+ggplot(df_samples_subset, aes_string(x = "pSTAT1", y = "pSTAT3")) +
+  geom_hex(bins = 64) +
+  colorscale +
+  coord_fixed() +
+  facet_wrap(~donor)
+```
+
+```
+## Error in ggplot(df_samples_subset, aes_string(x = "pSTAT1", y = "pSTAT3")): object 'df_samples_subset' not found
+```
+
+Two-dimensional histograms for group comparisons.
+
+
+```r
+ggplot(df_samples_subset, aes_string(x = "pSTAT1", y = "pSTAT3")) +
+  geom_hex(bins = 64) +
+  colorscale +
+  coord_fixed() +
+  facet_wrap(~term)
+```
+
+```
+## Error in ggplot(df_samples_subset, aes_string(x = "pSTAT1", y = "pSTAT3")): object 'df_samples_subset' not found
+```
+
+NK cell count. List the smallest and largest.
+
+
+```r
+df_samples_subset %>% group_by(term,donor) %>% tally %>% arrange(n)
+```
+
+```
+## Error in group_by(., term, donor): object 'df_samples_subset' not found
+```
+
+```r
+df_samples_subset %>% group_by(term,donor) %>% tally %>% arrange(desc(n))
+```
+
+```
+## Error in group_by(., term, donor): object 'df_samples_subset' not found
+```
+
+## Marker Correlations
+
+Plot marker correlations.
+
+
+```r
+mcor = cor(df_samples_subset %>% dplyr::select(protein_names))
+```
+
+```
+## Error in dplyr::select(., protein_names): object 'df_samples_subset' not found
+```
+
+```r
+ggcorrplot(mcor, hc.order = TRUE, type = "lower",
+           outline.col = "lightgray",
+           colors = c("#6D9EC1", "white", "#E46726"))
+```
+
+```
+## Error in ggcorrplot(mcor, hc.order = TRUE, type = "lower", outline.col = "lightgray", : could not find function "ggcorrplot"
+```
+
+# Regression Analysis on Summarized Data
+
+Classical differential analysis approach comparing median marker expressions [@Nowicka2017cytof].
+
+## Plot Median Marker Expression
+
+Plot all celltypes.
+
+
+```r
+df_median = df_samples %>%
+      group_by(file_name, donor, term, celltype) %>%
+      summarise_at(protein_names, median)
+```
+
+```
+## Error in group_by(., file_name, donor, term, celltype): object 'df_samples' not found
+```
+
+```r
+df_median_long = gather(df_median, protein_name, median_expr,
+                        -file_name, -donor, -term, -celltype)
+```
+
+```
+## Error in gather(df_median, protein_name, median_expr, -file_name, -donor, : object 'df_median' not found
+```
+
+```r
+ggplot(df_median_long, aes(protein_name, median_expr, color = term)) +
+  geom_violin() +
+  facet_wrap(~celltype) +
+  theme(axis.text.x  = element_text(angle = 90, vjust=0))
+```
+
+```
+## Error in ggplot(df_median_long, aes(protein_name, median_expr, color = term)): object 'df_median_long' not found
+```
+
+Zoom in on NK cells.
+
+
+```r
+df_median_long %<>% dplyr::filter(celltype == "NK")
+```
+
+```
+## Error in dplyr::filter(., celltype == "NK"): object 'df_median_long' not found
+```
+
+```r
+ggplot(df_median_long, aes(term, median_expr, color = term)) +
+  geom_violin() +
+  geom_jitter(width = 0.2, alpha = 0.5) +
+  facet_wrap(~ protein_name, nrow = 2) +
+  theme(axis.text.x = element_blank()) +
+  ggtitle("NK")
+```
+
+```
+## Error in ggplot(df_median_long, aes(term, median_expr, color = term)): object 'df_median_long' not found
+```
+
+Zoom in on marker pSTAT1.
+
+
+```r
+ggplot(df_median, aes(term, pSTAT1, color = term)) +
+  geom_violin() +
+  geom_jitter(width = 0.2, alpha = 0.5) +
+  facet_wrap(~celltype, nrow = 2) +
+  theme(axis.text.x = element_blank())
+```
+
+```
+## Error in ggplot(df_median, aes(term, pSTAT1, color = term)): object 'df_median' not found
+```
+
+## Linear Mixed Model
+
+Mixed model with median expression as response variable, experimental condition as explanatory variable, and donor as random effect. Fit separate models for each protein and celltype combination.
+
+
+```r
+calc_pvalue = function(fit) {
+  summ = summary(fit)
+  coefficients(summ)["term3rd trimester", "Pr(>|t|)"]
+}
+df_median_long = gather(df_median, protein_name, median_expr,
+                        -file_name, -donor, -term, -celltype)
+```
+
+```
+## Error in gather(df_median, protein_name, median_expr, -file_name, -donor, : object 'df_median' not found
+```
+
+```r
+df_fits = df_median_long %>%
+  group_by(protein_name, celltype) %>%
+  nest() %>%
+  mutate(fit = map(data, ~ lmer(median_expr ~ term + (1|donor), .))) %>%
+  mutate(pvalue_unadj = map_dbl(fit, ~ calc_pvalue(.))) %>%
+  mutate(pvalue_adj = p.adjust(pvalue_unadj, method = "BH")) %>%
+  dplyr::select(protein_name, celltype, pvalue_adj)
+```
+
+```
+## Error in group_by(., protein_name, celltype): object 'df_median_long' not found
+```
+
+```r
+df_fits %>%
+  dplyr::filter(pvalue_adj < 0.05) %>%
+  dplyr::arrange(celltype) %>%
+  print(n = Inf)
+```
+
+```
+## Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'print': object 'df_fits' not found
+```
+
+# Regression Analysis on All The Data
+
+For the regression analysis, we will focus only on NK cells, and compare the first and third trimester. We can repeat the same analysis for each cell type of interest, and trimester combination.
+
+
+```r
+df_samples_subset %<>% dplyr::filter(term != "2st trimester")
+```
+
+```
+## Error in dplyr::filter(., term != "2st trimester"): object 'df_samples_subset' not found
+```
+
+```r
+df_samples_subset$term %<>% droplevels
+```
+
+```
+## Error in droplevels(.): object 'df_samples_subset' not found
+```
+
+```r
+df_samples_subset$term %<>% factor(levels = c("1st trimester",
+                                              "3rd trimester"))
+```
+
+```
+## Error in factor(., levels = c("1st trimester", "3rd trimester")): object 'df_samples_subset' not found
+```
+
+## Generalized Linear Mixed Model
+
+Fit a Generalized Linear Mixed Model (GLMM) with donor random effects. This function is a wrapper around the package `mbest` [@perry2017fast].
+
+
+```r
+glmm_fit = CytoGLMM::cytoglmm(df_samples_subset,
+                              protein_names = protein_names,
+                              condition = "term", group = "donor")
+```
+
+```
+## Error in pull(df_samples_subset, group): object 'df_samples_subset' not found
+```
+
+```r
+glmm_fit
+```
+
+```
+## Error in eval(expr, envir, enclos): object 'glmm_fit' not found
+```
+
+```r
+plot(glmm_fit)
+```
+
+```
+## Error in plot(glmm_fit): object 'glmm_fit' not found
+```
+
+```r
+summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
+```
+
+```
+## Error in h(simpleError(msg, call)): error in evaluating the argument 'object' in selecting a method for function 'summary': object 'glmm_fit' not found
+```
+
+Add pSTAT1, pSTAT3, and pSTAT5 into one marker.
+
+
+```r
+df_samples_subset %<>% mutate(pSTAT_sum = pSTAT1+pSTAT3+pSTAT5)
+```
+
+```
+## Error in mutate(., pSTAT_sum = pSTAT1 + pSTAT3 + pSTAT5): object 'df_samples_subset' not found
+```
+
+```r
+protein_names_sum = c(
+  "pSTAT_sum",
+  protein_names[!protein_names %in% c("pSTAT1","pSTAT3","pSTAT5")]
+)
+glmm_fit = CytoGLMM::cytoglmm(df_samples_subset,
+                              protein_names = protein_names_sum,
+                              condition = "term", group = "donor")
+```
+
+```
+## Error in pull(df_samples_subset, group): object 'df_samples_subset' not found
+```
+
+```r
+plot(glmm_fit)
+```
+
+```
+## Error in plot(glmm_fit): object 'glmm_fit' not found
+```
+
+```r
+summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
+```
+
+```
+## Error in h(simpleError(msg, call)): error in evaluating the argument 'object' in selecting a method for function 'summary': object 'glmm_fit' not found
+```
+
+Take differences between pSTAT1, pSTAT3, and pSTAT5.
+
+
+```r
+df_samples_subset %<>% mutate(pSTAT3_minus_pSTAT1 = pSTAT3-pSTAT1)
+```
+
+```
+## Error in mutate(., pSTAT3_minus_pSTAT1 = pSTAT3 - pSTAT1): object 'df_samples_subset' not found
+```
+
+```r
+df_samples_subset %<>% mutate(pSTAT5_minus_pSTAT1 = pSTAT5-pSTAT1)
+```
+
+```
+## Error in mutate(., pSTAT5_minus_pSTAT1 = pSTAT5 - pSTAT1): object 'df_samples_subset' not found
+```
+
+```r
+protein_names_diff = c(
+  "pSTAT3_minus_pSTAT1","pSTAT5_minus_pSTAT1",
+  protein_names[!protein_names %in% c("pSTAT3","pSTAT5")]
+)
+glmm_fit = CytoGLMM::cytoglmm(df_samples_subset,
+                              protein_names = protein_names_diff,
+                              condition = "term", group = "donor")
+```
+
+```
+## Error in pull(df_samples_subset, group): object 'df_samples_subset' not found
+```
+
+```r
+plot(glmm_fit)
+```
+
+```
+## Error in plot(glmm_fit): object 'glmm_fit' not found
+```
+
+```r
+summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
+```
+
+```
+## Error in h(simpleError(msg, call)): error in evaluating the argument 'object' in selecting a method for function 'summary': object 'glmm_fit' not found
+```
+
+Add interactions between pSTAT1, pSTAT3, and pSTAT5.
+
+
+```r
+df_samples_subset %<>% mutate(pSTAT_I15 = pSTAT1*pSTAT5)
+```
+
+```
+## Error in mutate(., pSTAT_I15 = pSTAT1 * pSTAT5): object 'df_samples_subset' not found
+```
+
+```r
+df_samples_subset %<>% mutate(pSTAT_I35 = pSTAT3*pSTAT5)
+```
+
+```
+## Error in mutate(., pSTAT_I35 = pSTAT3 * pSTAT5): object 'df_samples_subset' not found
+```
+
+```r
+df_samples_subset %<>% mutate(pSTAT_I13 = pSTAT1*pSTAT3)
+```
+
+```
+## Error in mutate(., pSTAT_I13 = pSTAT1 * pSTAT3): object 'df_samples_subset' not found
+```
+
+```r
+df_samples_subset %<>% mutate(pSTAT_I135 = pSTAT1*pSTAT3*pSTAT5)
+```
+
+```
+## Error in mutate(., pSTAT_I135 = pSTAT1 * pSTAT3 * pSTAT5): object 'df_samples_subset' not found
+```
+
+```r
+protein_names_interactions = c(protein_names,"pSTAT_I15","pSTAT_I35",
+                               "pSTAT_I13","pSTAT_I135")
+glmm_fit = CytoGLMM::cytoglmm(df_samples_subset,
+                              protein_names = protein_names_interactions,
+                              condition = "term", group = "donor")
+```
+
+```
+## Error in pull(df_samples_subset, group): object 'df_samples_subset' not found
+```
+
+```r
+plot(glmm_fit)
+```
+
+```
+## Error in plot(glmm_fit): object 'glmm_fit' not found
+```
+
+```r
+summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
+```
+
+```
+## Error in h(simpleError(msg, call)): error in evaluating the argument 'object' in selecting a method for function 'summary': object 'glmm_fit' not found
+```
+
+## Generalized Linear Model with Bootstrap
+
+Instead of modeling the donor effect, we can use bootstrap resampling. In our experience, this type of regression gives also good results when samples are not matched between conditions on the same donor.
+
+
+```r
+glm_fit = CytoGLMM::cytoglm(df_samples_subset,
+                            num_boot = 1000,
+                            protein_names = protein_names,
+                            condition = "term", group = "donor",
+                            num_cores = ncores)
+```
+
+```
+## Error in pull(df_samples_subset, group): object 'df_samples_subset' not found
+```
+
+```r
+glm_fit
+```
+
+```
+## Error in eval(expr, envir, enclos): object 'glm_fit' not found
+```
+
+```r
+plot(glm_fit)
+```
+
+```
+## Error in plot(glm_fit): object 'glm_fit' not found
+```
+
+```r
+summary(glm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
+```
+
+```
+## Error in h(simpleError(msg, call)): error in evaluating the argument 'object' in selecting a method for function 'summary': object 'glm_fit' not found
+```
+
+## Mixture of Regressions
+
+Fit a mixture of regression model to identity clusters of donors or outliers. This function is a wrapper around the package `flexmix` [@grun2007fitting].
+
+
+```r
+num_donors = nlevels(as.factor(df_samples_subset$donor))
+```
+
+```
+## Error in is.factor(x): object 'df_samples_subset' not found
+```
+
+```r
+mix_fit = CytoGLMM::cytoflexmix(df_samples_subset,
+                                protein_names = protein_names,
+                                condition = "term", group = "donor",
+                                ks = 1:num_donors,
+                                num_cores = ncores)
+```
+
+```
+## Error in pull(df_samples_subset, group): object 'df_samples_subset' not found
+```
+
+```r
+plot(mix_fit)
+```
+
+```
+## Error in plot(mix_fit): object 'mix_fit' not found
+```
+
+The plotting function automatically uses the BIC criterion to select the number of clusters. In this case, it picks 10 clusters.
+
+
+```r
+plot_model_selection(mix_fit)
+```
+
+```
+## Error in is(fit, "cytoflexmix"): object 'mix_fit' not found
+```
+
+# SummarizedExperiment
+
+We create a ``SummarizedExperiment`` object containing marker, sample table, and untransformed protein counts. This way we can store all the information of this experiment in one file and load it again in subsequent analyses.
+
+
+```r
+markers %<>% dplyr::filter(type != "none")
+d_combined = df_samples %>%
+  dplyr::select(markers$protein_name) %>%
+  dplyr::mutate_all(.funs = inv_func) %>%
+  dplyr::mutate_all(.funs = round) %>%
+  as.matrix
+```
+
+```
+## Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'as.matrix': object 'df_samples' not found
+```
+
+```r
+row_data = df_samples %>%
+  dplyr::select(sample_info_names) %>%
+  as.data.frame
+```
+
+```
+## Error in dplyr::select(., sample_info_names): object 'df_samples' not found
+```
+
+```r
+col_data = markers %>% as.data.frame
+se_aghaeepour2017immune = SummarizedExperiment(
+  assays = list(exprs = d_combined),
+  colData = col_data,
+  rowData = row_data
+)
+```
+
+```
+## Error in SummarizedExperiment(assays = list(exprs = d_combined), colData = col_data, : could not find function "SummarizedExperiment"
+```
+
+```r
+save(se_aghaeepour2017immune, file = "se_aghaeepour2017immune.Rdata")
+```
+
+```
+## Error in save(se_aghaeepour2017immune, file = "se_aghaeepour2017immune.Rdata"): object 'se_aghaeepour2017immune' not found
+```
+
+# Session Info {.unnumbered}
+
+
+```r
+sessionInfo()
+```
+
+```
+## R version 4.0.4 (2021-02-15)
+## Platform: x86_64-apple-darwin17.0 (64-bit)
+## Running under: macOS Big Sur 10.16
+## 
+## Matrix products: default
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+## 
+## attached base packages:
+## [1] parallel  stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+##  [1] lme4_1.1-26        Matrix_1.3-2       RColorBrewer_1.1-2 scales_1.1.1       magrittr_2.0.1    
+##  [6] forcats_0.5.1      stringr_1.4.0      dplyr_1.0.5        purrr_0.3.4        readr_1.4.0       
+## [11] tidyr_1.1.3        tibble_3.1.0       ggplot2_3.3.3      tidyverse_1.3.0    CytoGLMM_0.99.3   
+## [16] Rcpp_1.0.6        
+## 
+## loaded via a namespace (and not attached):
+##  [1] nlme_3.1-152         fs_1.5.0             lubridate_1.7.10     doParallel_1.0.16    httr_1.4.2          
+##  [6] tools_4.0.4          backports_1.2.1      utf8_1.1.4           R6_2.5.0             rpart_4.1-15        
+## [11] DBI_1.1.1            colorspace_2.0-0     nnet_7.3-15          withr_2.4.1          tidyselect_1.1.0    
+## [16] compiler_4.0.4       cli_2.3.1            rvest_1.0.0          factoextra_1.0.7     logging_0.10-108    
+## [21] xml2_1.3.2           sandwich_3.0-0       speedglm_0.3-3       minqa_1.2.4          pkgconfig_2.0.3     
+## [26] dbplyr_2.1.0         readxl_1.3.1         rlang_0.4.10         rstudioapi_0.13      farver_2.1.0        
+## [31] generics_0.1.0       zoo_1.8-9            jsonlite_1.7.2       BiocParallel_1.24.1  ModelMetrics_1.2.2.2
+## [36] modeltools_0.2-23    mbest_0.6            munsell_0.5.0        fansi_0.4.2          abind_1.4-5         
+## [41] lifecycle_1.0.0      stringi_1.5.3        pROC_1.17.0.1        MASS_7.3-53.1        flexmix_2.3-17      
+## [46] plyr_1.8.6           recipes_0.1.15       grid_4.0.4           strucchange_1.5-2    ggrepel_0.9.1       
+## [51] bigmemory.sri_0.1.3  crayon_1.4.1         lattice_0.20-41      haven_2.3.1          cowplot_1.1.1       
+## [56] splines_4.0.4        hms_1.0.0            knitr_1.31           pillar_1.5.1         boot_1.3-27         
+## [61] reshape2_1.4.4       codetools_0.2-18     stats4_4.0.4         reprex_1.0.0         glue_1.4.2          
+## [66] evaluate_0.14        data.table_1.14.0    modelr_0.1.8         vctrs_0.3.6          nloptr_1.2.2.2      
+## [71] foreach_1.5.1        cellranger_1.1.0     gtable_0.3.0         assertthat_0.2.1     xfun_0.22           
+## [76] gower_0.2.2          prodlim_2019.11.13   broom_0.7.5          class_7.3-18         survival_3.2-7      
+## [81] timeDate_3043.102    pheatmap_1.0.12      iterators_1.0.13     lava_1.6.9           statmod_1.4.35      
+## [86] bigmemory_4.5.36     ellipsis_0.3.1       caret_6.0-86         ipred_0.9-11
+```
+
+# References {.unnumbered}
