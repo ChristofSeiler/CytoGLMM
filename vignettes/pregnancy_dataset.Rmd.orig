@@ -28,7 +28,7 @@ Install [R](https://www.r-project.org/) and [RStudio](https://www.rstudio.com/).
 pkgs_needed = c("devtools","tidyverse","magrittr","FlowRepositoryR",
                 "flowCore","openCyto","scales","parallel",
                 "RColorBrewer","ggcorrplot","SummarizedExperiment",
-                "lme4","lmerTest")
+                "lme4","lmerTest","ncdfFlow","flowWorkspace","ggcyto")
 letsinstall = setdiff(pkgs_needed, installed.packages())
 if (length(letsinstall) > 0) {
   BiocManager::install(letsinstall)
@@ -55,6 +55,9 @@ library("ggcorrplot")
 library("SummarizedExperiment")
 library("lme4")
 library("lmerTest")
+library("ncdfFlow")
+library("flowWorkspace")
+library("ggcyto")
 ```
 
 Set plotting style and assign computational resources.
@@ -211,7 +214,7 @@ nodes_select = nodes_all[!nodes_all %in% nodes_exclude]
 df_samples = lapply(nodes_select, function(celltype) {
   fset = gs_pop_get_data(gs, celltype)
   lapply(seq(fset), function(sample_id) {
-    marker_ids = which(fset@origColnames %in% markers$isotope)
+    marker_ids = which(colnames(fset) %in% markers$isotope)
     exprs = as_tibble(exprs(fset[[sample_id]]))[,marker_ids]
     file_name = pData(fset[sample_id])$file_name
     exprs %>% add_column(file_name, celltype)
