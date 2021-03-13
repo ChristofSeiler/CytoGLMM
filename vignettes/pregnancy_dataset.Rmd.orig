@@ -34,8 +34,6 @@ if (length(letsinstall) > 0) {
   BiocManager::install(letsinstall)
 }
 devtools::install_github("ChristofSeiler/CytoGLMM")
-# Bioconductor version breaks when updating to ggplot2 v3.0
-devtools::install_github("RGLab/ggcyto", ref="trunk")
 ```
 
 Load packages.
@@ -138,13 +136,17 @@ gt_aghaeepour = gatingTemplate("gating_template.csv")
 plot(gt_aghaeepour)
 gt_gating(gt_aghaeepour, gs, mc.cores = ncores, parallel_type = "multicore")
 # rename some subsets
-gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4+CD8a-/CD45RA+",
+gs_pop_set_name(gs,
+                "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4+CD8a-/CD45RA+",
                 "CD4+Tnaive") %>% invisible
-gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4+CD8a-/CD45RA-",
+gs_pop_set_name(gs,
+                "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4+CD8a-/CD45RA-",
                 "CD4+Tmem") %>% invisible
-gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4-CD8a+/CD45RA+",
+gs_pop_set_name(gs,
+                "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4-CD8a+/CD45RA+",
                 "CD8+Tnaive") %>% invisible
-gs_pop_set_name(gs, "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4-CD8a+/CD45RA-",
+gs_pop_set_name(gs,
+                "/singlet/leukocyte/mononuclear/CD3+CD19-/CD4-CD8a+/CD45RA-",
                 "CD8+Tmem") %>% invisible
 gs_pop_set_name(gs, "CD3-CD19+", "B") %>% invisible
 gs_pop_set_name(gs, "CD3+CD19-", "T") %>% invisible
