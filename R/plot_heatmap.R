@@ -6,6 +6,7 @@
 #' @importFrom stats median
 #' @importFrom pheatmap pheatmap
 #' @importFrom grDevices colorRampPalette
+#' @importFrom rlang .data
 #' @export
 #'
 #' @param df_samples Data frame or tibble with proteins counts,
@@ -38,10 +39,10 @@ plot_heatmap <- function(df_samples,
                          fun = median) {
     expr_median <- df_samples %>%
       group_by(.dots = sample_info_names) %>%
-      summarise_at(protein_names,fun) %>%
-      arrange_(arrange_by_1) %>%
+      summarise_at(protein_names, fun) %>%
+      arrange(.data[[arrange_by_1]]) %>%
       as.data.frame
-    if(nchar(arrange_by_2) > 0) expr_median %<>% arrange_(arrange_by_2)
+    if(nchar(arrange_by_2) > 0) expr_median %<>% arrange(.data[[arrange_by_2]])
     df_expr_median <- as.data.frame(expr_median[,protein_names])
     rownames(df_expr_median) <- seq_len(nrow(expr_median))
     col_names <- arrange_by_1
