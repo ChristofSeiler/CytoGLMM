@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">CytoGLMM</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.4</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -109,7 +109,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/ChristofSeiler/CytoGLMM/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -135,7 +135,7 @@
     <p>Generate dataset for vignettes and simulation studies</p>
     </div>
 
-    <pre class="usage"><span class='fu'>generate_data</span>()</pre>
+    <pre class="usage"><span class='fu'>generate_data</span><span class='op'>(</span><span class='op'>)</span></pre>
 
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -143,9 +143,10 @@
     <p><code><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></code> data frame</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>23</span>)
-<span class='no'>df</span> <span class='kw'>=</span> <span class='fu'>generate_data</span>()
-<span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span>(<span class='no'>df</span>)</div><div class='output co'>#&gt; tibble [16,000 × 12] (S3: tbl_df/tbl/data.frame)
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>23</span><span class='op'>)</span>
+<span class='va'>df</span> <span class='op'>&lt;-</span> <span class='fu'>generate_data</span><span class='op'>(</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='va'>df</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; tibble [16,000 × 12] (S3: tbl_df/tbl/data.frame)
 #&gt;  $ donor    : int [1:16000] 1 1 1 1 1 1 1 1 1 1 ...
 #&gt;  $ condition: Factor w/ 2 levels "control","treatment": 2 2 2 2 2 2 2 2 2 2 ...
 #&gt;  $ m01      : int [1:16000] 2 0 1 6 18 1 24 1 2 2 ...
@@ -157,20 +158,21 @@
 #&gt;  $ m07      : int [1:16000] 56 39 7 30 10 26 26 11 51 39 ...
 #&gt;  $ m08      : int [1:16000] 60 11 6 19 5 29 33 28 194 104 ...
 #&gt;  $ m09      : int [1:16000] 7 19 37 7 32 26 8 11 28 1 ...
-#&gt;  $ m10      : int [1:16000] 78 55 274 68 19 83 26 28 225 60 ...</div><div class='input'><span class='no'>df</span></div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 16,000 x 12</span><span>
+#&gt;  $ m10      : int [1:16000] 78 55 274 68 19 83 26 28 225 60 ...</div><div class='input'><span class='va'>df</span>
+</div><div class='output co'>#&gt; <span style='color: #949494;'># A tibble: 16,000 x 12</span><span>
 #&gt;    donor condition   m01   m02   m03   m04   m05   m06   m07   m08   m09   m10
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;fct&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>
-#&gt; </span><span style='color: #555555;'> 1</span><span>     1 treatment     2   127   116    17    17    17    56    60     7    78
-#&gt; </span><span style='color: #555555;'> 2</span><span>     1 treatment     0    96    54    29   169    32    39    11    19    55
-#&gt; </span><span style='color: #555555;'> 3</span><span>     1 treatment     1    14    52   182    26    12     7     6    37   274
-#&gt; </span><span style='color: #555555;'> 4</span><span>     1 treatment     6    20    34    21    42     3    30    19     7    68
-#&gt; </span><span style='color: #555555;'> 5</span><span>     1 treatment    18    30    15   139    22     4    10     5    32    19
-#&gt; </span><span style='color: #555555;'> 6</span><span>     1 treatment     1    17    38   151    14     5    26    29    26    83
-#&gt; </span><span style='color: #555555;'> 7</span><span>     1 treatment    24   178    10     8   498    21    26    33     8    26
-#&gt; </span><span style='color: #555555;'> 8</span><span>     1 treatment     1    83    16    59    85     2    11    28    11    28
-#&gt; </span><span style='color: #555555;'> 9</span><span>     1 treatment     2    24    48    13    27    17    51   194    28   225
-#&gt; </span><span style='color: #555555;'>10</span><span>     1 treatment     2    39    13     4    36    28    39   104     1    60
-#&gt; </span><span style='color: #555555;'># … with 15,990 more rows</span><span></div></span></pre>
+#&gt;    </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;fct&gt;</span><span>     </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span>
+#&gt; </span><span style='color: #BCBCBC;'> 1</span><span>     1 treatment     2   127   116    17    17    17    56    60     7    78
+#&gt; </span><span style='color: #BCBCBC;'> 2</span><span>     1 treatment     0    96    54    29   169    32    39    11    19    55
+#&gt; </span><span style='color: #BCBCBC;'> 3</span><span>     1 treatment     1    14    52   182    26    12     7     6    37   274
+#&gt; </span><span style='color: #BCBCBC;'> 4</span><span>     1 treatment     6    20    34    21    42     3    30    19     7    68
+#&gt; </span><span style='color: #BCBCBC;'> 5</span><span>     1 treatment    18    30    15   139    22     4    10     5    32    19
+#&gt; </span><span style='color: #BCBCBC;'> 6</span><span>     1 treatment     1    17    38   151    14     5    26    29    26    83
+#&gt; </span><span style='color: #BCBCBC;'> 7</span><span>     1 treatment    24   178    10     8   498    21    26    33     8    26
+#&gt; </span><span style='color: #BCBCBC;'> 8</span><span>     1 treatment     1    83    16    59    85     2    11    28    11    28
+#&gt; </span><span style='color: #BCBCBC;'> 9</span><span>     1 treatment     2    24    48    13    27    17    51   194    28   225
+#&gt; </span><span style='color: #BCBCBC;'>10</span><span>     1 treatment     2    39    13     4    36    28    39   104     1    60
+#&gt; </span><span style='color: #949494;'># … with 15,990 more rows</span><span></div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -186,7 +188,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
