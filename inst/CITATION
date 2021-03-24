@@ -10,12 +10,15 @@ citEntry(
     person(given = "Elena", family = "Vendrame"),
     person(given = "Catherine", family = "Blish", middle = "A"),
     person(given = "Susan", family = "Holmes")),
-  title = "CytoGLMM: Conditional Differential Analysis for Flow and Mass Cytometry Experiments",
-  journal = "bioRxiv (2020): 2020.12.09.417584",
-  year = 2020,
+  title = {CytoGLMM: Conditional Differential Analysis for Flow and Mass Cytometry Experiments},
+  journal = {BMC Bioinformatics},
+  volume = {22},
+  number = {137},
+  pages = {1--13},
+  year = {2021},
   textVersion = paste(
-    "Christof Seiler, Anne-Maud Ferreira, Lisa M. Kronstad, Laura J. Simpson, Mathieu Le Gars, Elena Vendrame, Catherine A. Blish, and Susan Holmes,",
+    "C. Seiler, AM. Ferreira, L.M. Kronstad, L.J. Simpson, M. Le Gars, E. Vendrame, C.A. Blish, and S. Holmes,",
     "CytoGLMM: Conditional Differential Analysis for Flow and Mass Cytometry Experiments,",
-    "bioRxiv (2020): 2020.12.09.417584"
+    "BMC Bioinformatics 22, 137 (2021)"
   )
 )
