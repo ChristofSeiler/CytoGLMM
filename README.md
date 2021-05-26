@@ -18,6 +18,8 @@ BiocManager::install("CytoGLMM")
 and GitHub:
 
 ``` r
-install.packages("devtools")
+if (!requireNamespace("devtools", quietly = TRUE))
+    install.packages("devtools")
+
 devtools::install_github("ChristofSeiler/CytoGLMM")
 ```
