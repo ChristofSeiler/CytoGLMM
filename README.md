@@ -6,7 +6,7 @@ The CytoGLMM R package implements two multiple regression strategies: A bootstra
 
 ## Installation
 
-Our R package is available from [Bioconductor](https://bioconductor.org/packages/CytoGLMM):
+Our R package is available on [Bioconductor](https://bioconductor.org/packages/CytoGLMM):
 
 ```	r
 if (!requireNamespace("BiocManager", quietly = TRUE))
