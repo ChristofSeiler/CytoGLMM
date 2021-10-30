@@ -1,0 +1,8 @@
+pandoc: 2.11.4
+pkgdown: 1.6.1
+pkgdown_sha: ~
+articles:
+  CytoGLMM: CytoGLMM.html
+  pregnancy_dataset: pregnancy_dataset.html
+last_built: 2021-10-30T09:41Z
+
