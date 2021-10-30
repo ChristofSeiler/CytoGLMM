@@ -1,7 +1,7 @@
 Package: CytoGLMM
 Type: Package
 Title: Conditional Differential Analysis for Flow and Mass Cytometry Experiments
-Version: 1.1.0
+Version: 1.3.0
 Authors@R: c(
     person("Christof", "Seiler", , "christof.seiler@maastrichtuniversity.nl", 
     role = c("aut", "cre"), 
