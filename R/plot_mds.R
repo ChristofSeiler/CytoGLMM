@@ -36,7 +36,7 @@ plot_mds <- function(df_samples,
 
   # compute median marker expression
   expr_median <- df_samples %>%
-    group_by(.dots = sample_info_names) %>%
+    group_by(across(all_of(sample_info_names))) %>%
     summarise_at(protein_names,median) %>%
     as.data.frame
   dist_matrix <- dist(expr_median[,-seq(sample_info_names)])
@@ -52,7 +52,7 @@ plot_mds <- function(df_samples,
   protein_selection <- protein_names[protein_sd != 0]
   # correlations between variables and MDS axes
   expr_cor <- cor(expr_median[,protein_selection],
-                  expr_median[,c("MDS1","MDS2")]) %>% as.tibble
+                  expr_median[,c("MDS1","MDS2")]) %>% as_tibble
   expr_cor %<>% add_column(protein_selection)
   # add arrows coordinates
   expr_cor %<>% add_column(x0 = rep(0,nrow(expr_cor)))

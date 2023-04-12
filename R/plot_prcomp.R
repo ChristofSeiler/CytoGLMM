@@ -33,7 +33,7 @@ plot_prcomp <- function(df_samples,
                         repel = TRUE) {
   n <- min(table(df_samples[,color_var]),subsample_size)
   by_variable <- df_samples %>%
-    group_by_(color_var) %>%
+    group_by({{ color_var }}) %>%
     sample_n(n) %>%
     ungroup %>%
     as.data.frame

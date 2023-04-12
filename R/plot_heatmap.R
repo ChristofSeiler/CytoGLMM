@@ -38,7 +38,7 @@ plot_heatmap <- function(df_samples,
                          cluster_cols = FALSE,
                          fun = median) {
     expr_median <- df_samples %>%
-      group_by(.dots = sample_info_names) %>%
+      group_by(across(all_of(sample_info_names))) %>%
       summarise_at(protein_names, fun) %>%
       arrange(.data[[arrange_by_1]]) %>%
       as.data.frame

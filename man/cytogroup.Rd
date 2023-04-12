@@ -30,7 +30,7 @@ analysis}
 }
 \value{
 A list of class \code{cytoglm} containing
-  \item{groupfit}{\code{\link[speedglm]{speedglm}} object}
+  \item{groupfit}{\code{\link[glm]{glm}} object}
   \item{df_samples_subset}{possibly subsampled df_samples_subset table}
   \item{protein_names}{input protein names}
   \item{condition}{input condition variable}

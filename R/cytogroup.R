@@ -2,7 +2,6 @@
 #'
 #' @import magrittr
 #' @importFrom stats binomial
-#' @importFrom speedglm speedglm
 #' @importFrom caret class2ind
 #' @export
 #'
@@ -16,7 +15,7 @@
 #' @param cell_n_subsample Subsample samples to have this maximum cell count
 #'
 #' @return A list of class \code{cytoglm} containing
-#'   \item{groupfit}{\code{\link[speedglm]{speedglm}} object}
+#'   \item{groupfit}{\code{\link[glm]{glm}} object}
 #'   \item{df_samples_subset}{possibly subsampled df_samples_subset table}
 #'   \item{protein_names}{input protein names}
 #'   \item{condition}{input condition variable}
@@ -70,17 +69,15 @@ cytogroup <- function(df_samples_subset,
   df_samples_subset %<>% mutate_at(.vars = group,.funs = as.factor)
   donor_dummy <- class2ind(pull(df_samples_subset,group))
   colnames(donor_dummy) <- paste0("X",colnames(donor_dummy))
-  df_samples_subset %<>% bind_cols(as.tibble(donor_dummy))
+  df_samples_subset %<>% bind_cols(as_tibble(donor_dummy))
   pnames <- paste(protein_names, collapse = " + ")
   dnames <- paste(colnames(donor_dummy), collapse = " + ")
   formula_str <- paste0(condition," ~ (",pnames,") * (",dnames,")")
 
   # logistic regression
-  #test <- model.matrix(as.formula(formula_str), df_samples_subset)
-  # another option is gpuGlm from package gputools (issues with installation)
-  groupfit <- speedglm(formula = formula_str,
-                       family = binomial(),
-                       data = df_samples_subset)
+  groupfit <- glm(formula = formula_str,
+                  family = binomial(),
+                  data = df_samples_subset)
 
   # return cytoglmm object
   fit <- NULL

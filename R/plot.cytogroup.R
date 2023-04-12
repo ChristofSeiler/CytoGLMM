@@ -59,7 +59,7 @@ plot.cytogroup <- function(x, order = FALSE, separate = FALSE, ...) {
   tb_coeff %<>%
     as.data.frame %>%
     rownames_to_column(var = "protein_name") %>%
-    as.tibble
+    as_tibble
   tb_coeff$Estimate %<>% as.character %>% as.numeric
   tb_coeff$`Std. Error` %<>% as.character %>% as.numeric
   tb_coeff$`z value` %<>% as.character %>% as.numeric
