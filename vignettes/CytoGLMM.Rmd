@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.retina 
 
 # Introduction
 
-Flow and mass cytometry are important modern immunology tools for measuring expression levels of multiple proteins on single cells. The goal is to better understand the mechanisms of responses on a single cell basis by studying differential expression of proteins. Most current data analysis tools compare expressions across many computationally discovered cell types. Our goal is to focus on just one cell type. Differential analysis of marker expressions can be difficult due to marker correlations and inter-subject heterogeneity, particularly for studies of human immunology. We address these challenges with two multiple regression strategies: A bootstrapped generalized linear model (GLM) and a generalized linear mixed model (GLMM). Here, we illustrate the `CytoGLMM` _R_ package and workflow for simulated mass cytometry data.
+Flow and mass cytometry are important modern immunology tools for measuring expression levels of multiple proteins on single cells. The goal is to better understand the mechanisms of responses on a single cell basis by studying differential expression of proteins. Most current data analysis tools compare expressions across many computationally discovered cell types. Our goal is to focus on just one cell type. Differential analysis of marker expressions can be difficult due to marker correlations and inter-subject heterogeneity, particularly for studies of human immunology. We address these challenges with a bootstrapped generalized linear model (GLM). Here, we illustrate the `CytoGLMM` _R_ package and workflow for simulated mass cytometry data.
 
 # Prepare Simulated Data
 
@@ -63,22 +63,21 @@ where $\Omega_{rs}$ is the $r$th row and $s$th column of the correlation matrix 
 
 ```{r simulated_data}
 library("CytoGLMM")
-library("magrittr")
 set.seed(23)
-df = generate_data()
+df <- generate_data()
 df[1:5,1:5]
 ```
 
 We define the marker names that we will focus on in our analysis by extracting them from the simulated data frame.
 
 ```{r protein_names}
-protein_names = names(df)[3:12]
+protein_names <- names(df)[3:12]
 ```
 
 We recommend that marker expressions be corrected for batch effects [@nowicka2017cytof; @chevrier2018compensation; @schuyler2019minimizing; @van2020cytonorm; @trussart2020removing] and transformed using variance stabilizing transformations to account for heteroskedasticity, for instance with an inverse hyperbolic sine transformation with the cofactor set to 150 for flow cytometry, and 5 for mass cytometry [@bendall2011single]. This transformation assumes a two-component model for the measurement error [@rocke1995two; @huber2003parameter] where small counts are less noisy than large counts. Intuitively, this corresponds to a noise model with additive and multiplicative noise depending on the magnitude of the marker expression; see [@holmes2019modern] for details.
 
 ```{r transform}
-df %<>% dplyr::mutate_at(protein_names, function(x) asinh(x/5))
+df <- dplyr::mutate_at(df, protein_names, function(x) asinh(x/5))
 ```
 
 # GLM
@@ -86,16 +85,16 @@ df %<>% dplyr::mutate_at(protein_names, function(x) asinh(x/5))
 The goal of the `CytoGLMM::cytoglm` function is to find protein expression patterns that are associated with the condition of interest, such as a response to a stimulus. We set up the GLM to predict the experimental condition (`condition`) from protein marker expressions (`protein_names`), thus our experimental conditions are response variables and marker expressions are explanatory variables.
 
 ```{r glm_fit}
-glm_fit = CytoGLMM::cytoglm(df,
-                            protein_names = protein_names,
-                            condition = "condition",
-                            group = "donor",
-                            num_cores = 1,
-                            num_boot = 1000)
+glm_fit <- CytoGLMM::cytoglm(df,
+                             protein_names = protein_names,
+                             condition = "condition",
+                             group = "donor",
+                             num_cores = 1,
+                             num_boot = 1000)
 glm_fit
 ```
 
-We plot the maximum likelihood estimates with 95\% confidence intervals for the fixed effects $\boldsymbol{\beta}$. The estimates are on the $\log$-odds scale. We see that markers m1, m2, and m3 are strong predictors of the treatment. This means that one unit increase in the transformed marker expression makes it more likely to be a cell from the treatment group, while holding the other markers constant.
+We plot the maximum likelihood estimates with 95\% confidence intervals for the fixed effects $\boldsymbol{\beta}$. The estimates are on the $\log$-odds scale. We see that markers m1, m2, and m3 are potential predictors of the treatment. This means that one unit increase in the transformed marker expression makes it more likely to be a cell from the treatment group, while holding the other markers constant.
 
 ```{r glm_plot}
 plot(glm_fit)
@@ -107,46 +106,11 @@ The `summary` function returns a table about the model fit with unadjusted and B
 summary(glm_fit)
 ```
 
-We can extract the proteins below an False Discovery Rate (FDR) of 0.05 from the $p$-value table by filtering the table.
+We can extract the proteins below an False Discovery Rate (FDR) of $0.1$ from the $p$-value table by filtering the table.
 
 ```{r glm_p_values}
-summary(glm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
+summary(glm_fit) |> dplyr::filter(pvalues_adj < 0.1)
 ```
-
-In this simulated dataset, the markers m2 and m3 are below an FDR of 0.05.
-
-# GLMM
-
-In the `CytoGLMM::cytoglmm` function, we make additional modeling assumptions by adding a random effect term in the standard logistic regression model to account for the subject effect (`group`). In paired experimental design---when the same donor provides two samples, one for each condition---`CytoGLMM::cytoglmm` is statistically more powerful.
-
-```{r glmm_fit}
-glmm_fit = CytoGLMM::cytoglmm(df,
-                              protein_names = protein_names,
-                              condition = "condition",
-                              group = "donor",
-                              num_cores = 1)
-glmm_fit
-```
-
-We plot the method of moments estimates with 95\% confidence intervals for the fixed effects $\boldsymbol{\beta}$.
-
-```{r glmm_plot}
-plot(glmm_fit)
-```
-
-The `summary` function returns a table about the model fit with unadjusted and BH adjusted $p$-values.
-
-```{r glmm_summarize}
-summary(glmm_fit)
-```
-
-We can extract the proteins below an FDR of 0.05 from the $p$-value table by filtering the table.
-
-```{r glmm_p_values}
-summary(glmm_fit) %>% dplyr::filter(pvalues_adj < 0.05)
-```
-
-In this simulated dataset, the markers m1, m2 and m3 are below an FDR of 0.05. This illustrates the improved power for paired samples as `CytoGLMM::cytoglmm` correctly detects all three differentially expressed proteins. We performed extensive power simulations and comparisons to other methods in @seiler2021cytoglmm.
 
 # Session Info {.unnumbered}
 
