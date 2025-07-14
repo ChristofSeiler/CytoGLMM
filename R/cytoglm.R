@@ -88,7 +88,7 @@ cytoglm <- function(df_samples_subset,
   # bootstrap
   bs <- function(i) {
     # bootstrap sample
-    df_boot = df_samples_subset
+    df_boot <- df_samples_subset
     df_boot %<>% group_by(.data[[ group ]], .data[[ condition ]])
     df_boot %<>% slice_sample(prop = 1, replace = TRUE)
     if(!unpaired) {

@@ -25,8 +25,8 @@ print.cytoglmm <- function(x, ...) {
     stop("Input needs to be a cytoglmm object computed by cytoglmm function.")
 
   cat("number of cells per group and condition:")
-  cell_count = table(pull(x$df_samples_subset,x$group),
-                     pull(x$df_samples_subset,x$condition))
+  cell_count <- table(pull(x$df_samples_subset,x$group),
+                      pull(x$df_samples_subset,x$condition))
   print(cell_count)
 
   cat("\nproteins included in the analysis:\n",x$protein_names,"\n\n")

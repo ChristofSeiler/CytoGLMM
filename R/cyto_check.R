@@ -6,7 +6,7 @@
 #'   analysis
 #' @return NULL.
 #'
-cyto_check = function(cell_n_subsample,
+cyto_check <- function(cell_n_subsample,
                       cell_n_min,
                       protein_names) {
 

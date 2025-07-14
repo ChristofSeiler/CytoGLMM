@@ -25,19 +25,19 @@
 #'                               condition = "condition",
 #'                               group = "donor")
 #' summary(glmm_fit)
-summary.cytoglmm = function(object, method = "BH", ...) {
+summary.cytoglmm <- function(object, method = "BH", ...) {
 
   if(!is(object, "cytoglmm"))
     stop("Input needs to be a cytoglmm object computed by cytoglmm function.")
 
-  pvalues_unadj = summary(object$glmmfit)$coefficients[-1,4]
-  pvalues_adj = p.adjust(pvalues_unadj,method = method)
-  df_pvalues = tibble(protein_name = names(pvalues_unadj),
-                      pvalues_unadj,
-                      pvalues_adj)
-  df_pvalues$protein_name = as.character(df_pvalues$protein_name)
-  df_pvalues = df_pvalues[order(df_pvalues$pvalues_unadj),]
-  rownames(df_pvalues) = NULL
+  pvalues_unadj <- summary(object$glmmfit)$coefficients[-1,4]
+  pvalues_adj <- p.adjust(pvalues_unadj,method = method)
+  df_pvalues <- tibble(protein_name = names(pvalues_unadj),
+                       pvalues_unadj,
+                       pvalues_adj)
+  df_pvalues$protein_name <- as.character(df_pvalues$protein_name)
+  df_pvalues <- df_pvalues[order(df_pvalues$pvalues_unadj),]
+  rownames(df_pvalues) <- NULL
   df_pvalues
 
 }

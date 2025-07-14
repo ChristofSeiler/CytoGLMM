@@ -34,8 +34,8 @@ print.cytoglm <- function(x, ...) {
   cat("\n#######################\n\n")
   cat("number of bootstrap samples:",x$num_boot,"\n\n")
   cat("number of cells per group and condition:")
-  cell_count = table(pull(x$df_samples_subset,x$group),
-                     pull(x$df_samples_subset,x$condition))
+  cell_count <- table(pull(x$df_samples_subset,x$group),
+                      pull(x$df_samples_subset,x$condition))
   print(cell_count)
 
   cat("\nproteins included in the analysis:\n",x$protein_names,"\n\n")
