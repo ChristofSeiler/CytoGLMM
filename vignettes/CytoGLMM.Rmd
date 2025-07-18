@@ -112,8 +112,6 @@ We can extract the proteins below an False Discovery Rate (FDR) of 0.1 from the 
 summary(glm_fit) |> dplyr::filter(pvalues_adj < 0.1)
 ```
 
-In this simulated dataset, none of the markers are below an FDR of 0.1.
-
 # GLMM
 
 In the `CytoGLMM::cytoglmm` function, we make additional modeling assumptions by adding a random effect term in the standard logistic regression model to account for the subject effect (`group`). In paired experimental design---when the same donor provides two samples, one for each condition---`CytoGLMM::cytoglmm` is statistically more powerful.
@@ -145,7 +143,7 @@ We can extract the proteins below an FDR of 0.1 from the $p$-value table by filt
 summary(glmm_fit) |> dplyr::filter(pvalues_adj < 0.1)
 ```
 
-In this simulated dataset, the markers m1, m2 and m3 are below an FDR of 0.1. This illustrates the improved power for paired samples as `CytoGLMM::cytoglmm` correctly detects all three differentially expressed proteins. We performed extensive power simulations and comparisons to other methods in @seiler2021cytoglmm.
+We performed extensive power simulations and comparisons to other methods in @seiler2021cytoglmm.
 
 # Session Info {.unnumbered}
 
